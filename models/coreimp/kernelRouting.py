@@ -1,0 +1,80 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import tensorflow as tf
+
+from models.core.routing import RoutingProcedure
+import models.core.variables as variables
+
+
+class KernelRouting(RoutingProcedure):
+
+    def __init__(
+            self,
+            kernel,
+            metric,
+            iterations,
+            name="",
+            verbose=False):
+        self._kernel = kernel
+
+        super(KernelRouting, self).__init__(
+            "KernelRouting/" + name,
+            metric,
+            iterations,
+            None,
+            verbose)
+
+    def _compatibility(self, s, r, votes, poses, probabilities, it):
+        ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
+        ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
+        ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+
+        poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
+        ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+
+        alpha = variables.weight_variable([1], name="alpha")
+
+        r = alpha * self._kernel.take(poses_tiled, votes)
+        return r, s
+
+    def _activation(self, s, c, votes, poses):
+        ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
+        ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
+        ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+
+        raw = tf.reduce_sum(tf.multiply(c, self.metric.take(votes - poses)), axis=-3, keepdims=True)
+
+        ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
+
+        theta1 = variables.weight_variable([1], name="theta1")
+        theta2 = variables.bias_variable([1], name="theta2")
+
+        activation = tf.sigmoid(theta1 * raw + theta2)
+        ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
+
+        return activation
+
+    def _initial_coefficients(self, r, activations):
+        return tf.ones(activations.shape.as_list() + [1,1], dtype= tf.float32) / activations.shape.as_list()[-1]
+
+
+class KernelRoutingWithPrior(KernelRouting):
+
+    def __init__(
+            self,
+            kernel,
+            name,
+            metric,
+            iterations,
+            verbose=False):
+        super(KernelRoutingWithPrior, self).__init__(
+            kernel,
+            name,
+            metric,
+            iterations,
+            verbose)
+
+    def _initial_coefficients(self, r, activations):
+        return activations
