@@ -2,9 +2,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import abc
+
 import tensorflow as tf
 
-import abc
 
 class Transform(object):
     """
@@ -13,14 +14,13 @@ class Transform(object):
     __metaclass__ = abc.ABCMeta
 
     def __init__(
-        self,
-        name,
-        output_atoms,
-        verbose = False):
-        self._verbose=verbose
+            self,
+            name,
+            output_atoms,
+            verbose=False):
+        self._verbose = verbose
         self._output_atoms = output_atoms
         self.name = name
-
 
     def translate(self, poses, activations):
         with tf.name_scope('Transform/' + self.name) as scope:

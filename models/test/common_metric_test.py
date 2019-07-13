@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from models.coreimp.commonMetrics import SquaredFrobenius
+from coreimp.commonMetrics import SquaredFrobenius
 
 tf.compat.v1.enable_eager_execution()
 
@@ -19,4 +19,3 @@ test_result = norm.apply(test_tensor)
 
 print("got " + str(test_result))
 print("should have been " + str(4))
-

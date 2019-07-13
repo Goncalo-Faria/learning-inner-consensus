@@ -4,9 +4,8 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from models.core.routing import RoutingProcedure
-import models.core.variables as variables
-
+from core.routing import RoutingProcedure
+from core.variables import weight_variable, bias_variable
 
 class KernelRouting(RoutingProcedure):
 
@@ -34,7 +33,7 @@ class KernelRouting(RoutingProcedure):
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        alpha = variables.weight_variable([1], name="alpha")
+        alpha = weight_variable([1], name="alpha")
 
         r = alpha * self._kernel.take(poses_tiled, votes)
         return r, s
@@ -48,8 +47,8 @@ class KernelRouting(RoutingProcedure):
 
         ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
 
-        theta1 = variables.weight_variable([1], name="theta1")
-        theta2 = variables.bias_variable([1], name="theta2")
+        theta1 = weight_variable([1], name="theta1")
+        theta2 = bias_variable([1], name="theta2")
 
         activation = tf.sigmoid(theta1 * raw + theta2)
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
@@ -57,7 +56,7 @@ class KernelRouting(RoutingProcedure):
         return activation
 
     def _initial_coefficients(self, r, activations):
-        return tf.ones(activations.shape.as_list() + [1,1], dtype= tf.float32) / activations.shape.as_list()[-1]
+        return tf.ones(activations.shape.as_list() + [1, 1], dtype=tf.float32) / activations.shape.as_list()[-1]
 
 
 class KernelRoutingWithPrior(KernelRouting):

@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from models.coreimp.commonKernels import DotProd, Poly
+from coreimp.commonKernels import DotProd, Poly
 
 tf.compat.v1.enable_eager_execution()
 
@@ -24,4 +24,4 @@ print("should have been " + str(4))
 test_result = poly_test.apply(test_tensor, test_tensor)
 
 print("got " + str(test_result))
-print("should have been " + str(5**4))
+print("should have been " + str(5 ** 4))
