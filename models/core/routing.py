@@ -33,6 +33,9 @@ class RoutingProcedure(object):
         assert isinstance(metric, Metric), \
             " metric must be instance of Metric metaclass. "
 
+        assert isinstance(metric, Metric), \
+            " metric must be instance of Metric metaclass. "
+
     @abc.abstractmethod
     def _compatibility(self, s, r, votes, poses, probabilities, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
