@@ -2,9 +2,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import abc
+
 import tensorflow as tf
 
-import abc
 
 class Kernel(object):
     """
@@ -13,10 +14,10 @@ class Kernel(object):
     __metaclass__ = abc.ABCMeta
 
     def __init__(
-        self,
-        name,
-        verbose = False):
-        self._verbose=verbose
+            self,
+            name,
+            verbose=False):
+        self._verbose = verbose
         self.name = name
 
     @abc.abstractmethod
@@ -26,4 +27,4 @@ class Kernel(object):
 
     def take(self, a, b):
         with tf.name_scope('Kernel/' + self.name) as scope:
-            return self.apply(a,b)
+            return self.apply(a, b)

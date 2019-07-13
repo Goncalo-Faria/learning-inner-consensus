@@ -4,8 +4,10 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from models.core import variables
-from models.core.transform import Transform
+from core import variables
+from core.transform import Transform
+from core.metric import Metric
+
 
 class EquiTransform(Transform):
 
@@ -16,6 +18,9 @@ class EquiTransform(Transform):
             verbose=False,
             name=""):
         self.metric = metric
+
+        assert isinstance(metric, Metric), \
+            " metric must be instance of Metric metaclass. "
 
         super(EquiTransform, self).__init__(
             "EquiTransform/" + name,
