@@ -154,7 +154,6 @@ class CapsuleLayer(object):
 
             return higher_poses, higher_activations
 
-
 class FullyConnectedCapsuleLayer(CapsuleLayer):
     def __init__(
             self,
