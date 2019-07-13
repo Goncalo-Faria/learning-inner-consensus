@@ -28,6 +28,7 @@ class RoutingProcedure(object):
         self.name = name
         self.metric = metric
         self.atoms = 0
+        self._it=0
 
         assert isinstance(metric, Metric), \
             " metric must be instance of Metric metaclass. "
@@ -93,6 +94,8 @@ class RoutingProcedure(object):
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
             for it in range(self._iterations):
+                self._it = it
+
                 r, s = self.compatibility(s, r, votes, poses, probabilities, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
