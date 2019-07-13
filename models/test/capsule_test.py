@@ -12,12 +12,14 @@ test_layer = CapsuleLayer(
     routing = KernelRouting(
         kernel=DotProd(),
         metric=SquaredFrobenius(),
-        iterations=1,
-        name="fuzzykmeans"
+        iterations=10,
+        name="fuzzykmeans",
+        verbose=True
         ),
     transform=EquiTransform(
         output_atoms=2,
-        metric=SquaredFrobenius()
+        metric=SquaredFrobenius(),
+        verbose=False
         ),
     ksizes=[1,2,2,1],
     name="unitCapsule"

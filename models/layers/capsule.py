@@ -153,3 +153,50 @@ class CapsuleLayer(object):
                 " batch dimention must be perserved"
 
             return higher_poses, higher_activations
+
+class FullyConnectedCapsuleLayer(CapsuleLayer):
+    def __init__(
+            self,
+            routing,
+            transform,
+            name,
+          ):
+        super(FullyConnectedCapsuleLayer, self).__init__(
+            routing,
+            transform,
+            [1,1,1,1],
+            "FullyConnected/" + name)
+
+    def inference(self, input_tensor):
+        ## input_tensor == {batch, w, h, depth} + repdim, {batch, w, h, depth}
+
+        poses, activations = input_tensor
+
+        poses = tf.reshape(poses, [poses.shape[0], 1, 1, -1] + poses.shape[4:])
+        activations = tf.reshape( activations, [poses.shape[0], 1, 1, -1])
+
+        return super(FullyConnectedCapsuleLayer, self).inference((poses,activations))
+
+
+class CapsuleClassLayer(object):
+    def __init__(
+            self,
+            normalized=True,
+            name=""
+          ):
+        self._normalized = normalized
+        self.name = name
+
+    def inference(self, input_tensor):
+        ## input_tensor == {batch, w, h, depth} + repdim, {batch, w, h, depth}
+
+        with tf.name_scope('toClassLayer/' + self.name) as scope:
+            poses, activations = input_tensor
+
+            poses = tf.reshape(poses, [poses.shape[0], -1] + poses.shape[4:])
+            activations = tf.reshape( activations, [poses.shape[0], -1])
+
+            if self._normalized :
+                activations = tf.nn.softmax(activations, axis=-1)
+
+            return poses, activations

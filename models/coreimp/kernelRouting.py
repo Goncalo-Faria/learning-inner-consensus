@@ -43,7 +43,12 @@ class KernelRouting(RoutingProcedure):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        raw = tf.reduce_sum(tf.multiply(c, self.metric.take(votes - poses)), axis=-3, keepdims=True)
+        distance = self.metric.take(votes - poses)
+
+        if self._verbose:
+            tf.summary.histogram("distance_in:it:" + str(self._it), distance)
+
+        raw = tf.reduce_sum(tf.multiply(c, distance), axis=-3, keepdims=True)
 
         ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
 
