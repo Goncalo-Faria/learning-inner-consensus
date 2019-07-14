@@ -15,7 +15,7 @@ class CapsuleLayer(object):
             routing,
             transform,
             ksizes,
-            name,
+            name="",
             padding="VALID",
             strides=[1, 1, 1, 1]):
         self._routing = routing
@@ -26,13 +26,13 @@ class CapsuleLayer(object):
         self.name = name
         self._representation_dim = []
 
-        assert isinstance(routing, RoutingProcedure) , \
+        assert isinstance(routing, RoutingProcedure), \
             " Must include an adequate routing procedure. "
 
         assert isinstance(transform, Transform), \
             " Must include an adequate transformation. "
 
-        assert len(ksizes) == 4 , \
+        assert len(ksizes) == 4, \
             " ksizes must be length 4"
 
         assert len(strides) == 4, \
@@ -57,9 +57,9 @@ class CapsuleLayer(object):
 
         patched_poses = tf.extract_volume_patches(
             condensed_poses,
-            ksizes = [self._ksizes[0], 1] + self._ksizes[1:],
-            strides = [self._strides[0], 1] + self._strides[1:],
-            padding = self._padding
+            ksizes=[self._ksizes[0], 1] + self._ksizes[1:],
+            strides=[self._strides[0], 1] + self._strides[1:],
+            padding=self._padding,
         )
 
         patched_activations = tf.compat.v1.extract_image_patches(
@@ -67,7 +67,7 @@ class CapsuleLayer(object):
             ksizes=self._ksizes,
             strides=self._strides,
             padding=self._padding,
-            rates=[1,1,1,1]
+            rates=[1, 1, 1, 1]
         )
         ## patched_poses { batch, np.prod(repdim), new_w , new_h, depth * np.prod(ksizes) }
         ## patched_activations { batch, new_w , new_h, depth * np.prod(ksizes) }
@@ -91,13 +91,13 @@ class CapsuleLayer(object):
             input_tensor == {  batch, w , h , depth } + repdim , {batch, w, h,  depth }
             
         """
-        assert len(input_tensor) == 2,\
+        assert len(input_tensor) == 2, \
             "Input tensor must be a tuple of 2 elements."
 
-        assert len(input_tensor[0].shape.as_list()) == 6,\
+        assert len(input_tensor[0].shape.as_list()) == 6, \
             " pose must be a rank 6 tensor."
 
-        assert len(input_tensor[1].shape.as_list()) == 4,\
+        assert len(input_tensor[1].shape.as_list()) == 4, \
             " activations must be a rank 4 tensor."
 
         assert input_tensor[0].shape.as_list()[0] == input_tensor[1].shape.as_list()[0], \
@@ -154,17 +154,18 @@ class CapsuleLayer(object):
 
             return higher_poses, higher_activations
 
+
 class FullyConnectedCapsuleLayer(CapsuleLayer):
     def __init__(
             self,
             routing,
             transform,
-            name,
-          ):
+            name="",
+    ):
         super(FullyConnectedCapsuleLayer, self).__init__(
             routing,
             transform,
-            [1,1,1,1],
+            [1, 1, 1, 1],
             "FullyConnected/" + name)
 
     def inference(self, input_tensor):
@@ -172,18 +173,18 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
 
         poses, activations = input_tensor
 
-        poses = tf.reshape(poses, [poses.shape[0], 1, 1, -1] + poses.shape[4:])
-        activations = tf.reshape( activations, [poses.shape[0], 1, 1, -1])
+        poses = tf.reshape(poses, [poses.shape[0], 1, 1, -1] + poses.shape.as_list()[4:])
+        activations = tf.reshape(activations, [poses.shape[0], 1, 1, -1])
 
-        return super(FullyConnectedCapsuleLayer, self).inference((poses,activations))
+        return super(FullyConnectedCapsuleLayer, self).inference((poses, activations))
 
 
 class CapsuleClassLayer(object):
     def __init__(
             self,
-            normalized=True,
+            normalized=False,
             name=""
-          ):
+    ):
         self._normalized = normalized
         self.name = name
 
@@ -193,10 +194,57 @@ class CapsuleClassLayer(object):
         with tf.name_scope('toClassLayer/' + self.name) as scope:
             poses, activations = input_tensor
 
-            poses = tf.reshape(poses, [poses.shape[0], -1] + poses.shape[4:])
-            activations = tf.reshape( activations, [poses.shape[0], -1])
+            poses = tf.reshape(poses, [poses.shape[0], -1] + poses.shape.as_list()[4:])
+            activations = tf.reshape(activations, [poses.shape[0], -1])
 
-            if self._normalized :
+            if self._normalized:
                 activations = tf.nn.softmax(activations, axis=-1)
 
+            ## input_tensor == {batch, w*h* depth} + repdim, {batch, w * h * depth}
             return poses, activations
+
+
+class PrimaryCapsuleLayer(object):
+    def __init__(
+            self,
+            pose_dim,
+            ksize=[1, 1],
+            groups=10
+    ):
+        self._pose_dim = pose_dim
+        self._ksize = ksize
+        self._groups = groups
+
+    def inference(self, input_tensor):
+        ## input_tensor == {batch, w, h, depth}
+        conv_pose = tf.keras.layers.Conv2D(
+            filters=np.prod(self._pose_dim) * self._groups,
+            kernel_size=self._ksize,
+            activation='relu',
+            use_bias=True,
+            padding="SAME"
+        )
+
+        conv_activation = tf.keras.layers.Conv2D(
+            filters=self._groups,
+            kernel_size=self._ksize,
+            activation='sigmoid',
+            use_bias=True,
+            padding="SAME"
+        )
+
+        raw_poses = conv_pose(input_tensor)
+
+        activations = conv_activation(input_tensor)
+
+        raw_poses_shape = raw_poses.shape.as_list()
+
+        poses = tf.reshape(
+            raw_poses,
+            shape=raw_poses_shape[:3] + [self._groups] + self._pose_dim
+        )
+
+        ## pose == {batch, w, h, capsule_groups} + pose_dim
+        ## activation == {batch, w, h, capsule_groups}
+
+        return poses, activations

@@ -7,6 +7,7 @@ import tensorflow as tf
 from core.routing import RoutingProcedure
 from core.variables import weight_variable, bias_variable
 
+
 class KernelRouting(RoutingProcedure):
 
     def __init__(
