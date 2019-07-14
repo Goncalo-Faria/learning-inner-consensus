@@ -18,3 +18,18 @@ class SquaredFrobenius(Metric):
     def apply(self, a):
         ## a :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         return tf.reduce_sum(tf.pow(a, 2), axis=[-1, -2], keepdims=True)
+
+
+class Frobenius(SquaredFrobenius):
+
+    def __init__(
+            self,
+            epsilon = 10e-7):
+        self._epsilon = epsilon
+        super(Frobenius, self).__init__()
+
+    def apply(self, a):
+        ## a :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
+        sq = super(Frobenius, self).apply(a)
+
+        return tf.sqrt( sq + self._epsilon)

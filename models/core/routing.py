@@ -28,7 +28,7 @@ class RoutingProcedure(object):
         self.name = name
         self.metric = metric
         self.atoms = 0
-        self._it=0
+        self._it = 0
 
         assert isinstance(metric, Metric), \
             " metric must be instance of Metric metaclass. "
