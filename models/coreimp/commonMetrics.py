@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from core.metric import Metric
+from ..core.metric import Metric
 
 
 class SquaredFrobenius(Metric):
@@ -24,12 +24,12 @@ class Frobenius(SquaredFrobenius):
 
     def __init__(
             self,
-            epsilon = 10e-7):
+            epsilon = 1e-6):
         self._epsilon = epsilon
         super(Frobenius, self).__init__()
 
     def apply(self, a):
         ## a :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
-        sq = super(Frobenius, self).apply(a)
-
-        return tf.sqrt( sq + self._epsilon)
+        with tf.name_scope("Frobenius/"):
+            sq = super(Frobenius, self).apply(a)
+            return tf.sqrt( sq + self._epsilon)

@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from coreimp.commonKernels import DotProd, Poly
+from ..coreimp.commonKernels import DotProd, Poly
 
 tf.compat.v1.enable_eager_execution()
 

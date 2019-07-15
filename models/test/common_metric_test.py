@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from coreimp.commonMetrics import SquaredFrobenius
+from ..coreimp.commonMetrics import SquaredFrobenius
 
 tf.compat.v1.enable_eager_execution()
 

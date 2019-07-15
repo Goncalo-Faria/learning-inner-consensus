@@ -4,8 +4,8 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from core.routing import RoutingProcedure
-from core.variables import weight_variable, bias_variable
+from ..core.routing import RoutingProcedure
+from ..core.variables import weight_variable, bias_variable
 
 
 class KernelRouting(RoutingProcedure):
@@ -21,10 +21,10 @@ class KernelRouting(RoutingProcedure):
 
         super(KernelRouting, self).__init__(
             "KernelRouting/" + name,
-            metric,
-            iterations,
-            None,
-            verbose)
+            metric=metric,
+            design_iterations=iterations,
+            initial_state=None,
+            verbose=verbose)
 
     def _compatibility(self, s, r, votes, poses, probabilities, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim

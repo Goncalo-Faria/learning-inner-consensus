@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from coreimp.commonMetrics import SquaredFrobenius
-from coreimp.equiTransform import EquiTransform
+from ..coreimp.commonMetrics import SquaredFrobenius
+from ..coreimp.equiTransform import EquiTransform
 
 tf.compat.v1.enable_eager_execution()
 
