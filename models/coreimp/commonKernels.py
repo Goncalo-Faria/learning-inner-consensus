@@ -4,7 +4,8 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from core.kernel import Kernel
+from ..core.kernel import Kernel
+
 
 
 class Poly(Kernel):
@@ -32,11 +33,18 @@ class Poly(Kernel):
         return r
 
 
-class DotProd(Poly):
+class DotProd(Kernel):
     def __init__(
             self):
+
         super(DotProd, self).__init__(
-            1)
+            "Dotprod",
+            False)
 
     def apply(self, a, b):
-        return super(DotProd, self).apply(a, b) - 1
+        shape = a.shape.as_list()
+        a = tf.reshape(a, shape[:-2] + [1, -1])
+        b = tf.reshape(b, shape[:-2] + [-1, 1])
+
+        return tf.matmul(a, b)
+

@@ -5,8 +5,8 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
-from core.routing import RoutingProcedure
-from core.transform import Transform
+from ..core.routing import RoutingProcedure
+from ..core.transform import Transform
 
 
 class CapsuleLayer(object):
@@ -15,10 +15,12 @@ class CapsuleLayer(object):
             routing,
             transform,
             ksizes,
+            iterations = 0,
             name="",
             padding="VALID",
             strides=[1, 1, 1, 1]):
         self._routing = routing
+        self._iterations = iterations
         self._ksizes = ksizes
         self._strides = strides
         self._transform = transform
@@ -132,7 +134,11 @@ class CapsuleLayer(object):
             ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
             ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-            higher_poses, higher_activations = self._routing.fit(votes, activations)
+            higher_poses, higher_activations = self._routing.fit(
+                votes,
+                activations,
+                iterations=self._iterations
+            )
             """
                 determines the pose and activation of the output capsules.
             """
@@ -163,10 +169,10 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
             name="",
     ):
         super(FullyConnectedCapsuleLayer, self).__init__(
-            routing,
-            transform,
-            [1, 1, 1, 1],
-            "FullyConnected/" + name)
+            routing=routing,
+            transform=transform,
+            ksizes=[1, 1, 1, 1],
+            name="FullyConnected/" + name)
 
     def inference(self, input_tensor):
         ## input_tensor == {batch, w, h, depth} + repdim, {batch, w, h, depth}

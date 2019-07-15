@@ -32,7 +32,8 @@ from __future__ import print_function
 import abc
 import collections
 import tensorflow as tf
-import core.layer as layer
+
+from . import layer
 
 TowerResult = collections.namedtuple('TowerResult', ('inferred', 'almost',
                                                      'correct', 'grads'))
@@ -60,13 +61,13 @@ class Model(object):
                 initializer=tf.compat.v1.constant_initializer(0),
                 trainable=False)
 
-            learning_rate = tf.keras.optimizers.schedules.ExponentialDecay(
-                initial_learning_rate=hparams["learning_rate"],
-                decay_steps=hparams["decay_steps"],
-                decay_rate=hparams["decay_rate"])(self._global_step)
+            decay = 1 - (self._global_step / (hparams["max_steps"]) )
+
+            learning_rate = hparams["learning_rate"] * decay
+
             learning_rate = tf.maximum(learning_rate, 1e-6)
 
-            self._optimizer = tf.keras.optimizers.Adam(learning_rate = learning_rate)
+            self._optimizer = tf.keras.optimizers.RMSprop(learning_rate)
 
     def inference(self, features):
         with tf.name_scope("Model:" + self.name):

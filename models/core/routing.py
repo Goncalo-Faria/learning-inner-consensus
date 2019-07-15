@@ -6,7 +6,7 @@ import abc
 
 import tensorflow as tf
 
-from core.metric import Metric
+from ..core.metric import Metric
 
 
 class RoutingProcedure(object):
@@ -19,11 +19,14 @@ class RoutingProcedure(object):
             self,
             name,
             metric,
-            iterations,
             initial_state,
+            design_iterations,
+            epsilon=1e-6,
             verbose=False):
-        self._iterations = iterations
+        self._iterations = design_iterations
+        self._design_iterations = design_iterations
         self._verbose = verbose
+        self._epsilon = epsilon
         self._initial_state = initial_state
         self.name = name
         self.metric = metric
@@ -66,13 +69,13 @@ class RoutingProcedure(object):
 
         ## raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-        poses = tf.divide(raw_poses, self.metric.take(raw_poses))
+        poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
 
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
         return poses
 
-    def fit(self, votes, activations):
+    def fit(self, votes, activations, iterations = 0):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) } 
         self.atoms = votes.shape.as_list()[4]
@@ -92,6 +95,11 @@ class RoutingProcedure(object):
 
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
+
+            if iterations == 0:
+                self._iterations = self._design_iterations
+            else :
+                self._iterations = iterations
 
             for it in range(self._iterations):
                 self._it = it

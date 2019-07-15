@@ -4,9 +4,9 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from core import variables
-from core.transform import Transform
-from core.metric import Metric
+from ..core import variables
+from ..core.transform import Transform
+from ..core.metric import Metric
 
 
 class EquiTransform(Transform):
@@ -16,8 +16,10 @@ class EquiTransform(Transform):
             output_atoms,
             metric,
             verbose=False,
+            epsilon=1e-6,
             name=""):
         self.metric = metric
+        self._epsilon = epsilon
 
         assert isinstance(metric, Metric), \
             " metric must be instance of Metric metaclass. "
@@ -73,7 +75,7 @@ class EquiTransform(Transform):
         )
         ## activations_tiled :: { batch, outputatoms, new_w, new_h, depth * np.prod(ksizes) }
 
-        votes = tf.matmul(W_scaled, poses_tiled) / W_norm_scaled + bias
+        votes = tf.matmul(W_scaled, poses_tiled) / (W_norm_scaled + self._epsilon) + bias
         """
             transforms the lower level poses to the higher level capsule space.
         """

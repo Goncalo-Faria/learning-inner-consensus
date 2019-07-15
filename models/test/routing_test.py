@@ -1,8 +1,8 @@
 import tensorflow as tf
 
-from coreimp.commonKernels import DotProd
-from coreimp.commonMetrics import SquaredFrobenius
-from coreimp.kernelRouting import KernelRouting
+from ..coreimp.commonKernels import DotProd
+from ..coreimp.commonMetrics import SquaredFrobenius
+from ..coreimp.kernelRouting import KernelRouting
 
 tf.compat.v1.enable_eager_execution()
 
