@@ -32,6 +32,10 @@ from __future__ import print_function
 import abc
 import collections
 import tensorflow as tf
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4b9fb5ccd5719bf8c7d88e5e3a22e6087c7f9c33
 from . import layer
 
 TowerResult = collections.namedtuple('TowerResult', ('inferred', 'almost',
