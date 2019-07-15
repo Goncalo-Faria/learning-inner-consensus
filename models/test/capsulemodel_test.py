@@ -83,6 +83,7 @@ def setup_parameters_intricate(num_classes=10,max_steps = 1000,learning_rate = 0
 
 
 def setup_parameters_trivial(num_classes=10,max_steps = 1000,learning_rate = 0.001):
+
     router = KernelRouting(
         DotProd(),
         Frobenius(),

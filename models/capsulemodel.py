@@ -3,10 +3,12 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+
 from .core import model
 from .layers.capsule import CapsuleClassLayer, PrimaryCapsuleLayer, FullyConnectedCapsuleLayer
 import numpy as np
 from .core import layer
+
 
 
 class CapsuleModel(model.Model):
@@ -112,6 +114,7 @@ class CapsuleModel(model.Model):
           'logits' and 'remakes' for the reconstructions (to be added).
         """
         image = features['images']
+
         image_4d = tf.reshape(image, [-1, features['depth'], features['height'], features['width']])
 
         lower_features = tf.transpose(image_4d,[0,2,3,1])

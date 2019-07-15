@@ -7,6 +7,7 @@ import tensorflow as tf
 from ..core.kernel import Kernel
 
 
+
 class Poly(Kernel):
     def __init__(
             self,
