@@ -1,18 +1,18 @@
 ## How to use
 
-#mnist
+#Download mnist dataset
 ```
 !wget https://storage.googleapis.com/capsule_toronto/mnist_data.tar.gz
 !tar -zxvf mnist_data.tar.gz
 !rm mnist_data.tar.gz
 ```
-#cifar10
+#Download cifar10 dataset
 ```
 !wget https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz
 !tar -zxvf cifar-10-binary.tar.gz
 !rm cifar-10-binary.tar.gz
 ```
-#execution in python shell example
+#Example of execution in python script
 
 ```
 import sys
