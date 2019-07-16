@@ -20,7 +20,7 @@ class KernelRouting(RoutingProcedure):
         self._kernel = kernel
 
         super(KernelRouting, self).__init__(
-            "KernelRouting/" + name,
+            "KernelRouting" + name,
             metric=metric,
             design_iterations=iterations,
             initial_state=None,
@@ -34,7 +34,10 @@ class KernelRouting(RoutingProcedure):
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        alpha = weight_variable([1], name="alpha", verbose = True)
+        alpha = weight_variable([],
+                                name="alpha",
+                                verbose = True,
+                                initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
         r = alpha * self._kernel.take(poses_tiled, votes)
         return r, s
@@ -76,7 +79,7 @@ class KernelRoutingWithPrior(KernelRouting):
             verbose=False):
         super(KernelRoutingWithPrior, self).__init__(
             kernel,
-            name,
+            "withPrior/"+ name,
             metric,
             iterations,
             verbose)

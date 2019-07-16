@@ -23,7 +23,8 @@ class Transform(object):
         self.name = name
 
     def translate(self, poses, activations):
-        with tf.name_scope('Transform/' + self.name) as scope:
+
+        with tf.compat.v1.variable_scope('Transform/' + self.name,reuse=tf.compat.v1.AUTO_REUSE) as scope:
             return self.apply(poses, activations)
 
     @abc.abstractmethod

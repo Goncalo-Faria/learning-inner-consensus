@@ -126,6 +126,7 @@ def _batch_features(image, label, batch_size, split, image_size):
   batched_features['recons_label'] = tf.reshape(
       batched_features['recons_label'], [batch_size])
   batched_features['height'] = image_size
+  batched_features['width'] = image_size
   batched_features['depth'] = 3
   batched_features['num_targets'] = 1
   batched_features['num_classes'] = 10

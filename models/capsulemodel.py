@@ -15,7 +15,7 @@ class CapsuleModel(model.Model):
         A baseline Capsule multi GPU.
     """
 
-    def __init__(self, hparams, name = "CapsuleModel/"):
+    def __init__(self, hparams, name = "CapsuleModel"):
         self._pose_cache = []
 
         super(CapsuleModel, self).__init__(
@@ -88,15 +88,15 @@ class CapsuleModel(model.Model):
                 remakes.append(
                     layer.reconstruction(
                         capsule_mask=tf.one_hot(label, features['num_classes']),
-                        num_atoms=np.prod(self._hparams["primary_parameters"]["pose_dim"]),
+                        num_atoms=np.prod(self._hparams.primary_parameters["pose_dim"]),
                         capsule_embedding=capsule_embedding,
-                        layer_sizes=self._hparams["reconstruction_layer_sizes"],
+                        layer_sizes=self._hparams.reconstruction_layer_sizes,
                         num_pixels=num_pixels,
                         reuse=(i > 0),
                         image=image,
                         balance_factor=0.0005))
 
-        if self._hparams["verbose"]:
+        if self._hparams.verbose:
             self._summarize_remakes(features, remakes)
 
         return remakes
@@ -119,27 +119,28 @@ class CapsuleModel(model.Model):
         lower_features = tf.transpose(image_4d,[0,2,3,1])
 
         #lower_features = features
+        print(self._hparams.__dict__)
 
         with tf.name_scope("derender/"):
-            for i in range(len(self._hparams["derender_layers"])):
+            for i in range(len(self._hparams.derender_layers)):
                 with tf.name_scope("layer" + str(i)):
-                    higher_features = self._hparams["derender_layers"][i](
+                    higher_features = self._hparams.derender_layers[i](
                         lower_features)
 
                     lower_features = higher_features
 
         with tf.name_scope("primarycapsules/"):
             primary_poses, primary_activations = PrimaryCapsuleLayer(
-                self._hparams["primary_parameters"]["pose_dim"],
-                self._hparams["primary_parameters"]["ksize"],
-                self._hparams["primary_parameters"]["groups"],
+                self._hparams.primary_parameters["pose_dim"],
+                self._hparams.primary_parameters["ksize"],
+                self._hparams.primary_parameters["groups"],
             ).inference(lower_features)
 
         lower_poses, lower_activations = primary_poses, primary_activations
 
-        for i in range(len(self._hparams["layers"])):
+        for i in range(len(self._hparams.layers)):
             with tf.name_scope("layer" + str(i)) as scope:
-                higher_poses, higher_activations = self._hparams["layers"][i].inference(
+                higher_poses, higher_activations = self._hparams.layers[i].inference(
                     (lower_poses, lower_activations))
 
                 self._pose_cache.append(higher_poses)
@@ -148,8 +149,8 @@ class CapsuleModel(model.Model):
                 lower_activations = higher_activations
 
         fully_poses, fully_activations = FullyConnectedCapsuleLayer(
-            transform=self._hparams["last_layer"]["transform"],
-            routing=self._hparams["last_layer"]["routing"],
+            transform=self._hparams.last_layer["transform"],
+            routing=self._hparams.last_layer["routing"],
             name="last"
         ).inference((lower_poses, lower_activations))
 
@@ -158,7 +159,7 @@ class CapsuleModel(model.Model):
             name=self.name + "Caps/"
         ).inference((fully_poses, fully_activations))
 
-        if self._hparams["remake"]:
+        if self._hparams.remake:
             remake = self._remake(
                 features,
                 tf.reshape(

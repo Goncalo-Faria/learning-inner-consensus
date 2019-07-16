@@ -118,7 +118,7 @@ class CapsuleLayer(object):
 
         self._representation_dim = input_tensor[0].shape.as_list()[4:]
 
-        with tf.name_scope('CapsuleLayer' + self.name) as scope:
+        with tf.compat.v1.variable_scope('CapsuleLayer' + self.name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
             poses, activations = self._receptivefield(input_tensor)
             """
                 stacks the multiple possible receptive fields of capsules. 
@@ -197,7 +197,7 @@ class CapsuleClassLayer(object):
     def inference(self, input_tensor):
         ## input_tensor == {batch, w, h, depth} + repdim, {batch, w, h, depth}
 
-        with tf.name_scope('toClassLayer/' + self.name) as scope:
+        with tf.compat.v1.variable_scope('toClassLayer/' + self.name,reuse=tf.compat.v1.AUTO_REUSE) as scope:
             poses, activations = input_tensor
 
             poses = tf.reshape(poses, [poses.shape[0], -1] + poses.shape.as_list()[4:])

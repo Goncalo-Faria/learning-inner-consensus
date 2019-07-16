@@ -30,6 +30,6 @@ class Frobenius(SquaredFrobenius):
 
     def apply(self, a):
         ## a :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
-        with tf.name_scope("Frobenius/"):
+        with tf.name_scope("Frobenius"):
             sq = super(Frobenius, self).apply(a)
             return tf.sqrt( sq + self._epsilon)

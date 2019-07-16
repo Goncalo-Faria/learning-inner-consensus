@@ -53,7 +53,7 @@ class Model(object):
     Args:
       hparams: The hyperparameters for the model as tf.contrib.training.HParams.
     """
-        self.name = name
+        self.name = hparams.model + name
         self._hparams = hparams
         with tf.device('/cpu:0'):
             self._global_step = tf.compat.v1.get_variable(
@@ -61,16 +61,16 @@ class Model(object):
                 initializer=tf.compat.v1.constant_initializer(0),
                 trainable=False)
 
-            decay = 1 - (self._global_step / (hparams["max_steps"]) )
+            decay = 1 - (self._global_step / (hparams.max_steps) )
 
-            learning_rate = hparams["learning_rate"] * decay
+            learning_rate = hparams.learning_rate * decay
 
             learning_rate = tf.maximum(learning_rate, 1e-6)
 
-            self._optimizer = tf.keras.optimizers.RMSprop(learning_rate)
+            self._optimizer = tf.compat.v1.train.RMSPropOptimizer(learning_rate)
 
     def inference(self, features):
-        with tf.name_scope("Model:" + self.name):
+        with tf.name_scope("Model" + self.name):
             return self.apply(features)
 
     @abc.abstractmethod
@@ -112,8 +112,8 @@ class Model(object):
                     labels=feature['labels'],
                     num_targets=feature['num_targets'],
                     scope=scope,
-                    loss_type=self._hparams["loss_type"],
-                    reg_const=self._hparams["regulizer_constant"])
+                    loss_type=self._hparams.loss_type,
+                    reg_const=self._hparams.regulizer_constant)
                 tf.compat.v1.get_variable_scope().reuse_variables()
                 grads = self._optimizer.compute_gradients(losses)
 

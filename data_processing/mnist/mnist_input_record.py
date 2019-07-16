@@ -210,6 +210,7 @@ def inputs(data_dir,
           num_threads=1,
           capacity=batch_capacity + 3 * batch_size)
     batched_features['height'] = image_dim
+    batched_features['width'] = image_dim
     batched_features['depth'] = 1
     batched_features['num_targets'] = num_targets
     batched_features['num_classes'] = 10

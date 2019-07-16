@@ -28,8 +28,7 @@ import tensorflow as tf
 
 from data_processing.cifar10 import cifar10_input
 from data_processing.mnist import mnist_input_record
-from data_processing.norb import norb_input_record
-from models import conv_model
+#from models import conv_model
 
 import models.capsulemodel as capm
 import argparse
@@ -66,7 +65,7 @@ parser.add_argument('--num_saves', default=100,
                     type=int,help='number of checkpoints.')
 parser.add_argument('--show_step',default=5,
                     type=int,help='How often to print.')
-parser.add_argument('--summary_dir', default=None,
+parser.add_argument('--summary_dir', default="",
                     type=str, help='Main directory for the experiments.')
 parser.add_argument('--checkpoint', default=None,
                     type=str, help='The model checkpoint for evaluation.')
@@ -82,7 +81,6 @@ parser.add_argument('--num_classes',default=10,
                     type=int,help='number of classes in the dataset.')
 parser.add_argument('--verbose', default=True,
                     type=bool, help='Register model info.')
-
 parser.add_argument('--loss_type', default='softmax',
                     type=str,help=' classfication head. ')
 
@@ -90,7 +88,7 @@ GLOBAL_HPAR = parser.parse_args()
 
 models = {
     "CapsuleBlockNet": capm.CapsuleModel,
-    "ConvNet" : conv_model.ConvModel,
+    "ConvNet" : None,#conv_model.ConvModel,
     "CapsuleBaseline": capm.CapsuleModel
 }
 
@@ -250,7 +248,6 @@ def eval_experiment(session, result, writer, last_step, max_steps, **kwargs):
     total_correct = 0
     total_almost = 0
     summary_i=""
-    max_steps = max_steps
     print(max_steps)
     for _ in range(max_steps):
         summary_i, correct, almost = session.run(
@@ -258,7 +255,7 @@ def eval_experiment(session, result, writer, last_step, max_steps, **kwargs):
         total_correct += correct
         total_almost += almost
 
-    total_false = max_steps * GLOBAL_HPAR["batch_size"] - total_correct
+    total_false = max_steps * GLOBAL_HPAR.batch_size - total_correct
     total_almost_false = max_steps * GLOBAL_HPAR.batch_size - total_almost
     summary = tf.compat.v1.Summary.FromString(summary_i)
     summary.value.add(tag='correct_prediction', simple_value=total_correct)
@@ -266,7 +263,7 @@ def eval_experiment(session, result, writer, last_step, max_steps, **kwargs):
     summary.value.add(
         tag='almost_wrong_prediction', simple_value=total_almost_false)
     print('Total wrong predictions: {}, wrong percent: {}%'.format(
-        total_false, total_false /(max_steps*GLOBAL_HPAR["batch_size"]) ))
+        total_false, total_false /(max_steps*GLOBAL_HPAR.batch_size) ))
     tf.compat.v1.logging.info('Total wrong predictions: {}, wrong percent: {}%'.format(
         total_false, total_false / max_steps))
     writer.add_summary(summary, last_step)
@@ -351,7 +348,7 @@ def train(hparams, summary_dir, num_gpus, model_type, max_steps,
     summary_dir += '/train/'
     with tf.Graph().as_default():
         # Build model
-        features = get_features('train', hparams["batch_size"], num_gpus, data_dir, num_targets,
+        features = get_features('train', hparams.batch_size, num_gpus, data_dir, num_targets,
                                 dataset, validate)
         model = models[model_type](hparams)
         result, _ = model.multi_gpu(features, num_gpus)
@@ -361,7 +358,7 @@ def train(hparams, summary_dir, num_gpus, model_type, max_steps,
         sys.stdout.write('total_params: %d\n' % param_stats.total_parameters)
         writer = tf.compat.v1.summary.FileWriter(summary_dir)
         run_experiment(load_training, summary_dir, writer, train_experiment, result,
-                       max_steps, hparams["num_saves"], hparams["budget_threshold"])
+                       max_steps, hparams.num_saves, hparams.budget_threshold)
         writer.close()
 
 
@@ -409,7 +406,7 @@ def evaluate(hparams, summary_dir, num_gpus, model_type, eval_size, data_dir,
     load_dir = summary_dir + '/train/'
     summary_dir += '/test/'
     with tf.Graph().as_default():
-        features = get_features('test', hparams["batch_size"], num_gpus, data_dir, num_targets,
+        features = get_features('test', hparams.batch_size, num_gpus, data_dir, num_targets,
                                 dataset, validate)
         model = models[model_type](hparams)
         result, _ = model.multi_gpu(features, num_gpus)
@@ -430,7 +427,7 @@ def evaluate(hparams, summary_dir, num_gpus, model_type, eval_size, data_dir,
                 paused = 0
                 seen_step = step
                 run_experiment(load_eval, last_checkpoint, test_writer, eval_experiment,
-                               result, eval_size // hparams["batch_size"])
+                               result, eval_size // hparams.batch_size)
                 if checkpoint:
                     break
 
@@ -474,7 +471,7 @@ def get_placeholder_data(num_steps, batch_size, features, session):
     features['labels'] = tf.compat.v1.placeholder(
         tf.float32, shape=(batch_size, num_classes))
     features['recons_image'] = tf.compat.v1.placeholder(tf.float32, shape=image_shape)
-    features['recons_label'] = tf.compat.v1.placeholder(tf.int32, shape=(batch_size))
+    features['recons_label'] = tf.compat.v1.placeholder(tf.int32, shape=batch_size)
     return data, targets
 
 
@@ -539,15 +536,15 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
             checkpoints.append(file_name)
 
     with tf.Graph().as_default():
-        features = get_features('test', hparams["batch_size"], 1, data_dir, num_targets,
+        features = get_features('test', hparams.batch_size, 1, data_dir, num_targets,
                                 dataset)[0]
         model = models[model_type](hparams)
 
         session = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(allow_soft_placement=True))
         coord = tf.train.Coordinator()
         threads = tf.compat.v1.train.start_queue_runners(sess=session, coord=coord)
-        num_steps = eval_size // hparams["batch_size"]
-        data, targets = get_placeholder_data(num_steps, hparams["batch_size"], features,
+        num_steps = eval_size // hparams.batch_size
+        data, targets = get_placeholder_data(num_steps, hparams.batch_size, features,
                                              session)
         logits = infer_ensemble_logits(features, model, checkpoints, session,
                                        num_steps, data)
@@ -555,7 +552,7 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
         coord.join(threads)
         session.close()
 
-        logits = np.reshape(logits, (num_trials, num_steps, hparams["batch_size"], -1))
+        logits = np.reshape(logits, (num_trials, num_steps, hparams.batch_size, -1))
         logits = np.sum(logits, axis=0)
         predictions = np.argmax(logits, axis=2)
         total_wrong = np.sum(np.not_equal(predictions, targets))
@@ -567,26 +564,29 @@ def main(_):
 
     global GLOBAL_HPAR
 
-    if GLOBAL_HPAR["model"] is "CapsuleBlockNet":
+    if GLOBAL_HPAR.model == "CapsuleBlockNet":
+        print(GLOBAL_HPAR.model)
         GLOBAL_HPAR = BlockNet.setup(GLOBAL_HPAR)
-    elif GLOBAL_HPAR["model"] is "CapsuleBaseline":
+    elif GLOBAL_HPAR.model == "CapsuleBaseline":
+        print(GLOBAL_HPAR.model)
         GLOBAL_HPAR = CapBaseline.setup(GLOBAL_HPAR)
-    elif GLOBAL_HPAR["model"] is "ConvNet":
+    elif GLOBAL_HPAR.model == "ConvNet":
+        print(GLOBAL_HPAR.model)
         GLOBAL_HPAR = ConvNet.setup(GLOBAL_HPAR)
 
-    if GLOBAL_HPAR["train"]:
-        train(GLOBAL_HPAR, GLOBAL_HPAR["summary_dir"], GLOBAL_HPAR["num_gpus"], GLOBAL_HPAR["model"],
-              GLOBAL_HPAR["max_steps"], GLOBAL_HPAR["data_dir"], GLOBAL_HPAR["num_targets"],
-              GLOBAL_HPAR["dataset"], GLOBAL_HPAR["validate"])
+    if GLOBAL_HPAR.train:
+        train(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
+              GLOBAL_HPAR.max_steps, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
+              GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate)
     else:
-        if GLOBAL_HPAR["num_trials"] == 1:
-            evaluate(GLOBAL_HPAR, GLOBAL_HPAR["summary_dir"], GLOBAL_HPAR["num_gpus"], GLOBAL_HPAR["model"],
-                     GLOBAL_HPAR["eval_size"], GLOBAL_HPAR["data_dir"], GLOBAL_HPAR["num_targets"],
-                     GLOBAL_HPAR["dataset"], GLOBAL_HPAR["validate"], GLOBAL_HPAR["checkpoint"])
+        if GLOBAL_HPAR.num_trials == 1:
+            evaluate(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
+                     GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
+                     GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate, GLOBAL_HPAR.checkpoint)
         else:
-            evaluate_ensemble(GLOBAL_HPAR, GLOBAL_HPAR["model"], GLOBAL_HPAR["eval_size"], GLOBAL_HPAR["data_dir"],
-                              GLOBAL_HPAR["num_targets"], GLOBAL_HPAR["dataset"], GLOBAL_HPAR["checkpoint"],
-                              GLOBAL_HPAR["num_trials"])
+            evaluate_ensemble(GLOBAL_HPAR, GLOBAL_HPAR.model, GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir,
+                              GLOBAL_HPAR.num_targets, GLOBAL_HPAR.dataset, GLOBAL_HPAR.checkpoint,
+                              GLOBAL_HPAR.num_trials)
 
 
 if __name__ == '__main__':

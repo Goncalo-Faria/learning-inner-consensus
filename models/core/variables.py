@@ -23,7 +23,7 @@ def weight_variable(shape, stddev=0.1, verbose=False, name="", regularizer=None,
       Weight variable tensor of shape=shape.
     """
     with tf.device('/cpu:0'):
-        with tf.compat.v1.variable_scope('weights'):
+        with tf.compat.v1.variable_scope('weights',reuse=tf.compat.v1.AUTO_REUSE):
             if initializer is None:
                 initializer = tf.compat.v1.truncated_normal_initializer(
                     stddev=stddev, dtype=tf.float32)
@@ -48,7 +48,7 @@ def bias_variable(shape, verbose=False, name=""):
       Bias variable tensor with shape=shape.
     """
     with tf.device('/cpu:0'):
-        with tf.compat.v1.variable_scope('biases'):
+        with tf.compat.v1.variable_scope('biases', reuse=tf.compat.v1.AUTO_REUSE):
             biases = tf.compat.v1.get_variable(
                 'biases' + name,
                 shape,

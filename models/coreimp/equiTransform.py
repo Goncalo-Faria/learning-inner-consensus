@@ -26,7 +26,7 @@ class EquiTransform(Transform):
             " metric must be instance of Metric metaclass. "
 
         super(EquiTransform, self).__init__(
-            "EquiTransform/" + name,
+            "EquiTransform" + name,
             output_atoms,
             verbose)
 
