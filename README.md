@@ -1,5 +1,15 @@
 # How to use
 
+### Suporter Models
+
+```
+models = {
+    "CapsuleBlockNet",
+    "ConvNet",
+    "CapsuleBaseline"
+}
+```
+
 ### Download mnist dataset
 ```
 !wget https://storage.googleapis.com/capsule_toronto/mnist_data.tar.gz
