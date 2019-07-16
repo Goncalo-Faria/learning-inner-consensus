@@ -66,7 +66,7 @@ class CapsuleLayer(object):
 
         patched_activations = tf.compat.v1.extract_image_patches(
             activations,
-            ksizes=self._ksizes,
+            sizes=self._ksizes,
             strides=self._strides,
             padding=self._padding,
             rates=[1, 1, 1, 1]

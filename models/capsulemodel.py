@@ -119,7 +119,6 @@ class CapsuleModel(model.Model):
         lower_features = tf.transpose(image_4d,[0,2,3,1])
 
         #lower_features = features
-        print(self._hparams.__dict__)
 
         with tf.name_scope("derender/"):
             for i in range(len(self._hparams.derender_layers)):
