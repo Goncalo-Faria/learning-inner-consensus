@@ -11,7 +11,7 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-def weight_variable(shape, stddev=0.1, verbose=False, name="", regularizer=None, reuse=False):
+def weight_variable(shape, stddev=0.1, verbose=False, name="", regularizer=None, initializer = None):
     """Creates a CPU variable with normal initialization. Adds summaries.
 
     Args:
@@ -23,12 +23,14 @@ def weight_variable(shape, stddev=0.1, verbose=False, name="", regularizer=None,
       Weight variable tensor of shape=shape.
     """
     with tf.device('/cpu:0'):
-        with tf.compat.v1.variable_scope('weights', reuse=reuse):
+        with tf.compat.v1.variable_scope('weights'):
+            if initializer is None:
+                initializer = tf.compat.v1.truncated_normal_initializer(
+                    stddev=stddev, dtype=tf.float32)
             weights = tf.compat.v1.get_variable(
                 'weights' + name,
                 shape,
-                initializer=tf.compat.v1.truncated_normal_initializer(
-                    stddev=stddev, dtype=tf.float32),
+                initializer=initializer,
                 dtype=tf.float32,
                 regularizer=regularizer)
     variable_summaries(weights, verbose)

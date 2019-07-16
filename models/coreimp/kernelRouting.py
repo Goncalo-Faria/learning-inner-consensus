@@ -34,7 +34,7 @@ class KernelRouting(RoutingProcedure):
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        alpha = weight_variable([1], name="alpha")
+        alpha = weight_variable([1], name="alpha", verbose = True)
 
         r = alpha * self._kernel.take(poses_tiled, votes)
         return r, s

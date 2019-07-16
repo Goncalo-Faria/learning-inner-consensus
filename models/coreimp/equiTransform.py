@@ -7,6 +7,7 @@ import tensorflow as tf
 from ..core import variables
 from ..core.transform import Transform
 from ..core.metric import Metric
+from ..util.initializer import IdentityRandomUniform
 
 
 class EquiTransform(Transform):
@@ -37,7 +38,9 @@ class EquiTransform(Transform):
 
         W = variables.weight_variable(
             [1, self._output_atoms, 1, 1, poses_shape[-3], poses_shape[-2], poses_shape[-1]],
-            name="scale"
+            name="scale",
+            initializer = IdentityRandomUniform(
+                    maxval=0.1, minval=-0.1, dtype=tf.float32)
         )
 
         ## W :: {1, outputatoms, 1 , 1, depth * np.prod(ksizes) } + repdim
