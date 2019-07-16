@@ -1,18 +1,18 @@
-## How to use
+# How to use
 
-#Download mnist dataset
+### Download mnist dataset
 ```
 !wget https://storage.googleapis.com/capsule_toronto/mnist_data.tar.gz
 !tar -zxvf mnist_data.tar.gz
 !rm mnist_data.tar.gz
 ```
-#Download cifar10 dataset
+### Download cifar10 dataset
 ```
 !wget https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz
 !tar -zxvf cifar-10-binary.tar.gz
 !rm cifar-10-binary.tar.gz
 ```
-#Example of execution in python script
+### Example of execution in python script
 
 ```
 import sys
@@ -31,7 +31,7 @@ subprocess.call([sys.executable,
                  "--summary_dir", "tf_log"])
 ```
 
-# Full list of arguments
+## Full list of arguments
 ```
 ('--data_dir', default=None, help='The data directory.',type=str)
 ('--eval_size', default=10000, help='Size of the test dataset.', type=int)
