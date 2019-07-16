@@ -10,12 +10,6 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
-    router = KernelRouting(
-        DotProd(),
-        Frobenius(),
-        iterations=3,
-        verbose=True
-    )
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,
@@ -46,7 +40,12 @@ def setup(
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing=router,
+                routing= KernelRouting(
+                    DotProd(),
+                    Frobenius(),
+                    iterations=3,
+                    verbose=True
+                ),
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius()
@@ -56,7 +55,12 @@ def setup(
                 name = "A"
             ),
             CapsuleLayer(
-                routing=router,
+                routing=KernelRouting(
+                    DotProd(),
+                    Frobenius(),
+                    iterations=3,
+                    verbose=True
+                ),
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius()
