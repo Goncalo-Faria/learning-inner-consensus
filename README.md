@@ -29,7 +29,7 @@ import sys
 import subprocess
 
 subprocess.call([sys.executable,    
-                 'experiment.py',
+                 'learning-inner-consensus/experiment.py',
                  "--dataset", "mnist",
                  "--train", "True",
                  "--data_dir", "mnist_data/",
@@ -41,6 +41,21 @@ subprocess.call([sys.executable,
                  "--summary_dir", "tf_log"])
 ```
 
+### Example of execution in comandline
+
+```
+$ python learning-inner-consensus/experiment.py \
+                 --dataset mnist \
+                 --train  True \
+                 --data_dir mnist_data/ \
+                 --model CapsuleBaseline \
+                 --batch_size 32 \
+                 --num_saves 100 \
+                 --max_steps 10 \
+                 --learning_rate 0.001 \
+                 --summary_dir tf_log
+                 
+```
 ## Full list of arguments
 ```
 ('--data_dir', default=None, help='The data directory.',type=str)

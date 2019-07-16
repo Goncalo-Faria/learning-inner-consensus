@@ -3,7 +3,7 @@ from tensorflow.python.ops import random_ops
 from tensorflow.python.framework import dtypes
 
 
-class IdentityRandomUniform(tf.initializers.Initializer):
+class IdentityRandomUniform(tf.compat.v1.keras.initializers.Initializer):
   """Initializer that generates tensors with a uniform distribution.
   Args:
     minval: A python scalar or a scalar tensor. Lower bound of the range of
