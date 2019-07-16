@@ -35,7 +35,7 @@ import argparse
 
 import architectures.cap_baseline as CapBaseline
 import architectures.cap_block_net as BlockNet
-import architectures.convnet as ConvNet
+#import architectures.convnet as ConvNet
 
 parser = argparse.ArgumentParser(prog='Experiment', add_help=True)
 
@@ -126,11 +126,6 @@ def get_features(split, total_batch_size, num_gpus, data_dir, num_targets,
                         split=split,
                         num_targets=num_targets,
                         validate=validate,
-                    ))
-            elif dataset == 'norb':
-                features.append(
-                    norb_input_record.inputs(
-                        data_dir=data_dir, batch_size=batch_size, split=split,
                     ))
             elif dataset == 'cifar10':
                 data_dir = os.path.join(data_dir, 'cifar-10-batches-bin')
@@ -572,7 +567,7 @@ def main(_):
         GLOBAL_HPAR = CapBaseline.setup(GLOBAL_HPAR)
     elif GLOBAL_HPAR.model == "ConvNet":
         print(GLOBAL_HPAR.model)
-        GLOBAL_HPAR = ConvNet.setup(GLOBAL_HPAR)
+        ##GLOBAL_HPAR = ConvNet.setup(GLOBAL_HPAR)
 
     if GLOBAL_HPAR.train:
         train(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
