@@ -206,7 +206,7 @@ def train_experiment(session, result, writer, last_step, max_steps, saver,
 
         writer.add_summary(summary, i)
         if ((i + 1) / max_steps) >= budget_threshold :
-            if (i + 1) % int((1-budget_threshold)*max_steps/num_saves) == 0:
+            if (i + 1) % round((1-budget_threshold)*max_steps/num_saves) == 0:
                 saver.save(
                     session, os.path.join(summary_dir, 'model.ckpt'), global_step=i + 1)
 
