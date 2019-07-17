@@ -73,9 +73,9 @@ class KernelRoutingWithPrior(KernelRouting):
     def __init__(
             self,
             kernel,
-            name,
             metric,
             iterations,
+            name="",
             verbose=False):
         super(KernelRoutingWithPrior, self).__init__(
             kernel=kernel,
