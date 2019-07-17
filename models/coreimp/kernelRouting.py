@@ -36,7 +36,7 @@ class KernelRouting(RoutingProcedure):
 
         alpha = weight_variable([],
                                 name= self.name + "alpha",
-                                verbose = True,
+                                verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
         r = alpha * self._kernel.take(poses_tiled, votes)
