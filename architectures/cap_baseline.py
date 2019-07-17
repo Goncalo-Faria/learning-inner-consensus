@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from models.coreimp.kernelRouting import KernelRoutingWithPrior
 from models.coreimp.commonKernels import DotProd
-from models.coreimp.commonMetrics import Frobenius
+from models.coreimp.commonMetrics import Frobenius, SquaredFrobenius
 from models.coreimp.equiTransform import EquiTransform
 from models.layers.capsule import CapsuleLayer
 
@@ -28,11 +28,11 @@ def setup(
     hparams.last_layer= {
             "transform": EquiTransform(
                 output_atoms=hparams.num_classes,
-                metric=Frobenius()
+                metric=SquaredFrobenius()
             ),
             "routing" : KernelRoutingWithPrior(
                 kernel=DotProd(),
-                metric=Frobenius(),
+                metric=SquaredFrobenius(),
                 iterations=3,
                 verbose=True,
                 name="LastR"
@@ -43,14 +43,14 @@ def setup(
             CapsuleLayer(
                 routing= KernelRoutingWithPrior(
                     DotProd(),
-                    Frobenius(),
+                    SquaredFrobenius(),
                     iterations=3,
                     verbose=True,
                     name="A"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=Frobenius()
+                    metric=SquaredFrobenius()
                 ),
                 ksizes=[1, 3, 3, 1],
                 strides=[1,2,2,1],
@@ -59,14 +59,14 @@ def setup(
             CapsuleLayer(
                 routing=KernelRoutingWithPrior(
                     DotProd(),
-                    Frobenius(),
+                    SquaredFrobenius(),
                     iterations=3,
                     verbose=True,
                     name="B"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=Frobenius()
+                    metric=SquaredFrobenius()
                 ),
                 ksizes=[1, 3, 3, 1],
                 name= "B"
