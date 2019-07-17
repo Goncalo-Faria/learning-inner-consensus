@@ -35,7 +35,7 @@ def setup(
                 metric=Frobenius(),
                 iterations=3,
                 verbose=True,
-                name="F"
+                name="LastR"
             )
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
@@ -45,7 +45,8 @@ def setup(
                     DotProd(),
                     Frobenius(),
                     iterations=3,
-                    verbose=True
+                    verbose=True,
+                    name="A"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
@@ -60,7 +61,8 @@ def setup(
                     DotProd(),
                     Frobenius(),
                     iterations=3,
-                    verbose=True
+                    verbose=True,
+                    name="B"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
