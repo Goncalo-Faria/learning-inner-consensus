@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from models.coreimp.kernelRouting import KernelRouting
+from models.coreimp.kernelRouting import KernelRoutingWithPrior
 from models.coreimp.commonKernels import DotProd
 from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
@@ -30,7 +30,7 @@ def setup(
                 output_atoms=hparams.num_classes,
                 metric=Frobenius()
             ),
-            "routing" : KernelRouting(
+            "routing" : KernelRoutingWithPrior(
                 kernel=DotProd(),
                 metric=Frobenius(),
                 iterations=3,
@@ -40,7 +40,7 @@ def setup(
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= KernelRouting(
+                routing= KernelRoutingWithPrior(
                     DotProd(),
                     Frobenius(),
                     iterations=3,
@@ -55,7 +55,7 @@ def setup(
                 name = "A"
             ),
             CapsuleLayer(
-                routing=KernelRouting(
+                routing=KernelRoutingWithPrior(
                     DotProd(),
                     Frobenius(),
                     iterations=3,

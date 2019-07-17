@@ -20,7 +20,7 @@ class KernelRouting(RoutingProcedure):
         self._kernel = kernel
 
         super(KernelRouting, self).__init__(
-            "KernelRouting" + name,
+            name="KernelRouting" + name,
             metric=metric,
             design_iterations=iterations,
             initial_state=None,
@@ -78,11 +78,11 @@ class KernelRoutingWithPrior(KernelRouting):
             iterations,
             verbose=False):
         super(KernelRoutingWithPrior, self).__init__(
-            kernel,
-            "withPrior/"+ name,
-            metric,
-            iterations,
-            verbose)
+            kernel=kernel,
+            name="withPrior/"+ name,
+            metric=metric,
+            iterations=iterations,
+            verbose = verbose)
 
     def _initial_coefficients(self, r, activations):
-        return activations
+        return tf.reshape(activations, shape=activations.shape.as_list() + [1, 1])

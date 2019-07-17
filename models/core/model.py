@@ -129,11 +129,12 @@ class Model(object):
       List of pairs of (gradient, variable) where the gradient has been
       averaged across all towers.
     """
+        print(tower_grads)
         average_grads = []
         for grads_and_vars in zip(*tower_grads):
+
             grads = tf.stack([g for g, _ in grads_and_vars])
             grad = tf.reduce_mean(grads, 0)
-
             v = grads_and_vars[0][1]
             grad_and_var = (grad, v)
             average_grads.append(grad_and_var)

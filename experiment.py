@@ -61,7 +61,7 @@ parser.add_argument('--regulizer_constant',default=0.0,
                     type=float,help='scale of the sum of the regularizes.')
 parser.add_argument('--num_trials', default=1,
                     type=int, help='Number of trials for ensemble evaluation.')
-parser.add_argument('--num_saves', default=100,
+parser.add_argument('--num_saves', default=10,
                     type=int,help='number of checkpoints.')
 parser.add_argument('--show_step',default=5,
                     type=int,help='How often to print.')
