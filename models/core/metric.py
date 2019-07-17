@@ -26,5 +26,5 @@ class Metric(object):
         raise NotImplementedError('Not implemented')
 
     def take(self, a):
-        with tf.name_scope('Metric/' + self.name) as scope:
+        with tf.compat.v1.variable_scope('Metric/' + self.name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
             return self.apply(a)
