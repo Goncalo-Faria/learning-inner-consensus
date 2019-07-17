@@ -61,9 +61,9 @@ class Model(object):
                 initializer=tf.compat.v1.constant_initializer(0),
                 trainable=False)
 
-            decay = 1 - (self._global_step / (hparams.max_steps) )
+            #decay = 1 - (self._global_step / hparams.max_steps)
 
-            learning_rate = hparams.learning_rate * decay
+            learning_rate = hparams.learning_rate #* decay
 
             learning_rate = tf.maximum(learning_rate, 1e-6)
 

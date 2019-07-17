@@ -18,7 +18,6 @@ def weight_variable(shape, stddev=0.1, verbose=False, name="", regularizer=None,
       shape: list, the shape of the variable.
       stddev: scalar, standard deviation for the initilizer.
       verbose: if set add histograms.
-
     Returns:
       Weight variable tensor of shape=shape.
     """

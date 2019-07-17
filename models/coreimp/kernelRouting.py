@@ -35,7 +35,7 @@ class KernelRouting(RoutingProcedure):
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
         alpha = weight_variable([],
-                                name= self.name + "alpha",
+                                name= "alpha",
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
@@ -56,8 +56,8 @@ class KernelRouting(RoutingProcedure):
 
         ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
 
-        theta1 = weight_variable([1], name="theta1")
-        theta2 = bias_variable([1], name="theta2")
+        theta1 = weight_variable([1], name="theta1", verbose=self._verbose)
+        theta2 = bias_variable([1], name="theta2", verbose=self._verbose)
 
         activation = tf.sigmoid(theta1 * raw + theta2)
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
