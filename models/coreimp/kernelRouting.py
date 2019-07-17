@@ -49,8 +49,8 @@ class KernelRouting(RoutingProcedure):
 
         distance = self.metric.take(votes - poses)
 
-        if self._verbose:
-            tf.compat.v1.summary.histogram(self.name + "distance_in_it_" + str(self._it), distance)
+        # if self._verbose:
+            # tf.compat.v1.summary.histogram(self.name + "distance_in_it_" + str(self._it), distance)
 
         raw = tf.reduce_sum(tf.multiply(c, distance), axis=-3, keepdims=True)
 
@@ -82,7 +82,7 @@ class KernelRoutingWithPrior(KernelRouting):
             name="withPrior"+ name,
             metric=metric,
             iterations=iterations,
-            verbose = verbose)
+            verbose=verbose)
 
     def _initial_coefficients(self, r, activations):
         return tf.reshape(activations, shape=activations.shape.as_list() + [1, 1])

@@ -73,7 +73,7 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0):
             classification_loss = tf.nn.sigmoid_cross_entropy_with_logits(
                 labels=labels / 2.0, logits=logits)
         elif loss_type == 'softmax':
-            classification_loss = tf.compat.v1.nn.softmax_cross_entropy_with_logits(
+            classification_loss = tf.compat.v1.nn.softmax_cross_entropy_with_logits_v2(
                 labels=labels, logits=logits)
         elif loss_type == 'margin':
             classification_loss = _margin_loss(
