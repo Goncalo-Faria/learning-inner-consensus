@@ -17,7 +17,7 @@ class SquaredFrobenius(Metric):
 
     def apply(self, a):
         ## a :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
-        return tf.reduce_sum(tf.pow(a, 2), axis=[-1, -2], keepdims=True)
+        return tf.reduce_sum( a * a, axis=[-1, -2], keepdims=True)
 
 
 class Frobenius(SquaredFrobenius):
