@@ -24,7 +24,7 @@ class Frobenius(SquaredFrobenius):
 
     def __init__(
             self,
-            epsilon = 1e-6):
+            epsilon = 1e-4):
         self._epsilon = epsilon
         super(Frobenius, self).__init__()
 
