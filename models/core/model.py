@@ -129,7 +129,6 @@ class Model(object):
       List of pairs of (gradient, variable) where the gradient has been
       averaged across all towers.
     """
-        print(tower_grads)
         average_grads = []
         for grads_and_vars in zip(*tower_grads):
 

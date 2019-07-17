@@ -200,7 +200,10 @@ def train_experiment(session, result, writer, last_step, max_steps, saver,
 
     for i in range(last_step, max_steps):
         summary, _ , correts = session.run([result.summary, result.train_op, result.correct])
-        
+
+        if i % GLOBAL_HPAR.show_step == 0 :
+            print(i)
+
         writer.add_summary(summary, i)
         if ((i + 1) / max_steps) >= budget_threshold :
             if (i + 1) % int((1-budget_threshold)*max_steps/num_saves) == 0:
