@@ -34,7 +34,7 @@ def setup(
                 kernel=DotProd(),
                 metric=SquaredFrobenius(),
                 iterations=3,
-                verbose=True,
+                verbose=hparams.verbose,
                 name="LastR"
             )
         }
@@ -45,7 +45,7 @@ def setup(
                     DotProd(),
                     SquaredFrobenius(),
                     iterations=3,
-                    verbose=True,
+                    verbose=hparams.verbose,
                     name="A"
                 ),
                 transform=EquiTransform(
@@ -61,7 +61,7 @@ def setup(
                     DotProd(),
                     SquaredFrobenius(),
                     iterations=3,
-                    verbose=True,
+                    verbose=hparams.verbose,
                     name="B"
                 ),
                 transform=EquiTransform(
