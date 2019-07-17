@@ -125,6 +125,6 @@ class RoutingProcedure(object):
             probabilities = tf.squeeze(probabilities, axis=[1])  ## remove output atoms dim
 
             if self._verbose:
-                tf.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
+                tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
 
             return poses, probabilities

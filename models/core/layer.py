@@ -73,7 +73,7 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0):
             classification_loss = tf.nn.sigmoid_cross_entropy_with_logits(
                 labels=labels / 2.0, logits=logits)
         elif loss_type == 'softmax':
-            classification_loss = tf.compat.v1.nn.softmax_cross_entropy_with_logits_v2(
+            classification_loss = tf.compat.v1.nn.softmax_cross_entropy_with_logits(
                 labels=labels, logits=logits)
         elif loss_type == 'margin':
             classification_loss = _margin_loss(
@@ -85,11 +85,11 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0):
         with tf.name_scope('total'):
             batch_classification_loss = tf.reduce_mean(classification_loss)
             tf.compat.v1.add_to_collection('losses', batch_classification_loss)
-    tf.summary.scalar('batch_classification_cost', batch_classification_loss)
+    tf.compat.v1.summary.scalar('batch_classification_cost', batch_classification_loss)
 
     all_losses = tf.compat.v1.get_collection('losses', scope)
     total_loss = tf.add_n(all_losses, name='total_loss')
-    tf.summary.scalar('total_loss', total_loss)
+    tf.compat.v1.summary.scalar('total_loss', total_loss)
 
     with tf.name_scope('accuracy'):
         with tf.name_scope('correct_prediction'):
@@ -105,9 +105,9 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0):
                 tf.cast(almost_correct, tf.float32))
         with tf.name_scope('accuracy'):
             accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
-    tf.summary.scalar('accuracy', accuracy)
-    tf.summary.scalar('correct_prediction_batch', correct_sum)
-    tf.summary.scalar('almost_correct_batch', almost_correct_sum)
+    tf.compat.v1.summary.scalar('accuracy', accuracy)
+    tf.compat.v1.summary.scalar('correct_prediction_batch', correct_sum)
+    tf.compat.v1.summary.scalar('almost_correct_batch', almost_correct_sum)
     return total_loss, correct_sum, almost_correct_sum
 
 
@@ -175,6 +175,6 @@ def reconstruction(capsule_mask, num_atoms, capsule_embedding, layer_sizes,
         batch_loss = tf.reduce_mean(loss)
         balanced_loss = balance_factor * batch_loss
         tf.compat.v1.add_to_collection('losses', balanced_loss)
-        tf.summary.scalar('reconstruction_error', balanced_loss)
+        tf.compat.v1.summary.scalar('reconstruction_error', balanced_loss)
 
     return reconstruction_2d
