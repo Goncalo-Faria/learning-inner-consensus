@@ -137,6 +137,7 @@ class CapsuleModel(model.Model):
 
         lower_poses, lower_activations = primary_poses, primary_activations
 
+        '''
         for i in range(len(self._hparams.layers)):
             with tf.name_scope("layer" + str(i)) as scope:
                 higher_poses, higher_activations = self._hparams.layers[i].inference(
@@ -146,7 +147,8 @@ class CapsuleModel(model.Model):
 
                 lower_poses = higher_poses
                 lower_activations = higher_activations
-
+        '''
+        
         fully_poses, fully_activations = FullyConnectedCapsuleLayer(
             transform=self._hparams.last_layer["transform"],
             routing=self._hparams.last_layer["routing"],
