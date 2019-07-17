@@ -57,6 +57,7 @@ class CapsuleLayer(object):
                                      shape=[poses_shape[0], np.prod(self._representation_dim)] + poses_shape[1:4])
         ## condensed_poses = { batch, np.prod(repdim), w , h, depth }
 
+
         patched_poses = tf.extract_volume_patches(
             condensed_poses,
             ksizes=[self._ksizes[0], 1] + self._ksizes[1:],
@@ -119,6 +120,9 @@ class CapsuleLayer(object):
         self._representation_dim = input_tensor[0].shape.as_list()[4:]
 
         with tf.compat.v1.variable_scope('CapsuleLayer' + self.name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
+            print("before recep")
+            print(input_tensor[0].shape)
+
             poses, activations = self._receptivefield(input_tensor)
             """
                 stacks the multiple possible receptive fields of capsules. 
@@ -126,8 +130,10 @@ class CapsuleLayer(object):
             """
             ## poses { batch, new_w , new_h, depth * np.prod(ksizes)} + repdim
             ## activations { batch, new_w , new_h, depth * np.prod(ksizes) } 
-
+            print("before transf")
+            print(poses.shape)
             votes, activations = self._transform.translate(poses, activations)
+
             """
                 transforms the poses to the output's capsule space.
             """
