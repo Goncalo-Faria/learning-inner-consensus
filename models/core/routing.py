@@ -44,7 +44,7 @@ class RoutingProcedure(object):
         raise NotImplementedError('Not implemented')
 
     def compatibility(self, s, r, votes, poses, probabilities, it):
-        with tf.name_scope('compatibility') as scope:
+        with tf.compat.v1.variable_scope('compatibility', reuse=tf.compat.v1.AUTO_REUSE) as scope:
             return self._compatibility(s, r, votes, poses, probabilities, it)
 
     @abc.abstractmethod
@@ -55,7 +55,7 @@ class RoutingProcedure(object):
         raise NotImplementedError('Not implemented')
 
     def activation(self, s, c, votes, poses):
-        with tf.name_scope('activation') as scope:
+        with tf.compat.v1.variable_scope('activation', reuse=tf.compat.v1.AUTO_REUSE) as scope:
             return self._activation(s, c, votes, poses)
 
     @abc.abstractmethod
@@ -80,7 +80,7 @@ class RoutingProcedure(object):
         ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) } 
         self.atoms = votes.shape.as_list()[4]
 
-        with tf.name_scope('RoutingProcedure/' + self.name) as scope:
+        with tf.compat.v1.variable_scope('RoutingProcedure/' + self.name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
 
             s = self._initial_state
 

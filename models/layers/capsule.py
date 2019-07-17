@@ -223,34 +223,35 @@ class PrimaryCapsuleLayer(object):
 
     def inference(self, input_tensor):
         ## input_tensor == {batch, w, h, depth}
-        conv_pose = tf.keras.layers.Conv2D(
-            filters=np.prod(self._pose_dim) * self._groups,
-            kernel_size=self._ksize,
-            activation='relu',
-            use_bias=True,
-            padding="SAME"
-        )
+        with tf.compat.v1.variable_scope('PrimaryCapsuleLayer/', reuse=tf.compat.v1.AUTO_REUSE):
+            conv_pose = tf.keras.layers.Conv2D(
+                filters=np.prod(self._pose_dim) * self._groups,
+                kernel_size=self._ksize,
+                activation='relu',
+                use_bias=True,
+                padding="SAME"
+            )
 
-        conv_activation = tf.keras.layers.Conv2D(
-            filters=self._groups,
-            kernel_size=self._ksize,
-            activation='sigmoid',
-            use_bias=True,
-            padding="SAME"
-        )
+            conv_activation = tf.keras.layers.Conv2D(
+                filters=self._groups,
+                kernel_size=self._ksize,
+                activation='sigmoid',
+                use_bias=True,
+                padding="SAME"
+            )
 
-        raw_poses = conv_pose(input_tensor)
+            raw_poses = conv_pose(input_tensor)
 
-        activations = conv_activation(input_tensor)
+            activations = conv_activation(input_tensor)
 
-        raw_poses_shape = raw_poses.shape.as_list()
+            raw_poses_shape = raw_poses.shape.as_list()
 
-        poses = tf.reshape(
-            raw_poses,
-            shape=raw_poses_shape[:3] + [self._groups] + self._pose_dim
-        )
+            poses = tf.reshape(
+                raw_poses,
+                shape=raw_poses_shape[:3] + [self._groups] + self._pose_dim
+            )
 
-        ## pose == {batch, w, h, capsule_groups} + pose_dim
-        ## activation == {batch, w, h, capsule_groups}
+            ## pose == {batch, w, h, capsule_groups} + pose_dim
+            ## activation == {batch, w, h, capsule_groups}
 
-        return poses, activations
+            return poses, activations
