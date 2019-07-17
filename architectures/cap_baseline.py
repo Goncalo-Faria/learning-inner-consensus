@@ -13,7 +13,7 @@ def setup(
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,
-                kernel_size=[5, 5],
+                kernel_size=[9, 9],
                 activation='relu',
                 use_bias=True,
                 padding="VALID",
@@ -33,6 +33,60 @@ def setup(
             "routing" : KernelRouting(
                 kernel=DotProd(),
                 metric=SquaredFrobenius(),
+                iterations=2,
+                verbose=hparams.verbose,
+                name="LastR",
+                activate = False,
+            )
+        }
+    hparams.reconstruction_layer_sizes= [512, 1024]
+    hparams.layers= [
+        CapsuleLayer(
+            routing=KernelRouting(
+                DotProd(),
+                SquaredFrobenius(),
+                iterations=2,
+                verbose=hparams.verbose,
+                name="A"
+            ),
+            transform=EquiTransform(
+                output_atoms=8,
+                metric=SquaredFrobenius()
+            ),
+            ksizes=[1, 3, 3, 1],
+            strides=[1, 2, 2, 1],
+            name="A"
+        )
+        ]
+
+    return hparams
+
+'''
+def setup(
+        hparams):
+    hparams.derender_layers= [
+            tf.keras.layers.Conv2D(
+                filters=64,
+                kernel_size=[5, 5],
+                activation='relu',
+                use_bias=True,
+                padding="VALID",
+                strides=[2,2]
+            )
+        ]
+    hparams.primary_parameters= {
+            "pose_dim": [4, 4],
+            "ksize": 1,
+            "groups" : 8
+        }
+    hparams.last_layer= {
+            "transform": EquiTransform(
+                output_atoms=hparams.num_classes,
+                metric=Frobenius()
+            ),
+            "routing" : KernelRouting(
+                kernel=DotProd(),
+                metric=Frobenius(),
                 iterations=3,
                 verbose=hparams.verbose,
                 name="LastR",
@@ -44,14 +98,14 @@ def setup(
             CapsuleLayer(
                 routing= KernelRouting(
                     DotProd(),
-                    SquaredFrobenius(),
+                    Frobenius(),
                     iterations=3,
                     verbose=hparams.verbose,
                     name="A"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=SquaredFrobenius()
+                    metric=Frobenius()
                 ),
                 ksizes=[1, 3, 3, 1],
                 strides=[1,2,2,1],
@@ -60,14 +114,14 @@ def setup(
             CapsuleLayer(
                 routing=KernelRouting(
                     DotProd(),
-                    SquaredFrobenius(),
+                    Frobenius(),
                     iterations=3,
                     verbose=hparams.verbose,
                     name="B"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=SquaredFrobenius()
+                    metric=Frobenius()
                 ),
                 ksizes=[1, 3, 3, 1],
                 name= "B"
@@ -75,3 +129,4 @@ def setup(
         ]
 
     return hparams
+'''

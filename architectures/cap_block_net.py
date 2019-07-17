@@ -23,7 +23,7 @@ def setup(
     hparams.primary_parameters= {
         "pose_dim": [4, 4],
         "ksize": 1,
-        "groups": 32
+        "groups": 8
     }
     hparams.last_layer= {
         "transform": EquiTransform(
@@ -54,6 +54,7 @@ def setup(
             ),
             ksizes=[1, 3, 3, 1],
             strides=[1, 2, 2, 1],
+            padding="SAME",
             name="initial_reduction"
         ),
         CapsuleIdentityBlock(
@@ -77,7 +78,7 @@ def setup(
                 name="C"
             ),
             transform=EquiTransform(
-                output_atoms=16,
+                output_atoms=4,
                 metric=Frobenius()
             ),
             ksizes=[1, 1, 1, 1],

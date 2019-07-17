@@ -28,6 +28,7 @@ import tensorflow as tf
 
 from data_processing.cifar10 import cifar10_input
 from data_processing.mnist import mnist_input_record
+from models import convmodel
 #from models import conv_model
 
 import models.capsulemodel as capm
@@ -71,7 +72,7 @@ parser.add_argument('--checkpoint', default=None,
                     type=str, help='The model checkpoint for evaluation.')
 parser.add_argument('--remake', default=False,
                     type=bool,help='use reconstruction as regulizer.')
-parser.add_argument('--train', default=True,
+parser.add_argument('--train', default=False,
                     type=bool,help='Either train the model or test the model.')
 parser.add_argument('--validate', default=False,
                     type=bool,help='Run trianing/eval in validation mode.')
@@ -79,7 +80,7 @@ parser.add_argument('--budget_threshold', default=0.9,
                     type=float,help='model saving threshold')
 parser.add_argument('--num_classes',default=10,
                     type=int,help='number of classes in the dataset.')
-parser.add_argument('--verbose', default=True,
+parser.add_argument('--verbose', default=False,
                     type=bool, help='Register model info.')
 parser.add_argument('--loss_type', default='softmax',
                     type=str,help=' classfication head. ')
@@ -88,7 +89,7 @@ GLOBAL_HPAR = parser.parse_args()
 
 models = {
     "CapsuleBlockNet": capm.CapsuleModel,
-    "ConvNet" : None,#conv_model.ConvModel,
+    "ConvNet" : convmodel.ConvModel,
     "CapsuleBaseline": capm.CapsuleModel
 }
 
@@ -572,12 +573,15 @@ def main(_):
         print(GLOBAL_HPAR.model)
         ##GLOBAL_HPAR = ConvNet.setup(GLOBAL_HPAR)
 
+    print("hpar")
+    print(GLOBAL_HPAR)
     if GLOBAL_HPAR.train:
         train(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
               GLOBAL_HPAR.max_steps, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
               GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate)
     else:
         if GLOBAL_HPAR.num_trials == 1:
+            print("eval")
             evaluate(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
                      GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
                      GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate, GLOBAL_HPAR.checkpoint)

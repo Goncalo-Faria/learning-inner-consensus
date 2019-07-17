@@ -182,11 +182,9 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
         ## input_tensor == {batch, w, h, depth} + repdim, {batch, w, h, depth}
 
         poses, activations = input_tensor
-        print(poses.shape)
         poses = tf.reshape(poses, [poses.shape[0], 1, 1, -1] + poses.shape.as_list()[4:])
         activations = tf.reshape(activations, [poses.shape[0], 1, 1, -1])
 
-        print(poses.shape)
         return super(FullyConnectedCapsuleLayer, self).inference((poses, activations))
 
 
