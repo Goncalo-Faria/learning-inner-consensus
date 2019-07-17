@@ -154,8 +154,9 @@ class Model(object):
         grads = self._average_gradients(tower_grads)
         train_op = self._optimizer.apply_gradients(
             grads, global_step=self._global_step)
-        summaries = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.SUMMARIES)
-        summary = tf.compat.v1.summary.merge(summaries)
+        #summaries = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.SUMMARIES)
+        #summary = tf.compat.v1.summary.merge(summaries)
+        summary = tf.compat.v1.summary.merge_all()
         stacked_corrects = tf.stack(corrects)
         stacked_almosts = tf.stack(almosts)
         summed_corrects = tf.reduce_sum(stacked_corrects, 0)
