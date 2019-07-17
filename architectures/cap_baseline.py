@@ -32,7 +32,7 @@ def setup(
             ),
             "routing" : KernelRouting(
                 kernel=DotProd(),
-                metric=Frobenius(),
+                metric=SquaredFrobenius(),
                 iterations=3,
                 verbose=hparams.verbose,
                 name="LastR",
@@ -44,14 +44,14 @@ def setup(
             CapsuleLayer(
                 routing= KernelRouting(
                     DotProd(),
-                    Frobenius(),
+                    SquaredFrobenius(),
                     iterations=3,
                     verbose=hparams.verbose,
                     name="A"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=Frobenius()
+                    metric=SquaredFrobenius()
                 ),
                 ksizes=[1, 3, 3, 1],
                 strides=[1,2,2,1],
@@ -60,14 +60,14 @@ def setup(
             CapsuleLayer(
                 routing=KernelRouting(
                     DotProd(),
-                    Frobenius(),
+                    SquaredFrobenius(),
                     iterations=3,
                     verbose=hparams.verbose,
                     name="B"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=Frobenius()
+                    metric=SquaredFrobenius()
                 ),
                 ksizes=[1, 3, 3, 1],
                 name= "B"
