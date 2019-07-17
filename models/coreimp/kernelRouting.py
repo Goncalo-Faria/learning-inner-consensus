@@ -63,7 +63,10 @@ class KernelRouting(RoutingProcedure):
         theta1 = weight_variable([1], name="theta1", verbose=self._verbose)
         theta2 = bias_variable([1], name="theta2", verbose=self._verbose)
 
-        activation = tf.sigmoid(theta1 * raw + theta2)
+        if self._activate :
+            activation = tf.sigmoid(theta1 * raw + theta2)
+        else :
+            activation = theta1 * raw + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
 
         return activation
