@@ -148,7 +148,7 @@ class CapsuleModel(model.Model):
                 lower_poses = higher_poses
                 lower_activations = higher_activations
         '''
-        
+
         fully_poses, fully_activations = FullyConnectedCapsuleLayer(
             transform=self._hparams.last_layer["transform"],
             routing=self._hparams.last_layer["routing"],
