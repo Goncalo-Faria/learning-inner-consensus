@@ -94,9 +94,14 @@ class RoutingProcedure(object):
             c = self._initial_coefficients(r, activations)
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
+            print("before dp")
+            print(votes.shape)
             poses = self._renormalizedDotProd(c, votes)
             ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
+            print("after dp")
+            print(poses.shape)
+            
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
