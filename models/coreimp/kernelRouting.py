@@ -79,7 +79,7 @@ class KernelRoutingWithPrior(KernelRouting):
             verbose=False):
         super(KernelRoutingWithPrior, self).__init__(
             kernel=kernel,
-            name="withPrior/"+ name,
+            name="withPrior"+ name,
             metric=metric,
             iterations=iterations,
             verbose = verbose)
