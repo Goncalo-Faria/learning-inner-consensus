@@ -22,8 +22,10 @@ class RoutingProcedure(object):
             initial_state,
             design_iterations,
             epsilon=1e-6,
+            activate=True,
             verbose=False):
         self._iterations = design_iterations
+        self._activate = activate
         self._design_iterations = design_iterations
         self._verbose = verbose
         self._epsilon = epsilon
@@ -37,15 +39,15 @@ class RoutingProcedure(object):
             " metric must be instance of Metric metaclass. "
 
     @abc.abstractmethod
-    def _compatibility(self, s, r, votes, poses, probabilities, it):
+    def _compatibility(self, s, r, votes, poses, probabilities,activations, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
         raise NotImplementedError('Not implemented')
 
-    def compatibility(self, s, r, votes, poses, probabilities, it):
+    def compatibility(self, s, r, votes, poses, probabilities,activations, it):
         with tf.compat.v1.variable_scope('compatibility', reuse=tf.compat.v1.AUTO_REUSE) as scope:
-            return self._compatibility(s, r, votes, poses, probabilities, it)
+            return self._compatibility(s, r, votes, poses, probabilities, activations, it)
 
     @abc.abstractmethod
     def _activation(self, s, c, votes, poses):
@@ -104,7 +106,7 @@ class RoutingProcedure(object):
             for it in range(self._iterations):
                 self._it = it
 
-                r, s = self.compatibility(s, r, votes, poses, probabilities, it)
+                r, s = self.compatibility(s, r, votes, poses, probabilities, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
                 c = tf.nn.softmax(r, axis=-1)

@@ -15,6 +15,7 @@ class KernelRouting(RoutingProcedure):
             kernel,
             metric,
             iterations,
+            activate = True,
             name="",
             verbose=False):
         self._kernel = kernel
@@ -24,9 +25,10 @@ class KernelRouting(RoutingProcedure):
             metric=metric,
             design_iterations=iterations,
             initial_state=None,
+            activate=activate,
             verbose=verbose)
 
-    def _compatibility(self, s, r, votes, poses, probabilities, it):
+    def _compatibility(self, s, r, votes, poses, probabilities, activations, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
@@ -39,7 +41,7 @@ class KernelRouting(RoutingProcedure):
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
-        r = alpha * self._kernel.take(poses_tiled, votes)
+        r = alpha * self._kernel.take(poses_tiled, votes) * activations
         return r, s
 
     def _activation(self, s, c, votes, poses):
@@ -75,6 +77,7 @@ class KernelRoutingWithPrior(KernelRouting):
             kernel,
             metric,
             iterations,
+            activate = True,
             name="",
             verbose=False):
         super(KernelRoutingWithPrior, self).__init__(
@@ -82,6 +85,7 @@ class KernelRoutingWithPrior(KernelRouting):
             name="withPrior"+ name,
             metric=metric,
             iterations=iterations,
+            activate=activate,
             verbose=verbose)
 
     def _initial_coefficients(self, r, activations):

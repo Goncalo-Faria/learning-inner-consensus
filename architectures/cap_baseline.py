@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from models.coreimp.kernelRouting import KernelRoutingWithPrior
+from models.coreimp.kernelRouting import KernelRouting
 from models.coreimp.commonKernels import DotProd
 from models.coreimp.commonMetrics import Frobenius, SquaredFrobenius
 from models.coreimp.equiTransform import EquiTransform
@@ -30,43 +30,44 @@ def setup(
                 output_atoms=hparams.num_classes,
                 metric=SquaredFrobenius()
             ),
-            "routing" : KernelRoutingWithPrior(
+            "routing" : KernelRouting(
                 kernel=DotProd(),
-                metric=SquaredFrobenius(),
+                metric=Frobenius(),
                 iterations=3,
                 verbose=hparams.verbose,
-                name="LastR"
+                name="LastR",
+                activate = False,
             )
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= KernelRoutingWithPrior(
+                routing= KernelRouting(
                     DotProd(),
-                    SquaredFrobenius(),
+                    Frobenius(),
                     iterations=3,
                     verbose=hparams.verbose,
                     name="A"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=SquaredFrobenius()
+                    metric=Frobenius()
                 ),
                 ksizes=[1, 3, 3, 1],
                 strides=[1,2,2,1],
                 name = "A"
             ),
             CapsuleLayer(
-                routing=KernelRoutingWithPrior(
+                routing=KernelRouting(
                     DotProd(),
-                    SquaredFrobenius(),
+                    Frobenius(),
                     iterations=3,
                     verbose=hparams.verbose,
                     name="B"
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=SquaredFrobenius()
+                    metric=Frobenius()
                 ),
                 ksizes=[1, 3, 3, 1],
                 name= "B"
