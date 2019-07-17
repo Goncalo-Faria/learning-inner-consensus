@@ -67,12 +67,7 @@ class RoutingProcedure(object):
     def _renormalizedDotProd(self, c, votes):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
 
-        print("c value")
-        print(c.shape)
         raw_poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
-
-        print("raw_plses")
-        print(raw_poses.shape)
 
         ## raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
@@ -99,13 +94,8 @@ class RoutingProcedure(object):
             c = self._initial_coefficients(r, activations)
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-            print("before dp")
-            print(votes.shape)
             poses = self._renormalizedDotProd(c, votes)
             ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
-
-            print("after dp")
-            print(poses.shape)
 
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }

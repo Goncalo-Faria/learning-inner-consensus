@@ -121,7 +121,6 @@ class CapsuleLayer(object):
 
         with tf.compat.v1.variable_scope('CapsuleLayer' + self.name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
 
-
             poses, activations = self._receptivefield(input_tensor)
             """
                 stacks the multiple possible receptive fields of capsules. 
@@ -129,12 +128,9 @@ class CapsuleLayer(object):
             """
             ## poses { batch, new_w , new_h, depth * np.prod(ksizes)} + repdim
             ## activations { batch, new_w , new_h, depth * np.prod(ksizes) } 
-            print("before transf")
-            print(poses.shape)
+
             votes, activations = self._transform.translate(poses, activations)
 
-            print("after transf")
-            print(poses.shape)
             """
                 transforms the poses to the output's capsule space.
             """
@@ -147,8 +143,6 @@ class CapsuleLayer(object):
                 iterations=self._iterations
             )
 
-            print("after routing")
-            print(poses.shape)
             """
                 determines the pose and activation of the output capsules.
             """
