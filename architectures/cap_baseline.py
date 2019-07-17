@@ -34,7 +34,8 @@ def setup(
                 kernel=DotProd(),
                 metric=Frobenius(),
                 iterations=3,
-                verbose=True
+                verbose=True,
+                name="F"
             )
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
