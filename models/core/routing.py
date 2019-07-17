@@ -89,6 +89,8 @@ class RoutingProcedure(object):
             r = tf.zeros(shape=activations.shape.as_list() + [1, 1], dtype=tf.float32, name="compatibility_value")
             ## r { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
+            activations = tf.reshape(activations, shape=activations.shape.as_list() + [1, 1])
+
             c = self._initial_coefficients(r, activations)
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 

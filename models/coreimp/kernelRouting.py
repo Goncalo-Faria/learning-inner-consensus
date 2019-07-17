@@ -41,7 +41,8 @@ class KernelRouting(RoutingProcedure):
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
-        r = alpha * self._kernel.take(poses_tiled, votes) * activations
+        r = activations * alpha * self._kernel.take(poses_tiled, votes)
+
         return r, s
 
     def _activation(self, s, c, votes, poses):
@@ -89,4 +90,4 @@ class KernelRoutingWithPrior(KernelRouting):
             verbose=verbose)
 
     def _initial_coefficients(self, r, activations):
-        return tf.reshape(activations, shape=activations.shape.as_list() + [1, 1])
+        return activations

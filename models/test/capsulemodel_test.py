@@ -3,11 +3,14 @@ import tensorflow as tf
 
 from models.capsulemodel import CapsuleModel
 from architectures import cap_block_net as BlockCap
-
+from argparse import Namespace
 
 def setup(num_classes=10,max_steps = 1000,learning_rate = 0.001):
 
-    hparams = {
+    hparams = Namespace()
+
+    hparams.__dict__ = {
+        "model" : "YourMUM",
         "learning_rate": learning_rate,
         "max_steps": max_steps,
         "num_classes":num_classes,
