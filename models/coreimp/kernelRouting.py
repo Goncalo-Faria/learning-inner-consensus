@@ -69,7 +69,7 @@ class KernelRouting(RoutingProcedure):
         return activation
 
     def _initial_coefficients(self, r, activations):
-        return tf.ones(activations.shape.as_list() + [1, 1], dtype=tf.float32) / activations.shape.as_list()[-1]
+        return tf.ones(activations.shape.as_list(), dtype=tf.float32) / activations.shape.as_list()[-1]
 
 
 class KernelRoutingWithPrior(KernelRouting):
