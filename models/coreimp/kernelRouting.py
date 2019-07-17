@@ -35,7 +35,7 @@ class KernelRouting(RoutingProcedure):
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
         alpha = weight_variable([],
-                                name="alpha",
+                                name= self.name + "alpha",
                                 verbose = True,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
