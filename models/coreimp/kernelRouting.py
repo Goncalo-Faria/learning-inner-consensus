@@ -32,8 +32,9 @@ class KernelRouting(RoutingProcedure):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
-
+        print(poses.shape)
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
+        print(poses_tiled.shape)
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
         alpha = weight_variable([],
