@@ -21,6 +21,7 @@ class RoutingProcedure(object):
             metric,
             initial_state,
             design_iterations,
+            normalization = tf.nn.softmax,
             epsilon=1e-6,
             activate=True,
             verbose=False):
@@ -28,6 +29,7 @@ class RoutingProcedure(object):
         self._activate = activate
         self._design_iterations = design_iterations
         self._verbose = verbose
+        self._normalization = normalization
         self._epsilon = epsilon
         self._initial_state = initial_state
         self.name = name
@@ -111,7 +113,7 @@ class RoutingProcedure(object):
                 r, s = self.compatibility(s, r, votes, poses, probabilities, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-                c = tf.nn.softmax(r, axis=-1)
+                c = self._normalization(r, axis=-1)
                 ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
                 poses = self._renormalizedDotProd(c, votes)

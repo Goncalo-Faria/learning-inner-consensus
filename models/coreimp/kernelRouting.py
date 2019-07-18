@@ -93,5 +93,7 @@ class KernelRoutingWithPrior(KernelRouting):
             activate=activate,
             verbose=verbose)
 
+        self._normalization = tf.nn.softmax
+
     def _initial_coefficients(self, r, activations):
         return activations
