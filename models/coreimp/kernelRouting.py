@@ -19,6 +19,7 @@ class KernelRouting(RoutingProcedure):
             name="",
             verbose=False):
         self._kernel = kernel
+        self._agreement = None
 
         super(KernelRouting, self).__init__(
             name="KernelRouting" + name,
@@ -32,7 +33,6 @@ class KernelRouting(RoutingProcedure):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
-        poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
         alpha = weight_variable([],
@@ -40,7 +40,7 @@ class KernelRouting(RoutingProcedure):
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
-        r = activations * alpha * self._kernel.take(poses_tiled, votes)
+        r = activations * alpha * self._agreement
 
         return r, s
 
@@ -49,12 +49,14 @@ class KernelRouting(RoutingProcedure):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        distance = self.metric.take(votes - poses)
+        poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
 
-        # if self._verbose:
-            # tf.compat.v1.summary.histogram(self.name + "distance_in_it_" + str(self._it), distance)
+        self._agreement = self._kernel.take(poses_tiled, votes)
 
-        raw = tf.reduce_sum(tf.multiply(c, distance), axis=-3, keepdims=True)
+        raw = tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
+
+        if self._verbose:
+            tf.compat.v1.summary.histogram(self.name + "distance_in_it_" + str(self._it), self._agreement)
 
         ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
 
@@ -62,9 +64,9 @@ class KernelRouting(RoutingProcedure):
         theta2 = bias_variable([1], name="theta2", verbose=self._verbose)
 
         if self._activate :
-            activation = tf.sigmoid(theta1 * (-1) * raw + theta2)
+            activation = tf.sigmoid(theta1 * raw + theta2)
         else :
-            activation = theta1 * (-1) * raw + theta2
+            activation = theta1 * raw + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
 
         return activation
