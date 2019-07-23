@@ -67,7 +67,7 @@ class Model(object):
 
             learning_rate = tf.maximum(learning_rate, 1e-6)
 
-            self._optimizer = tf.compat.v1.train.RMSPropOptimizer(learning_rate)
+            self._optimizer = tf.compat.v1.keras.optimizers.Nadam(learning_rate)
 
     def inference(self, features):
         with tf.name_scope("Model" + self.name):
