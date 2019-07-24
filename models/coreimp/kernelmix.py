@@ -28,13 +28,6 @@ class KernelMix(Kernel):
     def apply(self, a, b):
         ## a,b :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
 
-        s = []
-        for i in range(len(self._kernel_list)):
-            with tf.compat.v1.variable_scope('component' + str(i), reuse=tf.compat.v1.AUTO_REUSE):
-                s.append(self._kernel_list[i].take(a,b))
-
-        stacked_kernel_outputs = tf.compat.v1.stack(s, axis=-1)
-
         b = variables.weight_variable(
             [len(self._kernel_list)],
             name="mixing_coeficients",
@@ -43,9 +36,13 @@ class KernelMix(Kernel):
 
         c = self._normalization(b)
 
-        r = tf.reduce_sum(c * stacked_kernel_outputs, axis=-1, keepdims=False)
+        s = tf.zeros(a.shape.as_list()[:-2]+ [1,1],dtype=tf.float32)
 
-        return r
+        for i in range(len(self._kernel_list)):
+            with tf.compat.v1.variable_scope('component' + str(i), reuse=tf.compat.v1.AUTO_REUSE):
+                s = s + c[i] * self._kernel_list[i].take(a,b)
+
+        return s
 
 
 class MonoKernelMix(KernelMix):
