@@ -28,13 +28,13 @@ class KernelMix(Kernel):
     def apply(self, a, b):
         ## a,b :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
 
-        b = variables.weight_variable(
+        bias = variables.weight_variable(
             [len(self._kernel_list)],
             name="mixing_coeficients",
             initializer=tf.compat.v1.initializers.ones()
         )
 
-        c = self._normalization(b)
+        c = self._normalization(bias)
 
         s = tf.zeros(a.shape.as_list()[:-2]+ [1,1],dtype=tf.float32)
 
