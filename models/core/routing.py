@@ -69,13 +69,13 @@ class RoutingProcedure(object):
     def _renormalizedDotProd(self, c, votes):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
 
-        raw_poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
+        poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
 
-        ## raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
+        # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-        poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
+        # poses = tf.divide(poses, self._epsilon + self.metric.take(raw_poses))
 
-        ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
+        # poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
         return poses
 

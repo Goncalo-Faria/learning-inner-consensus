@@ -3,8 +3,10 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+import numpy as np
 
 from ..core.kernel import Kernel
+from ..core import variables
 
 
 class Poly(Kernel):
@@ -47,3 +49,66 @@ class DotProd(Kernel):
 
         return tf.matmul(a, b)
 
+
+class GaussianKernel(Kernel):
+
+    def __init__(
+            self,
+            verbose=False):
+
+        super(GaussianKernel, self).__init__(
+            "GaussianKernel",
+            verbose=verbose)
+
+    def apply(self, a, b):
+        exponent = tf.reduce_sum( tf.pow(a - b, 2), axis=[-2,-1], keepdims=True)
+
+        length_scale = variables.weight_variable(
+            [],
+            name="length_scale"
+        )
+
+        rbf = exponent*(-1/2)*(1/(length_scale**2))
+
+        return tf.compat.v1.exp(rbf)
+
+
+class SpectralMixture(Kernel):
+    ## https://arxiv.org/pdf/1302.4245.pdf
+    ## https://arxiv.org/pdf/1511.02222.pdf
+    def __init__(
+            self,
+            verbose=False):
+
+        super(SpectralMixture, self).__init__(
+            "SpectralMixture",
+            verbose=verbose)
+
+    def apply(self, a, b):
+        shape = a.shape.as_list()
+
+        a = tf.reshape(a, shape[:-2] + [1, -1])
+        b = tf.reshape(b, shape[:-2] + [1, -1])
+
+        ro = a - b
+
+        mu = variables.weight_variable(
+            [ro.shape.as_list()[-1]],
+            name="mu"
+        )
+
+        v = variables.weight_variable(
+            [ro.shape.as_list()[-1]],
+            name="v"
+        )
+
+        atom = ro * np.pi
+
+        prod1 = tf.exp((-2) * (atom ** 2) * v)
+        prod2 = tf.cos(atom * mu * 2)
+
+        element_sim = prod1 * prod2
+
+        sim = tf.reduce_sum( element_sim, axis=-1, keepdims = True)
+
+        return sim

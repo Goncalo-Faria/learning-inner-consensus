@@ -36,6 +36,7 @@ import argparse
 
 import architectures.cap_baseline as CapBaseline
 import architectures.cap_block_net as BlockNet
+import architectures.cap_ap1 as KernelBaseline
 #import architectures.convnet as ConvNet
 
 parser = argparse.ArgumentParser(prog='Experiment', add_help=True)
@@ -90,7 +91,8 @@ GLOBAL_HPAR = parser.parse_args()
 models = {
     "CapsuleBlockNet": capm.CapsuleModel,
     "ConvNet" : convmodel.ConvModel,
-    "CapsuleBaseline": capm.CapsuleModel
+    "CapsuleBaseline": capm.CapsuleModel,
+    "KernelNet" : capm.CapsuleModel
 }
 
 def get_features(split, total_batch_size, num_gpus, data_dir, num_targets,
@@ -571,6 +573,8 @@ def main(_):
         GLOBAL_HPAR = CapBaseline.setup(GLOBAL_HPAR)
     elif GLOBAL_HPAR.model == "ConvNet":
         print(GLOBAL_HPAR.model)
+    elif GLOBAL_HPAR.model == "KernelNet":
+        GLOBAL_HPAR = KernelBaseline.setup(GLOBAL_HPAR)
         ##GLOBAL_HPAR = ConvNet.setup(GLOBAL_HPAR)
 
     print("hpar")

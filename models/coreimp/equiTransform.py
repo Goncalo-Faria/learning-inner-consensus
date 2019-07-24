@@ -18,9 +18,11 @@ class EquiTransform(Transform):
             metric,
             verbose=False,
             epsilon=1e-6,
+            bias=True,
             name=""):
         self.metric = metric
         self._epsilon = epsilon
+        self._bias = bias
 
         assert isinstance(metric, Metric), \
             " metric must be instance of Metric metaclass. "
@@ -48,11 +50,17 @@ class EquiTransform(Transform):
         W_norm = self.metric.take(W)
         ## W_norm :: { 1, outputatoms, 1, 1, depth * np.prod(ksizes) , 1 ,1 }
 
-        bias = variables.bias_variable(
-            [1, self._output_atoms, poses_shape[1], poses_shape[2], 1, poses_shape[-2], poses_shape[-1]],
-            name="shift"
-        )
-        ## bias { 1, outputatoms, new_w, new_h, 1 } + repdim
+        if self._bias:
+            bias = variables.bias_variable(
+                [1, self._output_atoms, 1, 1, 1, poses_shape[-2], poses_shape[-1]],
+                name="shift"
+            )
+            ## bias { 1, outputatoms, 1, 1, 1 } + repdim
+
+            bias_scaled = tf.tile(
+                bias,
+                [poses_shape[0], 1, poses_shape[1], poses_shape[2], poses_shape[-3], 1, 1]
+            )
 
         W_scaled = tf.tile(
             W,
@@ -78,7 +86,10 @@ class EquiTransform(Transform):
         )
         ## activations_tiled :: { batch, outputatoms, new_w, new_h, depth * np.prod(ksizes) }
 
-        votes = tf.matmul(W_scaled, poses_tiled) / (W_norm_scaled + self._epsilon) + bias
+        votes = tf.matmul(W_scaled, poses_tiled) / (W_norm_scaled + self._epsilon)
+
+        if self._bias :
+            votes = votes + bias_scaled
         """
             transforms the lower level poses to the higher level capsule space.
         """

@@ -40,7 +40,7 @@ class KernelRouting(RoutingProcedure):
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
-        r = activations * alpha * self._agreement
+        r = activations * (1/tf.pow(alpha,2)) * self._agreement
 
         return r, s
 
