@@ -53,10 +53,10 @@ class KernelRouting(RoutingProcedure):
 
         self._agreement = self._kernel.take(poses_tiled, votes)
 
-        raw = tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
+        raw = (-1) * tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
 
         if self._verbose:
-            tf.compat.v1.summary.histogram(self.name + "distance_in_it_" + str(self._it), self._agreement)
+            tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), self._agreement)
 
         ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
 
