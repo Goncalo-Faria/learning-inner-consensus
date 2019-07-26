@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from ..core.routing import RoutingProcedure
 from ..core.transform import Transform
+from ..coreimp.commonMetrics import Frobenius
 
 
 class CapsuleLayer(object):
@@ -218,11 +219,15 @@ class PrimaryCapsuleLayer(object):
             self,
             pose_dim,
             ksize=[1, 1],
-            groups=10
+            groups=10,
+            metric = Frobenius(),
+            epsilon= 1e-7
     ):
         self._pose_dim = pose_dim
         self._ksize = ksize
         self._groups = groups
+        self._metric = metric
+        self._epsilon = epsilon
 
     def inference(self, input_tensor):
         ## input_tensor == {batch, w, h, depth}
@@ -256,5 +261,7 @@ class PrimaryCapsuleLayer(object):
 
             ## pose == {batch, w, h, capsule_groups} + pose_dim
             ## activation == {batch, w, h, capsule_groups}
+
+            poses = poses / (self._metric.take(poses) + self._epsilon)
 
             return poses, activations
