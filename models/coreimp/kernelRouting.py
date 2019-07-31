@@ -69,6 +69,7 @@ class KernelRouting(RoutingProcedure):
             activation = theta1 * raw + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
 
+
         return activation
 
     def _initial_coefficients(self, r, activations):

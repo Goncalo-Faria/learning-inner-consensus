@@ -7,6 +7,7 @@ import abc
 import tensorflow as tf
 
 from ..core.metric import Metric
+from ..core.variables import bias_variable
 
 
 class RoutingProcedure(object):
@@ -24,6 +25,7 @@ class RoutingProcedure(object):
             normalization = tf.nn.softmax,
             epsilon=1e-6,
             activate=True,
+            bias=False,
             verbose=False):
         self._iterations = design_iterations
         self._activate = activate
@@ -33,6 +35,7 @@ class RoutingProcedure(object):
         self._epsilon = epsilon
         self._initial_state = initial_state
         self.name = name
+        self._bias= bias
         self.metric = metric
         self.atoms = 0
         self._it = 0
@@ -69,8 +72,12 @@ class RoutingProcedure(object):
     def _renormalizedDotProd(self, c, votes):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
 
+        vshape = votes.shape.as_list()
+
         raw_poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
 
+        if self._bias :
+            raw_poses = raw_poses + bias_variable([1,vshape[1],1,1,1]+ vshape[-2:-1])
         # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
         poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
@@ -122,7 +129,7 @@ class RoutingProcedure(object):
                 probabilities = self.activation(s, c, votes, poses)
                 ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
-            probabilities = tf.squeeze(probabilities, axis=[-2, -1])
+            probabilities = tf.squeeze(probabilities, axis=[-2,-1])
 
             poses = tf.transpose(poses, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
             probabilities = tf.transpose(probabilities, [0, 4, 2, 3, 1])  ## output atoms become depth
