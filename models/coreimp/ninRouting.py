@@ -26,7 +26,7 @@ class NiNRouting(RoutingProcedure):
             name="NiNRouting" + name,
             metric=metric,
             design_iterations=iterations,
-            initial_state=tf.zeros([degree],dtype=tf.float32),
+            initial_state=None,
             activate=activate,
             verbose=verbose)
 
@@ -38,7 +38,7 @@ class NiNRouting(RoutingProcedure):
         vshape = votes.shape.as_list()
         # s :: {degree}
 
-        if len(s.shape.as_list()) == 1 :
+        if s is None:
             s = self._cached_h
 
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, vshape[4], 1, 1])
@@ -85,8 +85,8 @@ class NiNRouting(RoutingProcedure):
 
         vshape = votes.shape.as_list()
 
-        if len(s.shape.as_list()) == 1 :
-            s = tf.reshape(s, [1, 1, 1, 1, 1, -1])
+        if s is None :
+            s = tf.zeros([1, 1, 1, 1, 1, self._degree], dtype=tf.float32)
             s = tf.tile(s, [vshape[0], vshape[1], vshape[2], vshape[3], vshape[4], 1])
             self._cached_h = s
 

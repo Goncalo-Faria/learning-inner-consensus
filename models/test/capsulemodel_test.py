@@ -2,7 +2,7 @@ import tensorflow as tf
 
 
 from models.capsulemodel import CapsuleModel
-from architectures import cap_block_net as BlockCap
+from architectures import cap_mlp as MLPCap
 from argparse import Namespace
 
 def setup(num_classes=10,max_steps = 1000,learning_rate = 0.001):
@@ -29,6 +29,6 @@ features = {
     "width":  24
 }
 
-result = CapsuleModel(BlockCap.setup(setup(10))).inference(features)
+result = CapsuleModel(MLPCap.setup(setup(10))).inference(features)
 
 print(result)
