@@ -11,12 +11,26 @@ from models.layers.capsule import CapsuleLayer
 def setup(
         hparams):
 
-    router = NiNRouting(
+    midrouter = NiNRouting(
         metric=Frobenius(),
         iterations=3,
         activation_layers=[32,10],
         compatibility_layers=[32,10],
-        degree=16
+        degree=16,
+        verbose=hparams.verbose,
+        name="globalrouter",
+        activate=True,
+    )
+
+    lastrouter = NiNRouting(
+        metric=Frobenius(),
+        iterations=3,
+        activation_layers=[32, 10],
+        compatibility_layers=[32, 10],
+        degree=16,
+        verbose=hparams.verbose,
+        name="globalrouter",
+        activate=False,
     )
 
     hparams.derender_layers= [
@@ -39,12 +53,12 @@ def setup(
                 output_atoms=hparams.num_classes,
                 metric=Frobenius()
             ),
-            "routing" : router
+            "routing" : lastrouter
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= router,
+                routing= midrouter,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius()
@@ -54,7 +68,7 @@ def setup(
                 name = "A"
             ),
             CapsuleLayer(
-                routing= router,
+                routing= midrouter,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius()

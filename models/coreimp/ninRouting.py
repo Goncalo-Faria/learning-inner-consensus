@@ -6,6 +6,7 @@ import tensorflow as tf
 
 from models.core.routing import RoutingProcedure
 
+
 class NiNRouting(RoutingProcedure):
 
     def __init__(
@@ -16,7 +17,10 @@ class NiNRouting(RoutingProcedure):
             compatibility_layers=[],
             degree=16,
             activate = True,
+            bias=False,
             name="",
+            epsilon=1e-6,
+            normalization=tf.nn.softmax,
             verbose=False):
         self._degree = degree
         self._activation_layers = activation_layers
@@ -28,7 +32,10 @@ class NiNRouting(RoutingProcedure):
             design_iterations=iterations,
             initial_state=None,
             activate=activate,
-            verbose=verbose)
+            verbose=verbose,
+            bias=bias,
+            epsilon=epsilon,
+            normalization=normalization)
 
     def _compatibility(self, s, r, votes, poses, probabilities, activations, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
@@ -100,6 +107,15 @@ class NiNRouting(RoutingProcedure):
                 layer_num,
                 activation=tf.nn.relu)(inl)
         ## apply nn
+
+        if self._activate :
+            outl = tf.compat.v1.layers.Dense(
+                1,
+                activation=tf.nn.sigmoid)(inl)
+        else :
+            outl = tf.compat.v1.layers.Dense(1)(inl)
+
+        ## activation :: { batch, output_atoms, new_w, new_h, 1 }
 
         outl = tf.compat.v1.layers.Dense(
                 1,
