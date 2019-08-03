@@ -27,7 +27,7 @@ class NiNRouting(RoutingProcedure):
         self._compatibility_layers = compatibility_layers
 
         super(NiNRouting, self).__init__(
-            name="NiNRouting" + name,
+            name="NiNRouting_" + name,
             metric=metric,
             design_iterations=iterations,
             initial_state=None,
@@ -61,16 +61,25 @@ class NiNRouting(RoutingProcedure):
 
         inl = flatten_stacked_values
 
+        counter = 0
+
         for layer_num in self._compatibility_layers:
 
             inl = tf.compat.v1.layers.Dense(
-                layer_num,
-                activation=tf.nn.relu)(inl)
+                units=layer_num,
+                activation=tf.nn.relu,
+                _reuse=tf.compat.v1.AUTO_REUSE,
+                name="l_" + str(counter)
+            )(inl)
         ## apply nn
 
+            counter += 1
+
         outl = tf.compat.v1.layers.Dense(
-                self._degree + 1,
-                activation=None)(inl)
+                units=self._degree + 1,
+                activation=None,
+                _reuse=tf.compat.v1.AUTO_REUSE,
+                name="l_final")(inl)
 
         ## output -> [h, r]
         s = outl[:,:-1]
@@ -101,25 +110,32 @@ class NiNRouting(RoutingProcedure):
 
         inl = tf.reshape( s,[sshape[0]*sshape[1]*sshape[2]*sshape[3], -1])
 
+        counter = 0
+
         for layer_num in self._activation_layers :
 
             inl = tf.compat.v1.layers.Dense(
-                layer_num,
-                activation=tf.nn.relu)(inl)
+                units=layer_num,
+                activation=tf.nn.relu,
+                _reuse=tf.compat.v1.AUTO_REUSE,
+                name="l_"+str(counter))(inl)
+
+            counter += 1
         ## apply nn
 
         if self._activate :
             outl = tf.compat.v1.layers.Dense(
-                1,
-                activation=tf.nn.sigmoid)(inl)
+                units=1,
+                name="l_final",
+                _reuse=tf.compat.v1.AUTO_REUSE,
+                activation=tf.nn.sigmoid
+            )(inl)
         else :
-            outl = tf.compat.v1.layers.Dense(1)(inl)
-
-        ## activation :: { batch, output_atoms, new_w, new_h, 1 }
-
-        outl = tf.compat.v1.layers.Dense(
-                1,
-                activation=tf.nn.sigmoid)(inl)
+            outl = tf.compat.v1.layers.Dense(
+                units=1,
+                name="l_final_logits",
+                _reuse=tf.compat.v1.AUTO_REUSE
+            )(inl)
 
         ## activation :: { batch, output_atoms, new_w, new_h, 1 }
         activation = tf.reshape(outl,sshape[:-2]+[1,1,1])

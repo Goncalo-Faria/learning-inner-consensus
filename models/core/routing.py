@@ -7,7 +7,7 @@ import abc
 import tensorflow as tf
 
 from ..core.metric import Metric
-from ..core.variables import bias_variable
+from ..core.variables import new_variable
 
 
 class RoutingProcedure(object):
@@ -51,7 +51,7 @@ class RoutingProcedure(object):
         raise NotImplementedError('Not implemented')
 
     def compatibility(self, s, r, votes, poses, probabilities,activations, it):
-        with tf.compat.v1.variable_scope('compatibility', reuse=tf.compat.v1.AUTO_REUSE) as scope:
+        with tf.compat.v1.variable_scope('compatibility/', reuse=tf.compat.v1.AUTO_REUSE) as scope:
             return self._compatibility(s, r, votes, poses, probabilities, activations, it)
 
     @abc.abstractmethod
@@ -62,7 +62,7 @@ class RoutingProcedure(object):
         raise NotImplementedError('Not implemented')
 
     def activation(self, s, c, votes, poses):
-        with tf.compat.v1.variable_scope('activation', reuse=tf.compat.v1.AUTO_REUSE) as scope:
+        with tf.compat.v1.variable_scope('activation/', reuse=tf.compat.v1.AUTO_REUSE) as scope:
             return self._activation(s, c, votes, poses)
 
     @abc.abstractmethod
@@ -77,7 +77,8 @@ class RoutingProcedure(object):
         raw_poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
 
         if self._bias :
-            raw_poses = raw_poses + bias_variable([1,vshape[1],1,1,1]+ vshape[-2:-1])
+            b_var = tf.zeros(shape=[1,vshape[1],1,1,1]+ vshape[-2:-1], dtype=tf.float32)
+            raw_poses = raw_poses + new_variable(b_var,verbose=self._verbose, name="bias")
         # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
         poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
@@ -91,7 +92,7 @@ class RoutingProcedure(object):
         ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) } 
         self.atoms = votes.shape.as_list()[4]
 
-        with tf.compat.v1.variable_scope('RoutingProcedure/' + self.name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
+        with tf.compat.v1.variable_scope('RoutingProcedure/' + self.name, reuse=tf.compat.v1.AUTO_REUSE):
 
             s = self._initial_state
 

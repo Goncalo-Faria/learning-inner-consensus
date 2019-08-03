@@ -139,7 +139,7 @@ class CapsuleModel(model.Model):
 
 
         for i in range(len(self._hparams.layers)):
-            with tf.name_scope("layer" + str(i)) as scope:
+            with tf.name_scope("layer" + str(i)+ "/") as scope:
                 higher_poses, higher_activations = self._hparams.layers[i].inference(
                     (lower_poses, lower_activations))
 
@@ -148,17 +148,18 @@ class CapsuleModel(model.Model):
                 lower_poses = higher_poses
                 lower_activations = higher_activations
 
+        with tf.name_scope("fullyconnected/") as scope:
+            fully_poses, fully_activations = FullyConnectedCapsuleLayer(
+                transform=self._hparams.last_layer["transform"],
+                routing=self._hparams.last_layer["routing"],
+                name="last"
+            ).inference((lower_poses, lower_activations))
 
-        fully_poses, fully_activations = FullyConnectedCapsuleLayer(
-            transform=self._hparams.last_layer["transform"],
-            routing=self._hparams.last_layer["routing"],
-            name="last"
-        ).inference((lower_poses, lower_activations))
-
-        final_poses, final_activations = CapsuleClassLayer(
-            normalized=False,
-            name=self.name + "Caps/"
-        ).inference((fully_poses, fully_activations))
+        with tf.name_scope("classlayer/") as scope:
+            final_poses, final_activations = CapsuleClassLayer(
+                normalized=False,
+                name=self.name + "Caps/"
+            ).inference((fully_poses, fully_activations))
 
         if self._hparams.remake:
             remake = self._remake(

@@ -55,4 +55,7 @@ print("should have been " + str([batch, w, h, atoms] + representation_dim))
 print("got " + str(high_activations.shape))
 print("should have been " + str([batch, w, h, atoms]))
 
+print(high_activations)
+print(high_poses)
+
 

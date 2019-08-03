@@ -27,7 +27,7 @@ def weight_variable(shape, stddev=0.1, verbose=False, name="", regularizer=None,
                 initializer = tf.compat.v1.truncated_normal_initializer(
                     stddev=stddev)
             weights = tf.compat.v1.get_variable(
-                'weights' + name,
+                'weights_' + name,
                 shape,
                 initializer=initializer,
                 dtype=tf.float32,
@@ -35,6 +35,15 @@ def weight_variable(shape, stddev=0.1, verbose=False, name="", regularizer=None,
     #variable_summaries(weights, verbose)
     return weights
 
+def new_variable(value, verbose=False, name=""):
+    with tf.device('/cpu:0'):
+        var = tf.compat.v1.Variable(
+            value,
+            name=name,
+            dtype=tf.float32)
+
+    #variable_summaries(var, verbose)
+    return var
 
 def bias_variable(shape, verbose=False, name=""):
     """Creates a CPU variable with constant initialization. Adds summaries.
