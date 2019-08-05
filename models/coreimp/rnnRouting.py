@@ -4,17 +4,15 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from models.core.routing import RoutingProcedure
+from models.core.routing import SimplifiedRoutingProcedure
 
 
-class NiNRouting(RoutingProcedure):
+class RNNRouting(SimplifiedRoutingProcedure):
 
     def __init__(
             self,
             metric,
             iterations,
-            activation_layers=[],
-            compatibility_layers=[],
             degree=16,
             activate = True,
             bias=False,
@@ -23,11 +21,12 @@ class NiNRouting(RoutingProcedure):
             normalization=tf.nn.softmax,
             verbose=False):
         self._degree = degree
-        self._activation_layers = activation_layers
-        self._compatibility_layers = compatibility_layers
+        self._cell = tf.compat.v2.keras.layers.LSTMCell(
+            units = self._degree,
+            name="attentionLayer")
 
-        super(NiNRouting, self).__init__(
-            name="NiNRouting_" + name,
+        super(RNNRouting, self).__init__(
+            name="RNNRouting_" + name,
             metric=metric,
             design_iterations=iterations,
             initial_state=None,
@@ -45,88 +44,58 @@ class NiNRouting(RoutingProcedure):
         vshape = votes.shape.as_list()
         # s :: {degree}
 
-        if s is None:
-            s = self._cached_h
-
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, vshape[4], 1, 1])
         poses_concat = tf.reshape(poses_tiled, poses_tiled.shape.as_list()[:-2]+[1]+[-1])
         votes_concat = tf.reshape(votes, votes.shape.as_list()[:-2]+[1]+[-1])
 
-        s_tile = tf.tile(s, [1, 1, 1, 1, vshape[4], 1])
+        #s_tile = tf.tile(s, [1, 1, 1, 1, vshape[4], 1])
 
-        s_concat = tf.expand_dims(s_tile, axis=-2)
+        #s_concat = tf.expand_dims(s_tile, axis=-2)
 
         #  concat( h : mu: a: v : r)(degree + 16 + 1 + 16 + 1 )
 
-        stacked_values = tf.concat([s_concat,poses_concat, activations, votes_concat, r], axis=-1)
+        stacked_values = tf.concat([poses_concat, activations, votes_concat, r], axis=-1)
 
         flatten_stacked_values = tf.reshape(stacked_values, [-1, stacked_values.shape.as_list()[-1]] )
 
         inl = flatten_stacked_values
+        #
+        if s is None:
+            s = self._cell.get_initial_state(
+                inputs=inl)
+        #
 
-        counter = 0
-
-        for layer_num in self._compatibility_layers:
-
-            inl = tf.compat.v1.layers.Dense(
-                units=layer_num,
-                activation=tf.nn.relu,
-                _reuse=tf.compat.v1.AUTO_REUSE,
-                name="l_" + str(counter)
-            )(inl)
-        ## apply nn
-
-            counter += 1
+        out, [new_h, new_c] = self._cell(
+            inputs=inl,
+            states=s)
 
         outl = tf.compat.v1.layers.Dense(
-                units=self._degree + 1,
+                units= 1,
                 activation=None,
                 _reuse=tf.compat.v1.AUTO_REUSE,
-                name="l_final")(inl)
+                name="l_final")(new_h)
 
-        ## output -> [h, r]
-        s = outl[:,:-1]
-        r = outl[:,-1]
+        s = [new_h, new_c]
 
-        s = tf.reshape(s, vshape[0:5]+[self._degree])
-        r = tf.reshape(r, vshape[0:5]+[1,1])
+        r = tf.reshape(outl, vshape[0:5]+[1,1])
 
         # final
 
         ## s :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes), degree }
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes), 1 }
 
-        s = tf.reduce_sum(s, axis=-2, keepdims=True)
-
         return r, s
 
 
     def _activation(self, s, c, votes, poses):
-        ## s :: batch, output_atoms, new_w, new_h, 1] + [degree]
-
+     ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         vshape = votes.shape.as_list()
 
-        if s is None :
-            s = tf.zeros([1, 1, 1, 1, 1, self._degree], dtype=tf.float32)
-            s = tf.tile(s, [vshape[0], vshape[1], vshape[2], vshape[3], 1, 1])
-            self._cached_h = s
+        new_c = tf.reshape(s[1], vshape[0:-2]+[self._degree])
 
-        sshape = s.shape.as_list()
+        combined_c = tf.reduce_sum(new_c, axis=-2, keepdims=True)
 
-        inl = tf.reshape( s,[sshape[0]*sshape[1]*sshape[2]*sshape[3], -1])
-
-        counter = 0
-
-        for layer_num in self._activation_layers :
-
-            inl = tf.compat.v1.layers.Dense(
-                units=layer_num,
-                activation=tf.nn.relu,
-                _reuse=tf.compat.v1.AUTO_REUSE,
-                name="l_"+str(counter))(inl)
-
-            counter += 1
-        ## apply nn
+        inl = tf.reshape(combined_c, [-1, self._degree])
 
         if self._activate :
             outl = tf.compat.v1.layers.Dense(
@@ -143,7 +112,7 @@ class NiNRouting(RoutingProcedure):
             )(inl)
 
         ## activation :: { batch, output_atoms, new_w, new_h, 1 }
-        activation = tf.reshape(outl,sshape[:-2]+[1,1,1])
+        activation = tf.reshape(outl,vshape[:-3]+[1,1,1])
 
         return activation ## batch , out , w, h, 1, 1
 

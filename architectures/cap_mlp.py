@@ -1,9 +1,9 @@
 import tensorflow as tf
 
 
-from models.coreimp.commonMetrics import Frobenius, SquaredFrobenius
+from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
-from models.coreimp.ninRouting import NiNRouting
+from models.coreimp.rnnRouting import RNNRouting
 from models.layers.capsule import CapsuleLayer
 
 ## smaller version.
@@ -11,22 +11,18 @@ from models.layers.capsule import CapsuleLayer
 def setup(
         hparams):
 
-    midrouter = NiNRouting(
+    midrouter = RNNRouting(
         metric=Frobenius(),
         iterations=3,
-        activation_layers=[32,10],
-        compatibility_layers=[32,10],
         degree=16,
         verbose=hparams.verbose,
         name="globalrouter",
         activate=True,
     )
 
-    lastrouter = NiNRouting(
+    lastrouter = RNNRouting(
         metric=Frobenius(),
         iterations=3,
-        activation_layers=[32, 10],
-        compatibility_layers=[32, 10],
         degree=16,
         verbose=hparams.verbose,
         name="globalrouter",
