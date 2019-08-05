@@ -67,7 +67,7 @@ class Model(object):
 
             learning_rate = tf.maximum(learning_rate, 1e-6)
 
-            self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=False)
+            self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=True)
             #self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate)
 
     def inference(self, features):
