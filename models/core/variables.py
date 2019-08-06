@@ -32,7 +32,7 @@ def weight_variable(shape, stddev=0.1, verbose=False, name="", regularizer=None,
                 initializer=initializer,
                 dtype=tf.float32,
                 regularizer=regularizer)
-    #variable_summaries(weights, verbose)
+    variable_summaries(weights, verbose)
     return weights
 
 def new_variable(value, verbose=False, name=""):
@@ -42,7 +42,7 @@ def new_variable(value, verbose=False, name=""):
             name=name,
             dtype=tf.float32)
 
-    #variable_summaries(var, verbose)
+    variable_summaries(var, verbose)
     return var
 
 def bias_variable(shape, verbose=False, name=""):
@@ -62,7 +62,7 @@ def bias_variable(shape, verbose=False, name=""):
                 shape,
                 initializer=tf.compat.v1.constant_initializer(0.1),
                 dtype=tf.float32)
-    #variable_summaries(biases, verbose)
+    variable_summaries(biases, verbose)
     return biases
 
 
