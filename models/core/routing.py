@@ -7,7 +7,7 @@ import abc
 import tensorflow as tf
 
 from ..core.metric import Metric
-from ..core.variables import new_variable
+from ..core.variables import bias_variable
 
 
 class RoutingProcedure(object):
@@ -15,7 +15,7 @@ class RoutingProcedure(object):
         meta class for routing procedures.  
     """
     __metaclass__ = abc.ABCMeta
-
+    count = 0
     def __init__(
             self,
             name,
@@ -24,11 +24,9 @@ class RoutingProcedure(object):
             design_iterations,
             normalization = tf.nn.softmax,
             epsilon=1e-6,
-            activate=True,
             bias=False,
             verbose=False):
         self._iterations = design_iterations
-        self._activate = activate
         self._design_iterations = design_iterations
         self._verbose = verbose
         self._normalization = normalization
@@ -39,7 +37,9 @@ class RoutingProcedure(object):
         self.metric = metric
         self.atoms = 0
         self._it = 0
+        self._activate = True
 
+        RoutingProcedure.count += 1
         assert isinstance(metric, Metric), \
             " metric must be instance of Metric metaclass. "
 
@@ -76,9 +76,13 @@ class RoutingProcedure(object):
 
         raw_poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
 
-        if self._bias :
-            b_var = tf.zeros(shape=[1,vshape[1],1,1,1]+ vshape[-2:-1], dtype=tf.float32)
-            raw_poses = raw_poses + new_variable(b_var,verbose=self._verbose, name="bias")
+        if self._bias:
+            bvar = bias_variable(
+                [1,vshape[1],vshape[2],vshape[3],1]+vshape[-2:],
+                verbose=self._verbose,
+                name="voting_bias"+str(RoutingProcedure.count)
+            )
+            raw_poses = raw_poses + bvar
         # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
         poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
@@ -86,6 +90,12 @@ class RoutingProcedure(object):
         # poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
         return poses
+
+    def bound_activations(self):
+        self._activate = True
+
+    def unbound_activations(self):
+        self._activate = False
 
     def fit(self, votes, activations, iterations = 0):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
@@ -158,7 +168,6 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             design_iterations,
             normalization = tf.nn.softmax,
             epsilon=1e-6,
-            activate=True,
             bias=False,
             verbose=False):
 
@@ -169,7 +178,6 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             design_iterations=design_iterations,
             normalization = normalization,
             epsilon=epsilon,
-            activate=activate,
             bias=bias,
             verbose=verbose)
 

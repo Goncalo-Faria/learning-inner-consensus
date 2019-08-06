@@ -11,22 +11,15 @@ from models.layers.capsule import CapsuleLayer
 def setup(
         hparams):
 
-    midrouter = RNNRouting(
+    router = RNNRouting(
         metric=Frobenius(),
         iterations=3,
-        degree=16,
+        cell= tf.compat.v2.keras.layers.LSTMCell(
+            units = 16,
+            name="attentionLayer"),
         verbose=hparams.verbose,
         name="globalrouter",
-        activate=True,
-    )
-
-    lastrouter = RNNRouting(
-        metric=Frobenius(),
-        iterations=3,
-        degree=16,
-        verbose=hparams.verbose,
-        name="globalrouter",
-        activate=False,
+        bias=True
     )
 
     hparams.derender_layers= [
@@ -49,12 +42,12 @@ def setup(
                 output_atoms=hparams.num_classes,
                 metric=Frobenius()
             ),
-            "routing" : lastrouter
+            "routing" : router
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= midrouter,
+                routing= router,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius()
@@ -64,7 +57,7 @@ def setup(
                 name = "A"
             ),
             CapsuleLayer(
-                routing= midrouter,
+                routing= router,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius()

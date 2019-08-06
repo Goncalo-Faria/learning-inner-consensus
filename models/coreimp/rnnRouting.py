@@ -13,24 +13,23 @@ class RNNRouting(SimplifiedRoutingProcedure):
             self,
             metric,
             iterations,
-            degree=16,
-            activate = True,
+            cell,
             bias=False,
             name="",
             epsilon=1e-6,
+            compatibility_layers=[],
+            activation_layers=[],
             normalization=tf.nn.softmax,
             verbose=False):
-        self._degree = degree
-        self._cell = tf.compat.v2.keras.layers.LSTMCell(
-            units = self._degree,
-            name="attentionLayer")
+        self._compatibility_layers = compatibility_layers
+        self._activation_layers = activation_layers
+        self._cell = cell
 
         super(RNNRouting, self).__init__(
             name="RNNRouting_" + name,
             metric=metric,
             design_iterations=iterations,
             initial_state=None,
-            activate=activate,
             verbose=verbose,
             bias=bias,
             epsilon=epsilon,
@@ -65,17 +64,30 @@ class RNNRouting(SimplifiedRoutingProcedure):
                 inputs=inl)
         #
 
-        out, [new_h, new_c] = self._cell(
+        out, s = self._cell(
             inputs=inl,
             states=s)
 
-        outl = tf.compat.v1.layers.Dense(
-                units= 1,
-                activation=None,
-                _reuse=tf.compat.v1.AUTO_REUSE,
-                name="l_final")(new_h)
+        feature_map = s[0]
 
-        s = [new_h, new_c]
+        counter = 0
+
+        for layer_num in self._compatibility_layers:
+            feature_map = tf.compat.v1.layers.Dense(
+                units=layer_num,
+                activation=tf.nn.relu,
+                _reuse=tf.compat.v1.AUTO_REUSE,
+                name="l_" + str(counter)
+            )(feature_map)
+            ## apply nn
+
+            counter += 1
+
+        outl = tf.compat.v1.layers.Dense(
+            units=1,
+            activation=None,
+            _reuse=tf.compat.v1.AUTO_REUSE,
+            name="l_final")(feature_map)
 
         r = tf.reshape(outl, vshape[0:5]+[1,1])
 
@@ -91,11 +103,26 @@ class RNNRouting(SimplifiedRoutingProcedure):
      ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         vshape = votes.shape.as_list()
 
-        new_c = tf.reshape(s[1], vshape[0:-2]+[self._degree])
+        degree = s[0].shape[-1]
+
+        new_c = tf.reshape(s[1], vshape[0:-2]+[degree])
 
         combined_c = tf.reduce_sum(new_c, axis=-2, keepdims=True)
 
-        inl = tf.reshape(combined_c, [-1, self._degree])
+        inl = tf.reshape(combined_c, [-1, degree])
+
+        counter = 0
+
+        for layer_num in self._activation_layers:
+            inl = tf.compat.v1.layers.Dense(
+                units=layer_num,
+                activation=tf.nn.relu,
+                _reuse=tf.compat.v1.AUTO_REUSE,
+                name="l_" + str(counter)
+            )(inl)
+            ## apply nn
+
+            counter += 1
 
         if self._activate :
             outl = tf.compat.v1.layers.Dense(

@@ -28,6 +28,7 @@ class CapsuleLayer(object):
         self._padding = padding
         self.name = name
         self._representation_dim = []
+        self.activate = True
 
         assert isinstance(routing, RoutingProcedure), \
             " Must include an adequate routing procedure. "
@@ -122,6 +123,11 @@ class CapsuleLayer(object):
 
         with tf.compat.v1.variable_scope('CapsuleLayer' + self.name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
 
+            if self.activate :
+                self._routing.bound_activations()
+            else :
+                self._routing.unbound_activations()
+
             poses, activations = self._receptivefield(input_tensor)
             """
                 stacks the multiple possible receptive fields of capsules. 
@@ -178,6 +184,9 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
             transform=transform,
             ksizes=[1, 1, 1, 1],
             name="FullyConnected/" + name)
+
+        self.activate = False
+
 
     def inference(self, input_tensor):
         ## input_tensor == {batch, w, h, depth} + repdim, {batch, w, h, depth}
