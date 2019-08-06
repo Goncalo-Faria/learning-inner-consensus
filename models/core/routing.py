@@ -212,6 +212,9 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             for it in range(self._iterations):
                 self._it = it
 
+                if self._verbose:
+                    tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), c)
+
                 r, s = self.compatibility(s, r, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
