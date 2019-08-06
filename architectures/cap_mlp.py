@@ -19,7 +19,7 @@ def setup(
             name="attentionLayer"),
         verbose=hparams.verbose,
         name="globalrouter",
-        bias=True
+        bias=False
     )
 
     hparams.derender_layers= [
