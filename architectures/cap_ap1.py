@@ -11,6 +11,16 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
+    router = KernelRouting(
+                kernel=MonoKernelMix(
+                    kernel=SpectralMixture(hparams.verbose),
+                    degree=4),
+                metric=Frobenius(),
+                iterations=3,
+                verbose=hparams.verbose,
+                name="globalRouter"
+    )
+
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,
@@ -29,55 +39,33 @@ def setup(
     hparams.last_layer= {
             "transform": EquiTransform(
                 output_atoms=hparams.num_classes,
-                metric=Frobenius()
-            ),
-            "routing" : KernelRouting(
-                kernel= MonoKernelMix(
-                    kernel=SpectralMixture(hparams.verbose),
-                    degree=4),
                 metric=Frobenius(),
-                iterations=3,
-                verbose=hparams.verbose,
-                name="LastR",
-                activate = False,
-            )
+                name="FTransf"
+            ),
+            "routing": router
         }
-    hparams.reconstruction_layer_sizes= [512, 1024]
+    hparams.reconstruction_layer_sizes=[512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= KernelRouting(
-                    kernel=MonoKernelMix(
-                        kernel=SpectralMixture(hparams.verbose),
-                        degree=1),
-                    metric=Frobenius(),
-                    iterations=3,
-                    verbose=hparams.verbose,
-                    name="A"
-                ),
+                routing=router,
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=Frobenius()
+                    metric=Frobenius(),
+                    name="ATransf"
                 ),
                 ksizes=[1, 3, 3, 1],
-                strides=[1,2,2,1],
-                name = "A"
+                strides=[1, 2, 2, 1],
+                name="A"
             ),
             CapsuleLayer(
-                routing=KernelRouting(
-                    kernel=MonoKernelMix(
-                        kernel=SpectralMixture(hparams.verbose),
-                        degree=2),
-                    metric=Frobenius(),
-                    iterations=3,
-                    verbose=hparams.verbose,
-                    name="B"
-                ),
+                routing=router,
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=Frobenius()
+                    metric=Frobenius(),
+                    name="BTransf"
                 ),
                 ksizes=[1, 3, 3, 1],
-                name= "B"
+                name="B"
             )
         ]
 

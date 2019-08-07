@@ -40,7 +40,8 @@ def setup(
     hparams.last_layer= {
             "transform": EquiTransform(
                 output_atoms=hparams.num_classes,
-                metric=Frobenius()
+                metric=Frobenius(),
+                name="FTransf"
             ),
             "routing" : router
         }
@@ -50,7 +51,8 @@ def setup(
                 routing= router,
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=Frobenius()
+                    metric=Frobenius(),
+                name="ATransf"
                 ),
                 ksizes=[1, 3, 3, 1],
                 strides=[1,2,2,1],
@@ -60,7 +62,8 @@ def setup(
                 routing= router,
                 transform=EquiTransform(
                     output_atoms=16,
-                    metric=Frobenius()
+                    metric=Frobenius(),
+                name="BTransf"
                 ),
                 ksizes=[1, 3, 3, 1],
                 name= "B"

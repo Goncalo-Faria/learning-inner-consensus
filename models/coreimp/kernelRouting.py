@@ -4,11 +4,11 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from ..core.routing import RoutingProcedure
+from ..core.routing import SimplifiedRoutingProcedure
 from ..core.variables import weight_variable, bias_variable
 
 
-class KernelRouting(RoutingProcedure):
+class KernelRouting(SimplifiedRoutingProcedure):
 
     def __init__(
             self,
@@ -26,7 +26,6 @@ class KernelRouting(RoutingProcedure):
             metric=metric,
             design_iterations=iterations,
             initial_state=None,
-            activate=activate,
             verbose=verbose)
 
     def _compatibility(self, s, r, votes, poses, probabilities, activations, it):
@@ -40,6 +39,10 @@ class KernelRouting(RoutingProcedure):
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
+        poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
+
+        self._agreement = self._kernel.take(poses_tiled, votes)
+
         r = activations * (1/tf.pow(alpha,2)) * self._agreement
 
         return r, s
@@ -48,10 +51,6 @@ class KernelRouting(RoutingProcedure):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
-
-        poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
-
-        self._agreement = self._kernel.take(poses_tiled, votes)
 
         raw = (-1) * tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
 
@@ -68,7 +67,6 @@ class KernelRouting(RoutingProcedure):
         else :
             activation = theta1 * raw + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
-
 
         return activation
 
