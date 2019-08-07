@@ -11,14 +11,36 @@ from models.layers.capsule import CapsuleLayer
 def setup(
         hparams):
 
-    router = RNNRouting(
+    router1 = RNNRouting(
         metric=Frobenius(),
         iterations=3,
-        cell= tf.compat.v2.keras.layers.LSTMCell(
-            units = 16,
-            name="attentionLayer"),
+        cell=tf.compat.v2.keras.layers.LSTMCell(
+            units=16,
+            name="attentionLayer1"),
         verbose=hparams.verbose,
-        name="globalrouter",
+        name="router1",
+        bias=False
+    )
+
+    router2 = RNNRouting(
+        metric=Frobenius(),
+        iterations=3,
+        cell=tf.compat.v2.keras.layers.LSTMCell(
+            units=16,
+            name="attentionLayer2"),
+        verbose=hparams.verbose,
+        name="router2",
+        bias=False
+    )
+
+    router3 = RNNRouting(
+        metric=Frobenius(),
+        iterations=3,
+        cell=tf.compat.v2.keras.layers.LSTMCell(
+            units=16,
+            name="attentionLayer3"),
+        verbose=hparams.verbose,
+        name="router3",
         bias=False
     )
 
@@ -43,12 +65,12 @@ def setup(
                 metric=Frobenius(),
                 name="FTransf"
             ),
-            "routing" : router
+            "routing" : router3
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= router,
+                routing= router2,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
@@ -59,7 +81,7 @@ def setup(
                 name = "A"
             ),
             CapsuleLayer(
-                routing= router,
+                routing= router1,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
