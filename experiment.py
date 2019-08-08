@@ -36,8 +36,9 @@ import argparse
 
 import architectures.cap_baseline as CapBaseline
 import architectures.cap_block_net as BlockNet
-import architectures.cap_ap1 as KernelBaseline
+import architectures.cap_kernel as KernelBaseline
 import architectures.cap_mlp as CapsMLP
+import architectures.cap_mlp_shared as CapsMLPShared
 #import architectures.convnet as ConvNet
 
 parser = argparse.ArgumentParser(prog='Experiment', add_help=True)
@@ -94,6 +95,7 @@ models = {
     "ConvNet" : convmodel.ConvModel,
     "CapsuleBaseline": capm.CapsuleModel,
     "KernelNet" : capm.CapsuleModel,
+    "CapsMLPShared" : capm.CapsuleModel,
     "CapsMLP" : capm.CapsuleModel
 }
 
@@ -568,18 +570,22 @@ def main(_):
     global GLOBAL_HPAR
 
     if GLOBAL_HPAR.model == "CapsuleBlockNet":
-        print(GLOBAL_HPAR.model)
         GLOBAL_HPAR = BlockNet.setup(GLOBAL_HPAR)
+
     elif GLOBAL_HPAR.model == "CapsuleBaseline":
-        print(GLOBAL_HPAR.model)
         GLOBAL_HPAR = CapBaseline.setup(GLOBAL_HPAR)
+
     elif GLOBAL_HPAR.model == "ConvNet":
         print(GLOBAL_HPAR.model)
+
     elif GLOBAL_HPAR.model == "KernelNet":
         GLOBAL_HPAR = KernelBaseline.setup(GLOBAL_HPAR)
-        ##GLOBAL_HPAR = ConvNet.setup(GLOBAL_HPAR)
+
     elif GLOBAL_HPAR.model == "CapsMLP":
         GLOBAL_HPAR = CapsMLP.setup(GLOBAL_HPAR)
+
+    elif GLOBAL_HPAR.model == "CapsMLPShared":
+        GLOBAL_HPAR = CapsMLPShared.setup(GLOBAL_HPAR)
 
     print("hpar")
     print(GLOBAL_HPAR)
