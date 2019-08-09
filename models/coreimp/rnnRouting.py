@@ -107,7 +107,7 @@ class RNNRouting(SimplifiedRoutingProcedure):
 
         new_c = tf.reshape(s[1], vshape[0:-2]+[degree])
 
-        combined_c = tf.reduce_mean(new_c, axis=-2, keepdims=True)
+        combined_c = tf.reduce_sum(new_c, axis=-2, keepdims=True)
 
         inl = tf.reshape(combined_c, [-1, degree])
 
