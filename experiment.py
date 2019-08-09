@@ -135,7 +135,7 @@ def get_features(split, total_batch_size, num_gpus, data_dir, num_targets,
                         validate=validate,
                     ))
             elif dataset == 'cifar10':
-                data_dir = os.path.join(data_dir, 'cifar-10-batches-bin')
+                #data_dir = os.path.join(data_dir, 'cifar-10-batches-bin')
                 features.append(
                     cifar10_input.inputs(
                         split=split, data_dir=data_dir, batch_size=batch_size))
