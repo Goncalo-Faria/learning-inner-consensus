@@ -50,7 +50,7 @@ def _margin_loss(labels, raw_logits, margin=0.4, downweight=0.5):
     return 0.5 * positive_cost + downweight * 0.5 * negative_cost
 
 
-def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0):
+def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0, remake = False):
     """Calculates total loss and performance metrics like accuracy.
 
     Args:
@@ -74,11 +74,14 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0):
                 labels=labels / 2.0, logits=logits)
         elif loss_type == 'softmax':
             classification_loss = tf.compat.v1.nn.softmax_cross_entropy_with_logits_v2(
-                labels=labels, logits=logits)
+                    labels=labels, logits=logits)
+
+
         elif loss_type == 'margin':
             classification_loss = _margin_loss(
-                labels=tf.stop_gradient(labels), raw_logits=logits) + reg_const * tf.reduce_sum(
-                tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.REGULARIZATION_LOSSES))
+                labels=tf.stop_gradient(labels), raw_logits=logits)
+
+
         else:
             raise NotImplementedError('Not implemented')
 
@@ -88,6 +91,9 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0):
     tf.compat.v1.summary.scalar('batch_classification_cost', batch_classification_loss)
 
     all_losses = tf.compat.v1.get_collection('losses', scope)
+
+    print(all_losses)
+
     total_loss = tf.add_n(all_losses, name='total_loss')
     tf.compat.v1.summary.scalar('total_loss', total_loss)
 
@@ -168,12 +174,13 @@ def reconstruction(capsule_mask, num_atoms, capsule_embedding, layer_sizes,
     )
     reconstruction_2d = model(filtered_embedding_2d)
 
-    with tf.name_scope('loss'):
+    with tf.name_scope('loss') as scope:
         image_2d = tf.compat.v1.layers.Flatten()(image)
         distance = tf.pow(reconstruction_2d - image_2d, 2)
         loss = tf.reduce_sum(distance, axis=-1)
         batch_loss = tf.reduce_mean(loss)
         balanced_loss = balance_factor * batch_loss
+        print(scope)
         tf.compat.v1.add_to_collection('losses', balanced_loss)
         tf.compat.v1.summary.scalar('reconstruction_error', balanced_loss)
 

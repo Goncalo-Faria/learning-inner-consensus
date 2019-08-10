@@ -83,6 +83,8 @@ parser.add_argument('--budget_threshold', default=0.9,
                     type=float,help='model saving threshold')
 parser.add_argument('--num_classes',default=10,
                     type=int,help='number of classes in the dataset.')
+parser.add_argument('--degree',default=None,
+                    type=int,help='lstm degree.')
 parser.add_argument('--verbose', default=False,
                     type=bool, help='Register model info.')
 parser.add_argument('--loss_type', default='softmax',

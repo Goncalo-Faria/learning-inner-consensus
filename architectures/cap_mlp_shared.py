@@ -10,16 +10,17 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
-
     router = RNNRouting(
         metric=Frobenius(),
         iterations=3,
         cell= tf.compat.v2.keras.layers.LSTMCell(
-            units=16,
+            units=hparams.degree,
             name="attentionLayer"),
-        verbose=hparams.verbose,
+        verbose = hparams.verbose,
         name="router",
-        bias=False
+        bias=False,
+        compatibility_layers=[hparams.degree*2,hparams.degree*2],
+        activation_layers=[hparams.degree*2,hparams.degree*2],
     )
 
     hparams.derender_layers= [

@@ -71,8 +71,7 @@ class Model(object):
             #self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate)
 
     def inference(self, features):
-        with tf.name_scope(self.name + "/"):
-            return self.apply(features)
+        return self.apply(features)
 
     @abc.abstractmethod
     def apply(self, features):
@@ -114,7 +113,8 @@ class Model(object):
                     num_targets=feature['num_targets'],
                     scope=scope,
                     loss_type=self._hparams.loss_type,
-                    reg_const=self._hparams.regulizer_constant)
+                    reg_const=self._hparams.regulizer_constant,
+                    remake = self._hparams.remake)
                 tf.compat.v1.get_variable_scope().reuse_variables()
                 grads = self._optimizer.compute_gradients(losses)
 

@@ -82,11 +82,10 @@ class CapsuleModel(model.Model):
         if features['num_targets'] == 2:
             targets.append((features['spare_label'], features['spare_image']))
 
-        with tf.name_scope('recons'):
-            for i in range(features['num_targets']):
-                label, image = targets[i]
-                remakes.append(
-                    layer.reconstruction(
+        for i in range(features['num_targets']):
+            label, image = targets[i]
+            remakes.append(
+                layer.reconstruction(
                         capsule_mask=tf.one_hot(label, features['num_classes']),
                         num_atoms=np.prod(self._hparams.primary_parameters["pose_dim"]),
                         capsule_embedding=capsule_embedding,
@@ -161,11 +160,12 @@ class CapsuleModel(model.Model):
             ).inference((fully_poses, fully_activations))
 
         if self._hparams.remake:
+            final_shape = final_poses.shape.as_list()
             remake = self._remake(
                 features,
                 tf.reshape(
-                    self._pose_cache[-1],
-                    [self._pose_cache[-1].shape[0], self._pose_cache[-1].shape[1], -1]
+                    final_poses,
+                    [-1, final_shape[1], np.prod(final_shape[2:])]
                 )
             )
         else:
