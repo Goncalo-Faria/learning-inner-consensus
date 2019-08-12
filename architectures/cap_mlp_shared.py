@@ -20,8 +20,8 @@ def setup(
         verbose = hparams.verbose,
         name="router",
         bias=False,
-        compatibility_layers=[],
-        activation_layers=[16,4],
+        compatibility_layers=[16,8],
+        activation_layers=[],
     )
 
     hparams.derender_layers= [
