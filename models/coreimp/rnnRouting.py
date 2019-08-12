@@ -66,7 +66,7 @@ class RNNRouting(SimplifiedRoutingProcedure):
 
         out, s = self._cell(
             inputs=inl,
-            states=s)
+            state=s)
 
         feature_map = s[0]
 
