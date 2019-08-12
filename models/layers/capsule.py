@@ -20,7 +20,7 @@ class CapsuleLayer(object):
             name="",
             padding="VALID",
             strides=[1, 1, 1, 1],
-            coordinate_addition=True):
+            coordinate_addition=False):
         self._routing = routing
         self._iterations = iterations
         self._ksizes = ksizes
@@ -227,12 +227,15 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
             routing,
             transform,
             name="",
+            coordinate_addition=True,
     ):
         super(FullyConnectedCapsuleLayer, self).__init__(
             routing=routing,
             transform=transform,
             ksizes=[1, 1, 1, 1],
-            name="FullyConnected/" + name)
+            name="FullyConnected/" + name,
+            coordinate_addition=coordinate_addition
+        )
 
         self.activate = False
 
