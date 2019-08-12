@@ -19,7 +19,8 @@ class CapsuleLayer(object):
             iterations = 0,
             name="",
             padding="VALID",
-            strides=[1, 1, 1, 1]):
+            strides=[1, 1, 1, 1],
+            coordinate_addition=True):
         self._routing = routing
         self._iterations = iterations
         self._ksizes = ksizes
@@ -29,6 +30,7 @@ class CapsuleLayer(object):
         self.name = name
         self._representation_dim = []
         self.activate = True
+        self._coordinate_addition = coordinate_addition
 
         assert isinstance(routing, RoutingProcedure), \
             " Must include an adequate routing procedure. "
@@ -136,6 +138,9 @@ class CapsuleLayer(object):
             ## poses { batch, new_w , new_h, depth * np.prod(ksizes)} + repdim
             ## activations { batch, new_w , new_h, depth * np.prod(ksizes) } 
 
+            if self._coordinate_addition :
+                poses = poses + self._coordinate_factor(poses.shape.as_list()[1:4])
+
             votes, activations = self._transform.translate(poses, activations)
 
             """
@@ -170,6 +175,50 @@ class CapsuleLayer(object):
                 " batch dimention must be perserved"
 
             return higher_poses, higher_activations
+
+    def _coordinate_factor(self, shape):
+        def coordinate_dimension_offset(representation_dim, index, n, d):
+
+            assert (0 <= index < d), \
+                " index must be a valid index"
+
+            shape = [1] * d
+            shape[index] = n
+
+            coordinate_offset_nn = tf.reshape(
+                (tf.range(n, dtype=tf.float32) + 0.50) / n, shape
+            )
+
+            coordinate_offset_n0 = tf.constant(
+                0.0, shape=shape, dtype=tf.float32
+            )
+
+            tensor_list = []
+
+            for i in range(d):
+                if i == index:
+                    tensor_list.append(coordinate_offset_nn)
+                else:
+                    tensor_list.append(coordinate_offset_n0)
+
+            coordinate_offset = tf.stack(
+                tensor_list + [coordinate_offset_n0 for _ in range(np.prod(representation_dim) - d)],
+                axis=-1
+            )
+
+            return coordinate_offset
+
+        d = len(shape)
+
+        raw_coordinate_factor = coordinate_dimension_offset(self._representation_dim, 0, shape[0], d)
+
+        for idx in range(d)[1:]:
+            raw_coordinate_factor = raw_coordinate_factor + \
+                coordinate_dimension_offset(self._representation_dim,idx, shape[idx], d)
+
+        coordinate_factor = tf.reshape(raw_coordinate_factor, [1] + shape + self._representation_dim)
+
+        return coordinate_factor
 
 
 class FullyConnectedCapsuleLayer(CapsuleLayer):

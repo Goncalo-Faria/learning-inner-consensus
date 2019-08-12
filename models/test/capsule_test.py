@@ -1,10 +1,10 @@
 import tensorflow as tf
 
 from models.layers.capsule import CapsuleLayer, FullyConnectedCapsuleLayer, CapsuleClassLayer, PrimaryCapsuleLayer
-from ..coreimp.equiTransform import EquiTransform
-from ..coreimp.kernelRouting import KernelRouting
-from ..coreimp.commonKernels import DotProd
-from ..coreimp.commonMetrics import SquaredFrobenius
+from models.coreimp.equiTransform import EquiTransform
+from models.coreimp.kernelRouting import KernelRouting
+from models.coreimp.commonKernels import DotProd
+from models.coreimp.commonMetrics import SquaredFrobenius
 
 tf.compat.v1.enable_eager_execution()
 
@@ -87,3 +87,57 @@ pose, activation = test_final_layer.inference(test_tensor)
 print("final")
 print(pose.shape)
 print(activation.shape)
+
+import numpy as np
+
+
+def coordinate_factor(self, shape):
+    def coordinate_dimension_offset(self, index, n, d):
+
+        assert (0 <= index < d), \
+            " index must be a valid index"
+
+        representation_dim = [4, 4]
+
+        shape = [1] * d
+        shape[index] = n
+
+        coordinate_offset_nn = tf.reshape(
+            (tf.range(n, dtype=tf.float32) + 0.50) / n, shape
+        )
+
+        coordinate_offset_n0 = tf.constant(
+            0.0, shape=shape, dtype=tf.float32
+        )
+
+        tensor_list = []
+
+        for i in range(d):
+            if i == index:
+                tensor_list.append(coordinate_offset_nn)
+            else:
+                tensor_list.append(coordinate_offset_n0)
+
+        coordinate_offset = tf.stack(
+            tensor_list + [coordinate_offset_n0 for _ in range(np.prod(representation_dim) - d)],
+            axis=-1
+        )
+
+        return coordinate_offset
+
+    representation_dim = [4, 4]
+
+    d = len(shape)
+
+    raw_coordinate_factor = self.coordinate_dimension_offset(0, shape[0], d)
+
+    for i in range(d)[1:]:
+        raw_coordinate_factor = raw_coordinate_factor + self.coordinate_dimension_offset(i, shape[i], d)
+
+    coordinate_factor = tf.reshape(raw_coordinate_factor, [1] + shape + representation_dim)
+
+    return coordinate_factor
+
+test_tensor = coordinate_factor([2,2,3])
+
+print(test_tensor)
