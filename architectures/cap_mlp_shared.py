@@ -21,7 +21,7 @@ def setup(
         name="router",
         bias=False,
         compatibility_layers=[],
-        activation_layers=[4,4],
+        activation_layers=[16,4],
     )
 
     hparams.derender_layers= [
@@ -58,7 +58,8 @@ def setup(
                 ),
                 ksizes=[1, 3, 3, 1],
                 strides=[1,2,2,1],
-                name = "A"
+                name = "A",
+                coordinate_addition=True
             ),
             CapsuleLayer(
                 routing= router,
@@ -68,7 +69,8 @@ def setup(
                 name="BTransf"
                 ),
                 ksizes=[1, 3, 3, 1],
-                name= "B"
+                name= "B",
+                coordinate_addition=True
             )
         ]
 
