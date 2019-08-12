@@ -234,8 +234,9 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
             transform=transform,
             ksizes=[1, 1, 1, 1],
             name="FullyConnected/" + name,
-            coordinate_addition=coordinate_addition
+            coordinate_addition=False
         )
+        self._ff_coordinate_addition = coordinate_addition
 
         self.activate = False
 
@@ -244,6 +245,11 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
         ## input_tensor == {batch, w, h, depth} + repdim, {batch, w, h, depth}
 
         poses, activations = input_tensor
+
+        if self._ff_coordinate_addition :
+            self._representation_dim = input_tensor[0].shape.as_list()[4:]
+            poses = poses + self._coordinate_factor(poses.shape.as_list()[1:4])
+
         poses = tf.reshape(poses, [poses.shape[0], 1, 1, -1] + poses.shape.as_list()[4:])
         activations = tf.reshape(activations, [poses.shape[0], 1, 1, -1])
 
