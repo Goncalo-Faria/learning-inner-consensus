@@ -20,7 +20,7 @@ def setup(
         name="router",
         bias=False,
         compatibility_layers=[hparams.degree*2,hparams.degree*2],
-        activation_layers=[hparams.degree*2,hparams.degree*2],
+        activation_layers=[hparams.degree,hparams.degree],
     )
 
     hparams.derender_layers= [
