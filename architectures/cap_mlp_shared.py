@@ -21,7 +21,7 @@ def setup(
         name="router",
         bias=False,
         compatibility_layers=[],
-        activation_layers=[],
+        activation_layers=[4,4],
     )
 
     hparams.derender_layers= [
