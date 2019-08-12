@@ -131,7 +131,8 @@ class RoutingProcedure(object):
                 r, s = self.compatibility(s, r, votes, poses, probabilities, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-                c = self._normalization(r, axis=-1)
+                print( r.shape )
+                c = self._normalization(r, axis=-3)
                 ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
                 poses = self._renormalizedDotProd(c, votes)
