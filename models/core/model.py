@@ -63,12 +63,12 @@ class Model(object):
 
             decay = 1 - (self._global_step / hparams.max_steps)
 
-            learning_rate = hparams.learning_rate * decay
+            #learning_rate = hparams.learning_rate * decay
 
-            learning_rate = tf.maximum(learning_rate, 1e-6)
+            #learning_rate = tf.maximum(learning_rate, 1e-6)
 
-            self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=True)
-            #self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate)
+            #self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=True)
+            self._optimizer = tf.compat.v1.train.AdamOptimizer(0.001)
 
     def inference(self, features):
         return self.apply(features)
