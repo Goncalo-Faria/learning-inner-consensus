@@ -105,9 +105,9 @@ class RNNRouting(SimplifiedRoutingProcedure):
 
         degree = s[0].shape[-1]
 
-        new_c = tf.reshape(s[1], vshape[0:-2]+[degree])
+        new_c = tf.reshape(s[1], vshape[0:-2]+[1,degree])
 
-        combined_c = tf.reduce_sum(new_c, axis=-2, keepdims=True)
+        combined_c = tf.reduce_sum(new_c * c, axis=-3, keepdims=True)
 
         inl = tf.reshape(combined_c, [-1, degree])
 
