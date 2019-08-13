@@ -29,6 +29,7 @@ import tensorflow as tf
 from data_processing.cifar10 import cifar10_input
 from data_processing.mnist import mnist_input_record
 from models import convmodel
+import wandb
 #from models import conv_model
 
 import models.capsulemodel as capm
@@ -69,7 +70,7 @@ parser.add_argument('--num_saves', default=10,
                     type=int,help='number of checkpoints.')
 parser.add_argument('--show_step',default=5,
                     type=int,help='How often to print.')
-parser.add_argument('--summary_dir', default="",
+parser.add_argument('--summary_dir', default=wandb.run.dir,
                     type=str, help='Main directory for the experiments.')
 parser.add_argument('--checkpoint', default=None,
                     type=str, help='The model checkpoint for evaluation.')
