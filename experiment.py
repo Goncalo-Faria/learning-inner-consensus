@@ -42,6 +42,8 @@ import architectures.cap_mlp as CapsMLP
 import architectures.cap_mlp_shared as CapsMLPShared
 #import architectures.convnet as ConvNet
 
+wandb.init(project="Inner-consensus", sync_tensorboard=True)
+
 parser = argparse.ArgumentParser(prog='Experiment', add_help=True)
 
 parser.add_argument('--data_dir', default=None,
