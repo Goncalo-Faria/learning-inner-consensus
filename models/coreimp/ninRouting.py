@@ -145,6 +145,4 @@ class NiNRouting(RoutingProcedure):
 
         return activation ## batch , out , w, h, 1, 1
 
-    def _initial_coefficients(self, r, activations):
-        return tf.ones(activations.shape.as_list(), dtype=tf.float32) / activations.shape.as_list()[-1]
 

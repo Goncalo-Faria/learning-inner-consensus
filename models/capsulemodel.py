@@ -171,5 +171,5 @@ class CapsuleModel(model.Model):
         else:
             remake = None
 
-        return model.Inferred(final_activations, remake)
+        return final_activations, remake
 

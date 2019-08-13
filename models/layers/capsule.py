@@ -58,7 +58,7 @@ class CapsuleLayer(object):
         ## poses = { batch } + repdim + { w , h , depth }
 
         condensed_poses = tf.reshape(poses,
-                                     shape=[poses_shape[0], np.prod(self._representation_dim)] + poses_shape[1:4])
+                                     shape=[-1, np.prod(self._representation_dim)] + poses_shape[1:4])
         ## condensed_poses = { batch, np.prod(repdim), w , h, depth }
 
 
@@ -84,7 +84,7 @@ class CapsuleLayer(object):
         ## patched_poses { batch, new_w , new_h, depth * np.prod(ksizes), np.prod(repdim) }
         patched_poses_shape = patched_poses.shape.as_list()
 
-        patched_poses = tf.reshape(patched_poses, patched_poses_shape[:4] + self._representation_dim)
+        patched_poses = tf.reshape(patched_poses, [-1] + patched_poses_shape[1:4] + self._representation_dim)
         ## patched_poses { batch, new_w , new_h, depth * np.prod(ksizes)} + repdim }
 
         return patched_poses, patched_activations
@@ -323,7 +323,7 @@ class PrimaryCapsuleLayer(object):
 
             poses = tf.reshape(
                 raw_poses,
-                shape=raw_poses_shape[:3] + [self._groups] + self._pose_dim
+                shape=[-1] + raw_poses_shape[1:3] + [self._groups] + self._pose_dim
             )
 
             ## pose == {batch, w, h, capsule_groups} + pose_dim

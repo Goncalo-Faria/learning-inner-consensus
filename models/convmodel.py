@@ -119,4 +119,4 @@ class ConvModel(Model):
                                              verbose=self._hparams.verbose)
             logits = tf.matmul(hidden2, weights) + biases
 
-        return Inferred(logits, None)
+        return logits, None

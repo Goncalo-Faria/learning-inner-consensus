@@ -65,9 +65,13 @@ class RoutingProcedure(object):
         with tf.compat.v1.variable_scope('activation/', reuse=tf.compat.v1.AUTO_REUSE) as scope:
             return self._activation(s, c, votes, poses)
 
-    @abc.abstractmethod
-    def _initial_coefficients(self, r, activations):
-        raise NotImplementedError('Not implemented')
+    def _initial_coefficients(self,activations):
+
+        r = tf.ones(shape= activations.shape.as_list() + [1, 1],
+                    dtype=tf.float32,
+                    name="compatibility_value")
+
+        return r
 
     def _renormalizedDotProd(self, c, votes):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
@@ -106,12 +110,13 @@ class RoutingProcedure(object):
 
             s = self._initial_state
 
-            r = tf.zeros(shape=activations.shape.as_list() + [1, 1], dtype=tf.float32, name="compatibility_value")
+            r = self._initial_coefficients(activations)
+
             ## r { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
             activations = tf.reshape(activations, shape=activations.shape.as_list() + [1, 1])
 
-            c = self._initial_coefficients(r, activations)
+            c = self._normalization(r, axis=-3)
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
             poses = self._renormalizedDotProd(c, votes)
@@ -131,7 +136,6 @@ class RoutingProcedure(object):
                 r, s = self.compatibility(s, r, votes, poses, probabilities, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-                print( r.shape )
                 c = self._normalization(r, axis=-3)
                 ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
@@ -191,12 +195,12 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
 
             s = self._initial_state
 
-            r = tf.zeros(shape=activations.shape.as_list() + [1, 1], dtype=tf.float32, name="compatibility_value")
+            r = self._initial_coefficients(activations)
             ## r { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-            activations = tf.reshape(activations, shape=activations.shape.as_list() + [1, 1])
+            activations = tf.reshape(activations, shape=[-1] + activations.shape.as_list()[1:] + [1, 1])
 
-            c = self._initial_coefficients(r, activations)
+            c = self._normalization(r, axis=-3)
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
             poses = self._renormalizedDotProd(c, votes)
