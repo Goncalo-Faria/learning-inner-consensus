@@ -42,7 +42,7 @@ import architectures.cap_mlp as CapsMLP
 import architectures.cap_mlp_shared as CapsMLPShared
 #import architectures.convnet as ConvNet
 
-wandb.init(project="Inner-consensus", sync_tensorboard=True)
+#wandb.init(project="Inner-consensus", sync_tensorboard=True)
 
 parser = argparse.ArgumentParser(prog='Experiment', add_help=True)
 
@@ -72,7 +72,7 @@ parser.add_argument('--num_saves', default=10,
                     type=int,help='number of checkpoints.')
 parser.add_argument('--show_step',default=5,
                     type=int,help='How often to print.')
-parser.add_argument('--summary_dir', default=wandb.run.dir,
+parser.add_argument('--summary_dir', default="",
                     type=str, help='Main directory for the experiments.')
 parser.add_argument('--checkpoint', default=None,
                     type=str, help='The model checkpoint for evaluation.')
