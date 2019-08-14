@@ -32,8 +32,6 @@ from models import convmodel
 import wandb
 #from models import conv_model
 
-wandb.init(name="kaggle-notebook", project="Inner-consensus", reinit=True, resume=True, id="z4jzdrh7")
-
 import models.capsulemodel as capm
 import argparse
 
@@ -578,6 +576,8 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
 def main(_):
 
     global GLOBAL_HPAR
+
+    wandb.init(name="kaggle-notebook", project="Inner-consensus", reinit=True, resume=True, id="z4jzdrh7")
 
     if GLOBAL_HPAR.model == "CapsuleBlockNet":
         GLOBAL_HPAR = BlockNet.setup(GLOBAL_HPAR)
