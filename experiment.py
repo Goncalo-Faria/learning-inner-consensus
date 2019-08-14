@@ -216,7 +216,7 @@ def train_experiment(session, result, writer, last_step, max_steps, saver,
         if i % GLOBAL_HPAR.show_step == 0 :
             print(str(i) + " ------- "+ str(correts))
 
-        wandb.save(wandb.run.dir + "/train/*")
+        wandb.save(summary_dir + "/train/*")
         wandb.log({"correts": correts})
 
         writer.add_summary(summary, i)
