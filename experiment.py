@@ -216,7 +216,6 @@ def train_experiment(session, result, writer, last_step, max_steps, saver,
         if i % GLOBAL_HPAR.show_step == 0 :
             print(str(i) + " ------- "+ str(correts))
 
-        wandb.save(summary_dir + "/train/*")
         wandb.log({"correts": correts})
 
         writer.add_summary(summary, i)
@@ -224,6 +223,9 @@ def train_experiment(session, result, writer, last_step, max_steps, saver,
             if (i + 1) % round((1-budget_threshold)*max_steps/num_saves) == 0:
                 saver.save(
                     session, os.path.join(summary_dir, 'model.ckpt'), global_step=i + 1)
+                wandb.save("model.ckpt-"+str(i+1)+".index")
+                wandb.save("model.ckpt-"+str(i+1)+".meta")
+                wandb.save("model.ckpt-"+str(i+1)+".data-00000-of-00001")
 
 
 def load_eval(saver, session, load_dir):
