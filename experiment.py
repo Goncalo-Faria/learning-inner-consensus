@@ -32,6 +32,8 @@ from models import convmodel
 import wandb
 #from models import conv_model
 
+wandb.init(name="kaggle-notebook", project="Inner-consensus", reinit=True, resume=True, id="z4jzdrh7")
+
 import models.capsulemodel as capm
 import argparse
 
