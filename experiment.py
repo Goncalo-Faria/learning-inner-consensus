@@ -216,6 +216,9 @@ def train_experiment(session, result, writer, last_step, max_steps, saver,
         if i % GLOBAL_HPAR.show_step == 0 :
             print(str(i) + " ------- "+ str(correts))
 
+        wandb.save(wandb.run.dir + "/train/*")
+        wandb.log({"correts": correts})
+
         writer.add_summary(summary, i)
         if ((i + 1) / max_steps) >= budget_threshold :
             if (i + 1) % round((1-budget_threshold)*max_steps/num_saves) == 0:
