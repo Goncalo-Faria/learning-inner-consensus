@@ -216,16 +216,18 @@ def train_experiment(session, result, writer, last_step, max_steps, saver,
         if i % GLOBAL_HPAR.show_step == 0 :
             print(str(i) + " ------- "+ str(correts))
 
-        wandb.log({"correts": correts})
+        wandb.log({"correts": correts/ GLOBAL_HPAR.batch_size})
 
         writer.add_summary(summary, i)
         if ((i + 1) / max_steps) >= budget_threshold :
             if (i + 1) % round((1-budget_threshold)*max_steps/num_saves) == 0:
                 saver.save(
                     session, os.path.join(summary_dir, 'model.ckpt'), global_step=i + 1)
-                wandb.save("model.ckpt-"+str(i+1)+".index")
-                wandb.save("model.ckpt-"+str(i+1)+".meta")
-                wandb.save("model.ckpt-"+str(i+1)+".data-00000-of-00001")
+                wandb.save( summary_dir + "model.ckpt-"+str(i+1)+".index")
+                wandb.save( summary_dir + "model.ckpt-"+str(i+1)+".meta")
+                wandb.save( summary_dir + "model.ckpt-"+str(i+1)+".data-00000-of-00001")
+                wandb.save( summary_dir + "events.out.tfevents.*.*")
+                wandb.save( summary_dir + "checkpoint")
 
 
 def load_eval(saver, session, load_dir):
@@ -579,7 +581,9 @@ def main(_):
 
     global GLOBAL_HPAR
 
-    wandb.init(name="kaggle-notebook", project="Inner-consensus", reinit=True, resume=True, id="z4jzdrh7")
+    if GLOBAL_HPAR.summary_dir == "" :
+        GLOBAL_HPAR.summary_dir = wandb.run.dir
+    wandb.init(project="Inner-consensus", name="experiment",sync_tensorboard=True, dir=".")
 
     if GLOBAL_HPAR.model == "CapsuleBlockNet":
         GLOBAL_HPAR = BlockNet.setup(GLOBAL_HPAR)
