@@ -195,4 +195,4 @@ class Model(object):
                 tower_grads.append(tower_output.grads)
 
         summarized_results = self._summarize_towers(almosts, corrects, tower_grads)
-        return summarized_results, inferred
+        return summarized_results, inferred, corrects

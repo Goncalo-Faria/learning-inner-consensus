@@ -371,7 +371,7 @@ def train(hparams, summary_dir, num_gpus, model_type, max_steps,
         features = get_features('train', hparams.batch_size, num_gpus, data_dir, num_targets,
                                 dataset, validate)
         model = models[model_type](hparams)
-        result, _ = model.multi_gpu(features, num_gpus)
+        result, _, _ = model.multi_gpu(features, num_gpus)
         # Print stats
         param_stats = tf.compat.v1.profiler.profile(
             graph=tf.compat.v1.get_default_graph())
@@ -429,7 +429,7 @@ def evaluate(hparams, summary_dir, num_gpus, model_type, eval_size, data_dir,
         features = get_features('test', hparams.batch_size, num_gpus, data_dir, num_targets,
                                 dataset, validate)
         model = models[model_type](hparams)
-        result, _ = model.multi_gpu(features, num_gpus)
+        result, _ , _ = model.multi_gpu(features, num_gpus)
         test_writer = tf.compat.v1.summary.FileWriter(summary_dir)
         seen_step = -1
         paused = 0
@@ -513,7 +513,7 @@ def infer_ensemble_logits(features, model, checkpoints, session, num_steps,
     Returns:
       logits: List of all the final layer logits for different checkpoints.
     """
-    _, inferred = model.multi_gpu([features], 1)
+    _, inferred, _ = model.multi_gpu([features], 1)
     logits = []
     saver = tf.compat.v1.train.Saver()
     for checkpoint in checkpoints:
@@ -549,7 +549,7 @@ def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
     Returns:
       logits: List of all the final layer logits for different checkpoints.
     """
-    _, inferred = model.multi_gpu([features], 1)
+    _, inferred, correct = model.multi_gpu([features], 1)
     corrects = []
     saver = tf.compat.v1.train.Saver()
     for checkpoint in checkpoints:
@@ -557,7 +557,7 @@ def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
         for i in range(num_steps):
             corrects.append(
                 session.run(
-                    inferred[0].correct,
+                    correct[0],
                     feed_dict={
                         features['recons_label']: data[i]['recons_label'],
                         features['labels']: data[i]['labels'],
@@ -668,7 +668,6 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         num_steps = eval_size // hparams.batch_size
         data, targets = get_placeholder_data(num_steps, hparams.batch_size, features,
                                              session)
-        print(" ############## \n ##############\n checkpoints LIST \n ############## \n ############## ")
         print(checkpoints)
 
         corrects = infer_ensemble_accuracy(features, model, checkpoints, session,
