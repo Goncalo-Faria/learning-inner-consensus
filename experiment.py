@@ -617,9 +617,6 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
         coord.join(threads)
         session.close()
 
-        print("logitis mix")
-        print(logits)
-
         logits = np.reshape(logits, (num_trials, num_steps, hparams.batch_size, -1))
         logits = np.sum(logits, axis=0)
         predictions = np.argmax(logits, axis=2)
@@ -670,13 +667,15 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         data, targets = get_placeholder_data(num_steps, hparams.batch_size, features,
                                              session)
 
+        print(len(checkpoints))
+
         corrects = infer_ensemble_accuracy(features, model, checkpoints, session,
                                        num_steps, data)
         coord.request_stop()
         coord.join(threads)
         session.close()
 
-        print("logitis mix")
+        print("corrects mix")
         print(len(corrects))
 
         corrects = np.reshape(corrects, (len(checkpoints), -1))
