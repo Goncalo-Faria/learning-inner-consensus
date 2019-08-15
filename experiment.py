@@ -654,9 +654,11 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
     print(checkpointsname)
 
     checkpoints = []
+    checkpointsnameapv = []
     for file_name in checkpointsname:
         if tf.compat.v1.train.checkpoint_exists(GLOBAL_HPAR.summary_dir + "/train/" +file_name):
             checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + file_name)
+            checkpointsnameapv.append(file_name)
 
     with tf.Graph().as_default():
         features = get_features('test', hparams.batch_size, 1, data_dir, num_targets,
@@ -680,9 +682,10 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         print("corrects mix")
         print(len(corrects))
 
-        corrects = np.reshape(corrects, [len(checkpoints)])
         corrects_acc = corrects / eval_size * 100
-        print(corrects_acc)
+        
+        for i in range(corrects):
+            print(corrects_acc[i] + " " + checkpointsnameapv[i])
 
 
 def main(_):
