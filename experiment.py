@@ -579,7 +579,8 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
         coord.join(threads)
         session.close()
 
-        print(logits.shape)
+        print("logitis mix")
+        print(logits)
 
         logits = np.reshape(logits, (num_trials, num_steps, hparams.batch_size, -1))
         logits = np.sum(logits, axis=0)
