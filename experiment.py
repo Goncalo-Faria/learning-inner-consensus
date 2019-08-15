@@ -650,6 +650,8 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         m = re.search('(?<=(?P<quote>["])).*(?P=quote)', line)
         checkpointsname.append(m.group(0)[:-1])
 
+    print(checkpointsname)
+    
     checkpoints = []
     for file_name in checkpointsname:
         if tf.compat.v1.train.checkpoint_exists(file_name):
