@@ -683,7 +683,7 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         print(len(corrects))
 
         corrects_acc = corrects / eval_size * 100
-        
+
         for i in range(corrects):
             print(corrects_acc[i] + " " + checkpointsnameapv[i])
 
@@ -694,7 +694,6 @@ def main(_):
 
     if GLOBAL_HPAR.summary_dir == "" :
         GLOBAL_HPAR.summary_dir = wandb.run.dir
-    wandb.init(project="Inner-consensus", name="experiment",sync_tensorboard=True, dir=".")
 
     if GLOBAL_HPAR.model == "CapsuleBlockNet":
         GLOBAL_HPAR = BlockNet.setup(GLOBAL_HPAR)
@@ -714,19 +713,21 @@ def main(_):
     elif GLOBAL_HPAR.model == "CapsMLPShared":
         GLOBAL_HPAR = CapsMLPShared.setup(GLOBAL_HPAR)
 
-    print("hpar")
+    print("Hyper Parameters")
     print(GLOBAL_HPAR)
     if GLOBAL_HPAR.train:
+        wandb.init(project="Inner-consensus", name="train_experiment", sync_tensorboard=True, dir=".")
         train(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
               GLOBAL_HPAR.max_steps, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
               GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate)
     else:
-
         if GLOBAL_HPAR.track:
+            wandb.init(project="Inner-consensus", name="history", sync_tensorboard=True, dir=".")
             evaluate_history(GLOBAL_HPAR, GLOBAL_HPAR.model, GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir,
                               GLOBAL_HPAR.num_targets, GLOBAL_HPAR.dataset, GLOBAL_HPAR.checkpoint,
                               GLOBAL_HPAR.num_trials)
         else:
+            wandb.init(project="Inner-consensus", name="evaluation", sync_tensorboard=True, dir=".")
             if GLOBAL_HPAR.num_trials == 1:
                 evaluate(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
                      GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
