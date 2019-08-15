@@ -22,6 +22,7 @@ from __future__ import print_function
 import os
 import sys
 import time
+import re
 
 import numpy as np
 import tensorflow as tf
@@ -546,12 +547,18 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
       checkpoint: The file format of the checkpoints to be loaded.
       num_trials: Number of trained models to ensemble.
     """
+
+    checkpointsname = []
+    f = open(GLOBAL_HPAR.summary_dir + "/train/checkpoint")
+    for line in f:
+        m = re.search('(?<=(?P<quote>["])).*(?P=quote)', line)
+        checkpointsname.append(m.group(0)[:-1])
+
+    checkpointsname = checkpointsname[::-1][:4]
+
     checkpoints = []
-    for i in range(num_trials):
-        file_name = checkpoint.format(i)
-
+    for file_name in checkpointsname:
         print(file_name)
-
         if tf.compat.v1.train.checkpoint_exists(file_name):
             checkpoints.append(file_name)
 
