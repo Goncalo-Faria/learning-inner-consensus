@@ -92,8 +92,6 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0, remak
 
     all_losses = tf.compat.v1.get_collection('losses', scope)
 
-    print(all_losses)
-
     total_loss = tf.add_n(all_losses, name='total_loss')
     tf.compat.v1.summary.scalar('total_loss', total_loss)
 

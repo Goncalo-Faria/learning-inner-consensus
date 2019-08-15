@@ -562,6 +562,8 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
         if tf.compat.v1.train.checkpoint_exists(file_name):
             checkpoints.append(file_name)
 
+    print(checkpoints)
+    
     with tf.Graph().as_default():
         features = get_features('test', hparams.batch_size, 1, data_dir, num_targets,
                                 dataset)[0]
@@ -573,6 +575,7 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
         num_steps = eval_size // hparams.batch_size
         data, targets = get_placeholder_data(num_steps, hparams.batch_size, features,
                                              session)
+
         logits = infer_ensemble_logits(features, model, checkpoints, session,
                                        num_steps, data)
         coord.request_stop()
