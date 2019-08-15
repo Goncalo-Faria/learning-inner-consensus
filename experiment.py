@@ -549,6 +549,9 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
     checkpoints = []
     for i in range(num_trials):
         file_name = checkpoint.format(i)
+
+        print(file_name)
+
         if tf.compat.v1.train.checkpoint_exists(file_name):
             checkpoints.append(file_name)
 
@@ -568,7 +571,9 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
         coord.request_stop()
         coord.join(threads)
         session.close()
+
         print(logits.shape)
+
         logits = np.reshape(logits, (num_trials, num_steps, hparams.batch_size, -1))
         logits = np.sum(logits, axis=0)
         predictions = np.argmax(logits, axis=2)
