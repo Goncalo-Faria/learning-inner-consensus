@@ -565,6 +565,7 @@ def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
                         features['recons_image']: data[i]['recons_image']
                     }))
             corrects[i] = tf.reduce_sum(corrects[i])
+            print(" num corrects " + corrects[i])
     return corrects
 
 
