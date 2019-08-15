@@ -564,6 +564,7 @@ def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
                         features['images']: data[i]['images'],
                         features['recons_image']: data[i]['recons_image']
                     }))
+            corrects[i] = tf.reduce_sum(corrects[i])
     return corrects
 
 
@@ -679,8 +680,8 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         print("corrects mix")
         print(len(corrects))
 
-        corrects = np.reshape(corrects, (len(checkpoints), -1))
-        corrects_acc = np.sum(corrects, axis=-1) / eval_size * 100
+        corrects = np.reshape(corrects, [len(checkpoints)])
+        corrects_acc = corrects / eval_size * 100
         print(corrects_acc)
 
 
