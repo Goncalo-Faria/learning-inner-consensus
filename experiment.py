@@ -667,7 +667,7 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         data, targets = get_placeholder_data(num_steps, hparams.batch_size, features,
                                              session)
 
-        print(len(checkpoints))
+        print(checkpoints)
 
         corrects = infer_ensemble_accuracy(features, model, checkpoints, session,
                                        num_steps, data)
