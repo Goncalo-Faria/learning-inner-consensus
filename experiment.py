@@ -552,7 +552,7 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
     f = open(GLOBAL_HPAR.summary_dir + "/train/checkpoint")
     for line in f:
         m = re.search('(?<=(?P<quote>["])).*(?P=quote)', line)
-        checkpointsname.append(m.group(0)[:-1])
+        checkpointsname.append(GLOBAL_HPAR.summary_dir + "/train/" + m.group(0)[:-1])
 
     checkpointsname = checkpointsname[::-1][:4]
 
@@ -563,7 +563,7 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
             checkpoints.append(file_name)
 
     print(checkpoints)
-    
+
     with tf.Graph().as_default():
         features = get_features('test', hparams.batch_size, 1, data_dir, num_targets,
                                 dataset)[0]
