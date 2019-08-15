@@ -93,6 +93,8 @@ parser.add_argument('--verbose', default=False,
                     type=bool, help='Register model info.')
 parser.add_argument('--loss_type', default='softmax',
                     type=str,help=' classfication head. ')
+parser.add_argument('--track', default=False,
+                    type=bool,help='plot history.')
 
 GLOBAL_HPAR = parser.parse_args()
 
@@ -529,6 +531,42 @@ def infer_ensemble_logits(features, model, checkpoints, session, num_steps,
     return logits
 
 
+def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
+                          data):
+    """Extracts the logits for the whole dataset and all the trained models.
+
+    Loads all the checkpoints. For each checkpoint stores the logits for the whole
+    dataset.
+
+    Args:
+      features: The dictionary of the input handles.
+      model: The model operation graph.
+      checkpoints: The list of all checkpoint paths.
+      session: The session handle to use for running tensors.
+      num_steps: The number of steps to run the experiment.
+      data: The num_steps list of loaded data to be fed to placeholders.
+
+    Returns:
+      logits: List of all the final layer logits for different checkpoints.
+    """
+    _, inferred = model.multi_gpu([features], 1)
+    corrects = []
+    saver = tf.compat.v1.train.Saver()
+    for checkpoint in checkpoints:
+        saver.restore(session, checkpoint)
+        for i in range(num_steps):
+            corrects.append(
+                session.run(
+                    inferred[0].correct,
+                    feed_dict={
+                        features['recons_label']: data[i]['recons_label'],
+                        features['labels']: data[i]['labels'],
+                        features['images']: data[i]['images'],
+                        features['recons_image']: data[i]['recons_image']
+                    }))
+    return corrects
+
+
 def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
                       dataset, checkpoint, num_trials):
     """Evaluates an ensemble of trained models.
@@ -552,17 +590,14 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
     f = open(GLOBAL_HPAR.summary_dir + "/train/checkpoint")
     for line in f:
         m = re.search('(?<=(?P<quote>["])).*(?P=quote)', line)
-        checkpointsname.append(GLOBAL_HPAR.summary_dir + "/train/" + m.group(0)[:-1])
+        checkpointsname.append(m.group(0)[:-1])
 
-    checkpointsname = checkpointsname[::-1][:4]
+    checkpointsname = checkpointsname[::-1][:num_trials]
 
     checkpoints = []
     for file_name in checkpointsname:
-        print(file_name)
         if tf.compat.v1.train.checkpoint_exists(file_name):
-            checkpoints.append(file_name)
-
-    print(checkpoints)
+            checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + file_name)
 
     with tf.Graph().as_default():
         features = get_features('test', hparams.batch_size, 1, data_dir, num_targets,
@@ -591,6 +626,62 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
         total_wrong = np.sum(np.not_equal(predictions, targets))
         print('Total wrong predictions: {}, wrong percent: {}%'.format(
             total_wrong, total_wrong / eval_size * 100))
+
+
+def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
+                      dataset, checkpoint, num_trials):
+    """Evaluates an ensemble of trained models.
+
+    Loads a series of checkpoints and aggregates the output logit of them on the
+    test data. Selects the class with maximum aggregated logit as the prediction.
+    Prints the total number of wrong predictions.
+
+    Args:
+      hparams: The hyperparameters for building the model graph.
+      model_type: The model architecture category.
+      eval_size: Total number of examples in the test dataset.
+      data_dir: Directory containing the input data.
+      num_targets: Number of objects present in the image.
+      dataset: The name of the dataset for the experiment.
+      checkpoint: The file format of the checkpoints to be loaded.
+      num_trials: Number of trained models to ensemble.
+    """
+
+    checkpointsname = []
+    f = open(GLOBAL_HPAR.summary_dir + "/train/checkpoint")
+    for line in f:
+        m = re.search('(?<=(?P<quote>["])).*(?P=quote)', line)
+        checkpointsname.append(m.group(0)[:-1])
+
+    checkpoints = []
+    for file_name in checkpointsname:
+        if tf.compat.v1.train.checkpoint_exists(file_name):
+            checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + file_name)
+
+    with tf.Graph().as_default():
+        features = get_features('test', hparams.batch_size, 1, data_dir, num_targets,
+                                dataset)[0]
+        model = models[model_type](hparams)
+
+        session = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(allow_soft_placement=True))
+        coord = tf.train.Coordinator()
+        threads = tf.compat.v1.train.start_queue_runners(sess=session, coord=coord)
+        num_steps = eval_size // hparams.batch_size
+        data, targets = get_placeholder_data(num_steps, hparams.batch_size, features,
+                                             session)
+
+        corrects = infer_ensemble_accuracy(features, model, checkpoints, session,
+                                       num_steps, data)
+        coord.request_stop()
+        coord.join(threads)
+        session.close()
+
+        print("logitis mix")
+        print(len(corrects))
+
+        corrects = np.reshape(corrects, (len(checkpoints), -1))
+        corrects_acc = np.sum(corrects, axis=-1) / eval_size * 100
+        print(corrects_acc)
 
 
 def main(_):
@@ -626,13 +717,18 @@ def main(_):
               GLOBAL_HPAR.max_steps, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
               GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate)
     else:
-        if GLOBAL_HPAR.num_trials == 1:
-            print("eval")
-            evaluate(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
+
+        if GLOBAL_HPAR.track:
+            evaluate_history(GLOBAL_HPAR, GLOBAL_HPAR.model, GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir,
+                              GLOBAL_HPAR.num_targets, GLOBAL_HPAR.dataset, GLOBAL_HPAR.checkpoint,
+                              GLOBAL_HPAR.num_trials)
+        else:
+            if GLOBAL_HPAR.num_trials == 1:
+                evaluate(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
                      GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
                      GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate, GLOBAL_HPAR.checkpoint)
-        else:
-            evaluate_ensemble(GLOBAL_HPAR, GLOBAL_HPAR.model, GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir,
+            else:
+                evaluate_ensemble(GLOBAL_HPAR, GLOBAL_HPAR.model, GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir,
                               GLOBAL_HPAR.num_targets, GLOBAL_HPAR.dataset, GLOBAL_HPAR.checkpoint,
                               GLOBAL_HPAR.num_trials)
 
