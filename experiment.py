@@ -483,7 +483,7 @@ def get_placeholder_data(num_steps, batch_size, features, session):
                 'recons_image': features['recons_image']
             }))
         targets.append(data[i]['recons_label'])
-    image_shape = (batch_size, depth, image_size, image_size)
+    image_shape = (batch_size, image_size, image_size, depth)
     features['images'] = tf.compat.v1.placeholder(tf.float32, shape=image_shape)
     features['labels'] = tf.compat.v1.placeholder(
         tf.float32, shape=(batch_size, num_classes))
@@ -568,7 +568,7 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
         coord.request_stop()
         coord.join(threads)
         session.close()
-
+        print(logits.shape)
         logits = np.reshape(logits, (num_trials, num_steps, hparams.batch_size, -1))
         logits = np.sum(logits, axis=0)
         predictions = np.argmax(logits, axis=2)
