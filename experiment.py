@@ -596,7 +596,7 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
 
     checkpoints = []
     for file_name in checkpointsname:
-        if tf.compat.v1.train.checkpoint_exists(file_name):
+        if tf.compat.v1.train.checkpoint_exists(GLOBAL_HPAR.summary_dir + "/train/" + file_name):
             checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + file_name)
 
     with tf.Graph().as_default():
@@ -654,7 +654,7 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
 
     checkpoints = []
     for file_name in checkpointsname:
-        if tf.compat.v1.train.checkpoint_exists(file_name):
+        if tf.compat.v1.train.checkpoint_exists(GLOBAL_HPAR.summary_dir + "/train/" +file_name):
             checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + file_name)
 
     with tf.Graph().as_default():
