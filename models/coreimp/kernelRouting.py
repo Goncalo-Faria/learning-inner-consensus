@@ -52,7 +52,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        raw = (-1) * tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
+        raw = tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
 
         if self._verbose:
             tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), self._agreement)
