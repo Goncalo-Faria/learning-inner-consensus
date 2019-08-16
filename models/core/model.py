@@ -63,13 +63,16 @@ class Model(object):
 
             step = (self._global_step / hparams.max_steps)
 
+            init_fact = 10 * tf.sigmoid(-2 * (self._global_step / 2000) ) + 0.1
+
             mom_sche = (0.85 - 0.95) * ( step - 1 ) / (0 - 1) + 0.95
 
-            learning_rate = hparams.learning_rate * (1 - step )
+            learning_rate = hparams.learning_rate * (1 - step ) * init_fact
 
             learning_rate = tf.maximum(learning_rate, 1e-8)
 
             self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, mom_sche)
+
             #self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate, epsilon=1)
 
     def inference(self, features):
@@ -118,7 +121,8 @@ class Model(object):
                     scope=scope,
                     loss_type=self._hparams.loss_type,
                     reg_const=self._hparams.regulizer_constant,
-                    remake = self._hparams.remake)
+                    remake = self._hparams.remake,
+                    max_steps = self._hparams.max_steps)
                 tf.compat.v1.get_variable_scope().reuse_variables()
                 grads = self._optimizer.compute_gradients(losses)
 

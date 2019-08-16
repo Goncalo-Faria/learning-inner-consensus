@@ -50,7 +50,7 @@ def _margin_loss(labels, raw_logits, margin=0.4, downweight=0.5):
     return 0.5 * positive_cost + downweight * 0.5 * negative_cost
 
 
-def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0, remake = False):
+def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0, remake = False, max_steps = None, step=None):
     """Calculates total loss and performance metrics like accuracy.
 
     Args:
@@ -75,7 +75,6 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0, remak
         elif loss_type == 'softmax':
             classification_loss = tf.compat.v1.nn.softmax_cross_entropy_with_logits_v2(
                     labels=labels, logits=logits)
-
 
         elif loss_type == 'margin':
             classification_loss = _margin_loss(
