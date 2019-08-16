@@ -717,7 +717,7 @@ def main(_):
     print("Hyper Parameters")
     print(GLOBAL_HPAR)
     if GLOBAL_HPAR.train:
-        wandb.init(project="Inner-consensus", name="train_experiment" + GLOBAL_HPAR.Model, sync_tensorboard=True, dir=".")
+        wandb.init(project="Inner-consensus", name="train_experiment" + GLOBAL_HPAR.model, sync_tensorboard=True, dir=".")
         train(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
               GLOBAL_HPAR.max_steps, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
               GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate)
