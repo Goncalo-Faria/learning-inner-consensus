@@ -63,7 +63,7 @@ class Model(object):
 
             step = (self._global_step / hparams.max_steps)
 
-            init_fact = 10 * tf.sigmoid(-2 * (self._global_step / 2000) ) + 0.1
+            init_fact = tf.minimum( 10 * tf.sigmoid(-2 * (self._global_step / 2000) ) + 0.1, 1 )
 
             mom_sche = (0.85 - 0.95) * ( step - 1 ) / (0 - 1) + 0.95
 
