@@ -11,7 +11,7 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
-    router = KernelRouting(
+    router1 = KernelRouting(
                 kernel=MonoKernelMix(
                     kernel=SpectralMixture(hparams.verbose),
                     degree=1),
@@ -19,6 +19,26 @@ def setup(
                 iterations=3,
                 verbose=hparams.verbose,
                 name="globalRouter"
+    )
+
+    router2 = KernelRouting(
+        kernel=MonoKernelMix(
+            kernel=SpectralMixture(hparams.verbose),
+            degree=3),
+        metric=Frobenius(),
+        iterations=3,
+        verbose=hparams.verbose,
+        name="globalRouter"
+    )
+
+    router3 = KernelRouting(
+        kernel=MonoKernelMix(
+            kernel=SpectralMixture(hparams.verbose),
+            degree=10),
+        metric=Frobenius(),
+        iterations=3,
+        verbose=hparams.verbose,
+        name="globalRouter"
     )
 
     hparams.derender_layers= [
@@ -42,12 +62,12 @@ def setup(
                 metric=Frobenius(),
                 name="FTransf"
             ),
-            "routing": router
+            "routing": router3
         }
     hparams.reconstruction_layer_sizes=[512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing=router,
+                routing=router2,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
@@ -55,17 +75,19 @@ def setup(
                 ),
                 ksizes=[1, 3, 3, 1],
                 strides=[1, 2, 2, 1],
-                name="A"
+                name="A",
+                coordinate_addition=True
             ),
             CapsuleLayer(
-                routing=router,
+                routing=router1,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
                     name="BTransf"
                 ),
                 ksizes=[1, 3, 3, 1],
-                name="B"
+                name="B",
+                coordinate_addition=True
             )
         ]
 
