@@ -12,7 +12,7 @@ def setup(
         hparams):
     router = RNNRouting(
         metric=Frobenius(),
-        iterations=5,
+        iterations=2,
         cell = tf.compat.v1.nn.rnn_cell.LSTMCell(
             num_units=hparams.degree,
             name="attentionLayer",
