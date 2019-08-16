@@ -61,14 +61,16 @@ class Model(object):
                 initializer=tf.compat.v1.constant_initializer(0),
                 trainable=False)
 
-            decay = 1 - (self._global_step / hparams.max_steps)
+            step = (self._global_step / hparams.max_steps)
 
-            learning_rate = hparams.learning_rate * decay
+            mom_sche = (0.85 - 0.95) * ( step - 1 ) / (0 - 1) + 0.95
+
+            learning_rate = hparams.learning_rate * (1 - step )
 
             learning_rate = tf.maximum(learning_rate, 1e-8)
 
-            #self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, 0.9, use_nesterov=True)
-            self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate, epsilon=1)
+            self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, mom_sche)
+            #self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate, epsilon=1)
 
     def inference(self, features):
         final_activations, remake = self.apply(features)
