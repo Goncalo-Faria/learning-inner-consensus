@@ -41,6 +41,7 @@ import architectures.cap_block_net as BlockNet
 import architectures.cap_kernel as KernelBaseline
 import architectures.cap_mlp as CapsMLP
 import architectures.cap_mlp_shared as CapsMLPShared
+import architectures.cap_nin as CapNIN
 #import architectures.convnet as ConvNet
 
 #wandb.init(project="Inner-consensus", sync_tensorboard=True)
@@ -99,12 +100,13 @@ parser.add_argument('--track', default=False,
 GLOBAL_HPAR = parser.parse_args()
 
 models = {
-    "CapsuleBlockNet": capm.CapsuleModel,
+    "CapsuleNin": capm.CapsuleModel,
     "ConvNet" : convmodel.ConvModel,
     "CapsuleBaseline": capm.CapsuleModel,
     "KernelNet" : capm.CapsuleModel,
     "CapsMLPShared" : capm.CapsuleModel,
-    "CapsMLP" : capm.CapsuleModel
+    "CapsMLP" : capm.CapsuleModel,
+
 }
 
 def get_features(split, total_batch_size, num_gpus, data_dir, num_targets,
@@ -714,6 +716,9 @@ def main(_):
 
     elif GLOBAL_HPAR.model == "CapsMLPShared":
         GLOBAL_HPAR = CapsMLPShared.setup(GLOBAL_HPAR)
+
+    elif GLOBAL_HPAR.model == "CapsuleNin":
+        GLOBAL_HPAR = CapNIN.setup(GLOBAL_HPAR)
 
     print("Hyper Parameters")
     print(GLOBAL_HPAR)

@@ -223,11 +223,70 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 r, s = self.compatibility(s, r, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-                c = self._normalization(r, axis=-1)
+                c = self._normalization(r, axis=-3)
                 ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
                 poses = self._renormalizedDotProd(c, votes)
                 ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
+
+
+            probabilities = self.activation(s, c, votes, poses)
+            ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
+
+            probabilities = tf.squeeze(probabilities, axis=[-2,-1])
+
+            poses = tf.transpose(poses, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
+            probabilities = tf.transpose(probabilities, [0, 4, 2, 3, 1])  ## output atoms become depth
+
+            poses = tf.squeeze(poses, axis=[1])  ## remove output atoms dim
+            probabilities = tf.squeeze(probabilities, axis=[1])  ## remove output atoms dim
+
+            #if self._verbose:
+                #tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
+
+            return poses, probabilities
+
+
+class HyperSimplifiedRoutingProcedure(RoutingProcedure):
+    """
+        meta class for routing procedures.
+    """
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(
+            self,
+            name,
+            metric,
+            normalization = tf.nn.softmax,
+            epsilon=1e-6,
+            bias=False,
+            verbose=False):
+
+        super(HyperSimplifiedRoutingProcedure, self).__init__(
+            name=name,
+            metric=metric,
+            initial_state=None,
+            design_iterations=None,
+            normalization = normalization,
+            epsilon=epsilon,
+            bias=bias,
+            verbose=verbose)
+
+    def fit(self, votes, activations, iterations = 0):
+        ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
+        ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+        self.atoms = votes.shape.as_list()[4]
+
+        with tf.compat.v1.variable_scope('HyperSimplifiedRoutingProcedure/' + self.name, reuse=tf.compat.v1.AUTO_REUSE):
+
+            r, s = self.compatibility(None, None, votes, None, None, activations, None)
+            ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+
+            c = self._normalization(r, axis=-3)
+            ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+
+            poses = self._renormalizedDotProd(c, votes)
+            ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
 
             probabilities = self.activation(s, c, votes, poses)

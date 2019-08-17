@@ -9,9 +9,9 @@ from models.coreimp.rnnRouting import RNNRouting
 tf.compat.v1.enable_eager_execution()
 
 batch = 32
-w = 6
-h = 3
-depth = 3
+w = 5
+h = 5
+depth = 16
 representation_dim = [2, 2]
 atoms = 4
 
@@ -31,16 +31,16 @@ r = KernelRouting(
 r2 = NiNRouting(
     metric=Frobenius(),
     iterations=3,
-    activation_layers=[32,10],
-    compatibility_layers=[32,10],
+    activation_layers=[1250,1250],
+    compatibility_layers=[1250,1250],
     degree=16
 )
 
-r3 = RNNRouting(
-    metric=Frobenius(),
-    iterations=3,
-    degree=16
-)
+#r3 = RNNRouting(
+#    metric=Frobenius(),
+#    iterations=3,
+#    degree=16
+#)
 
 votes = tf.ones([batch, atoms, w, h, depth] + representation_dim, dtype=tf.float32)
 activations = tf.ones([batch, atoms, w, h, depth], dtype=tf.float32)
@@ -65,11 +65,11 @@ print("should have been " + str([batch, w, h, atoms]))
 #print(high_activations)
 #print(high_poses)
 
-high_poses, high_activations = r3.fit(votes, activations)
+#high_poses, high_activations = r3.fit(votes, activations)
 
-print("rnn")
-print("got " + str(high_poses.shape))
-print("should have been " + str([batch, w, h, atoms] + representation_dim))
+#print("rnn")
+#print("got " + str(high_poses.shape))
+#print("should have been " + str([batch, w, h, atoms] + representation_dim))
 
-print("got " + str(high_activations.shape))
-print("should have been " + str([batch, w, h, atoms]))
+#print("got " + str(high_activations.shape))
+#print("should have been " + str([batch, w, h, atoms]))
