@@ -292,8 +292,6 @@ class HyperSimplifiedRoutingProcedure(RoutingProcedure):
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
-            probabilities = tf.squeeze(probabilities, axis=[-2,-1])
-
             poses = tf.transpose(poses, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
             probabilities = tf.transpose(probabilities, [0, 4, 2, 3, 1])  ## output atoms become depth
 

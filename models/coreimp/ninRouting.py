@@ -128,7 +128,7 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
             )
 
         ## activation :: { batch, output_atoms, new_w, new_h, 1 }
-        activation = tf.reshape(activation,votes.shape.as_list()[:-3]+[1,1,1])
+        activation = tf.reshape(activation,votes.shape.as_list()[:-3]+[1])
 
         # print( "activation" + str(activation.shape))
 

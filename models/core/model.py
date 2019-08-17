@@ -72,9 +72,9 @@ class Model(object):
 
             learning_rate = tf.maximum(learning_rate, 1e-8)
 
-            self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, mom_sche)
+            #self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, mom_sche)
 
-            #self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate, epsilon=1)
+            self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=0.001, epsilon=1)
 
     def inference(self, features):
 
@@ -144,7 +144,7 @@ class Model(object):
         average_grads = []
         for grads_and_vars in zip(*tower_grads):
 
-            print(grads_and_vars)
+            #print(grads_and_vars)
             grads = tf.stack([g for g, _ in grads_and_vars])
             grad = tf.reduce_mean(grads, 0)
             v = grads_and_vars[0][1]
