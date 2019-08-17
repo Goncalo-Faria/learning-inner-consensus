@@ -18,9 +18,13 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
             name="",
             epsilon=1e-6,
             normalization=tf.nn.softmax,
-            verbose=False):
+            verbose=False,
+            rate=0.5,
+            train=False):
         self._activation_layers = activation_layers
         self._compatibility_layers = compatibility_layers
+        self._rate = rate
+        self._train = train
 
         super(NiNRouting, self).__init__(
             name="NiNRouting_" + name,
@@ -39,6 +43,9 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
         vshape = votes.shape.as_list()
         # s :: {degree}
 
+        print("vote : " + str(votes.shape) )
+        print("activations : " + str(activations.shape) )
+
         votes_flatten = tf.reshape(votes, shape=vshape[:-2] + [-1])
 
         activations_flatten = tf.reshape(activations, shape=vshape[:-2] + [-1])
@@ -52,24 +59,33 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
         counter = 0
 
         for layer_num in self._compatibility_layers:
-
-            batched_features = tf.compat.v1.layers.Dense(
-                units=layer_num,
-                activation=tf.nn.relu,
-                _reuse=tf.compat.v1.AUTO_REUSE,
-                name="l_" + str(counter)
-            )(batched_features)
+            print("batched_features: " + str(batched_features.shape))
+            batched_features = tf.compat.v1.layers.Dropout(rate=self._rate)(
+                    tf.compat.v1.layers.Dense(
+                        units=layer_num,
+                        activation=tf.nn.relu,
+                        _reuse=tf.compat.v1.AUTO_REUSE,
+                        name="l_" + str(counter)
+                    )(batched_features),
+                    training=self._train
+                )
 
             counter += 1
 
         s = batched_features
 
-        r = tf.compat.v1.layers.Dense(
-                units=vshape[-3],
-                activation=None,
-                _reuse=tf.compat.v1.AUTO_REUSE,
-                name="l_final")(batched_features)
+        print("batched_features: " + str(batched_features.shape))
 
+        r = tf.compat.v1.layers.Dropout(rate=self._rate)(
+                tf.compat.v1.layers.Dense(
+                    units=vshape[-3],
+                    activation=None,
+                    _reuse=tf.compat.v1.AUTO_REUSE,
+                    name="l_final")(batched_features),
+                training=self._train
+            )
+
+        print("batched_features: " + str(r.shape))
         ## output -> [h, r]
 
         r = tf.reshape(r, shape= vshape[:-2] + [1,1])
@@ -86,28 +102,37 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
         batched_features = s
 
         for layer_num in self._activation_layers :
-            batched_features = tf.compat.v1.layers.Dense(
-                units=layer_num,
-                activation=tf.nn.relu,
-                _reuse=tf.compat.v1.AUTO_REUSE,
-                name="l_"+str(counter))(batched_features)
+            batched_features = tf.compat.v1.layers.Dropout(rate=self._rate)(
+                    tf.compat.v1.layers.Dense(
+                        units=layer_num,
+                        activation=tf.nn.relu,
+                        _reuse=tf.compat.v1.AUTO_REUSE,
+                        name="l_"+str(counter))(batched_features),
+                    training=self._train
+                )
 
             counter += 1
         ## apply nn
 
         if self._activate :
-            activation = tf.compat.v1.layers.Dense(
-                units=1,
-                name="l_final",
-                _reuse=tf.compat.v1.AUTO_REUSE,
-                activation=tf.nn.sigmoid
-            )(batched_features)
+            activation = tf.compat.v1.layers.Dropout(rate=self._rate)(
+                    tf.compat.v1.layers.Dense(
+                        units=1,
+                        name="l_final",
+                        _reuse=tf.compat.v1.AUTO_REUSE,
+                        activation=tf.nn.sigmoid
+                    )(batched_features),
+                    training=self._train
+            )
         else :
-            activation = tf.compat.v1.layers.Dense(
-                units=1,
-                name="l_final_logits",
-                _reuse=tf.compat.v1.AUTO_REUSE
-            )(batched_features)
+            activation = tf.compat.v1.layers.Dropout(rate=self._rate)(
+                    tf.compat.v1.layers.Dense(
+                        units=1,
+                        name="l_final_logits",
+                        _reuse=tf.compat.v1.AUTO_REUSE
+                    )(batched_features),
+                    training=self._train
+            )
 
         ## activation :: { batch, output_atoms, new_w, new_h, 1 }
         activation = tf.reshape(activation,votes.shape.as_list()[:-3]+[1,1,1])

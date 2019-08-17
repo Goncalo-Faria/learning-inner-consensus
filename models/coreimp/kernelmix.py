@@ -59,5 +59,5 @@ class MonoKernelMix(KernelMix):
         super(MonoKernelMix, self).__init__(
             kernel_list=[kernel] * degree,
             normalization=normalization,
-            name="monokernel" + name)
+            name="monokernel" + str(degree) + name)
 

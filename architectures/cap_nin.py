@@ -10,13 +10,34 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
-    router = NiNRouting(
+    router1 = NiNRouting(
         metric=Frobenius(),
         verbose = hparams.verbose,
-        name="router",
-        compatibility_layers=[512,512],
-        activation_layers=[264],
+        name="router1",
+        compatibility_layers=[248,248],
+        activation_layers=[124],
+        train=hparams.train
     )
+
+    router2 = NiNRouting(
+        metric=Frobenius(),
+        verbose=hparams.verbose,
+        name="router2",
+        compatibility_layers=[248, 248],
+        activation_layers=[124],
+        train=hparams.train
+    )
+
+    router3 = NiNRouting(
+        metric=Frobenius(),
+        verbose=hparams.verbose,
+        name="router3",
+        compatibility_layers=[248, 248],
+        activation_layers=[124],
+        train=hparams.train
+    )
+
+
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,
@@ -38,12 +59,12 @@ def setup(
                 metric=Frobenius(),
                 name="FTransf"
             ),
-            "routing" : router
+            "routing" : router3
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= router,
+                routing= router2,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
@@ -55,7 +76,7 @@ def setup(
                 coordinate_addition=True
             ),
             CapsuleLayer(
-                routing= router,
+                routing= router1,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),

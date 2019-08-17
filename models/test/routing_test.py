@@ -30,10 +30,8 @@ r = KernelRouting(
 
 r2 = NiNRouting(
     metric=Frobenius(),
-    iterations=3,
     activation_layers=[1250,1250],
-    compatibility_layers=[1250,1250],
-    degree=16
+    compatibility_layers=[1250,1250]
 )
 
 #r3 = RNNRouting(
