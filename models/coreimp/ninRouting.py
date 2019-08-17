@@ -43,9 +43,6 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
         vshape = votes.shape.as_list()
         # s :: {degree}
 
-        print("vote : " + str(votes.shape) )
-        print("activations : " + str(activations.shape) )
-
         votes_flatten = tf.reshape(votes, shape=vshape[:-2] + [-1])
 
         activations_flatten = tf.reshape(activations, shape=vshape[:-2] + [-1])
@@ -54,12 +51,11 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
 
         local_capsules_flatten = tf.reshape(capsule_flatten, shape=vshape[:-3] + [-1])
 
-        batched_features = tf.reshape(local_capsules_flatten, [-1, local_capsules_flatten.shape[-1]])
+        batched_features = tf.reshape(local_capsules_flatten, [-1, local_capsules_flatten.shape.as_list()[-1]])
 
         counter = 0
 
         for layer_num in self._compatibility_layers:
-            print("batched_features: " + str(batched_features.shape))
             batched_features = tf.compat.v1.layers.Dropout(rate=self._rate)(
                     tf.compat.v1.layers.Dense(
                         units=layer_num,
@@ -74,8 +70,6 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
 
         s = batched_features
 
-        print("batched_features: " + str(batched_features.shape))
-
         r = tf.compat.v1.layers.Dropout(rate=self._rate)(
                 tf.compat.v1.layers.Dense(
                     units=vshape[-3],
@@ -85,7 +79,6 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
                 training=self._train
             )
 
-        print("batched_features: " + str(r.shape))
         ## output -> [h, r]
 
         r = tf.reshape(r, shape= vshape[:-2] + [1,1])

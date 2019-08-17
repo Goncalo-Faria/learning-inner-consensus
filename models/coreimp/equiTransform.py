@@ -5,8 +5,8 @@ from __future__ import print_function
 import tensorflow as tf
 
 from ..core import variables
-from ..core.transform import Transform
 from ..core.metric import Metric
+from ..core.transform import Transform
 from ..util.initializer import IdentityRandomUniform
 
 

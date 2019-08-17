@@ -1,10 +1,11 @@
 import tensorflow as tf
 
-from models.coreimp.kernelRouting import KernelRouting
 from models.coreimp.commonKernels import DotProd
-from models.coreimp.commonMetrics import Frobenius, SquaredFrobenius
+from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
+from models.coreimp.kernelRouting import KernelRouting
 from models.layers.capsule import CapsuleLayer
+
 
 ## smaller version.
 

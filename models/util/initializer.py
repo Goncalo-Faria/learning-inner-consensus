@@ -1,6 +1,6 @@
 import tensorflow as tf
-from tensorflow.python.ops import random_ops
 from tensorflow.python.framework import dtypes
+from tensorflow.python.ops import random_ops
 
 
 class IdentityRandomUniform(tf.compat.v1.keras.initializers.Initializer):

@@ -1,10 +1,10 @@
 import tensorflow as tf
 
-
 from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
 from models.coreimp.rnnRouting import RNNRouting
 from models.layers.capsule import CapsuleLayer
+
 
 ## smaller version.
 

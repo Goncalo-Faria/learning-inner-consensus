@@ -4,7 +4,6 @@ from models.coreimp.commonKernels import DotProd
 from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.kernelRouting import KernelRouting
 from models.coreimp.ninRouting import NiNRouting
-from models.coreimp.rnnRouting import RNNRouting
 
 tf.compat.v1.enable_eager_execution()
 

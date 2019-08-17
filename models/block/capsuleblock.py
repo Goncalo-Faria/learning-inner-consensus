@@ -1,6 +1,8 @@
-from ..layers.capsule import CapsuleLayer
-from ..coreimp.equiTransform import EquiTransform
 import tensorflow as tf
+
+from ..coreimp.equiTransform import EquiTransform
+from ..layers.capsule import CapsuleLayer
+
 
 class CapsuleIdentityBlock(object):
     def __init__(self,

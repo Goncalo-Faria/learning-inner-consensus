@@ -23,8 +23,9 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from .core.model import Model, Inferred
+
 from .core import variables
+from .core.model import Model
 
 
 class ConvModel(Model):

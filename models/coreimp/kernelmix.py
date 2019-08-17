@@ -4,8 +4,8 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from ..core.kernel import Kernel
 from ..core import variables
+from ..core.kernel import Kernel
 
 
 class KernelMix(Kernel):

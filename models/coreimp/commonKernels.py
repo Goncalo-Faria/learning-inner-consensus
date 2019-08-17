@@ -2,11 +2,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
-from ..core.kernel import Kernel
 from ..core import variables
+from ..core.kernel import Kernel
 
 
 class Poly(Kernel):

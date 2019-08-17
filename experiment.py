@@ -19,22 +19,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import argparse
 import os
+import re
 import sys
 import time
-import re
 
 import numpy as np
 import tensorflow as tf
-
-from data_processing.cifar10 import cifar10_input
-from data_processing.mnist import mnist_input_record
-from models import convmodel
 import wandb
-#from models import conv_model
-
-import models.capsulemodel as capm
-import argparse
 
 import architectures.cap_baseline as CapBaseline
 import architectures.cap_block_net as BlockNet
@@ -42,6 +35,12 @@ import architectures.cap_kernel as KernelBaseline
 import architectures.cap_mlp as CapsMLP
 import architectures.cap_mlp_shared as CapsMLPShared
 import architectures.cap_nin as CapNIN
+import models.capsulemodel as capm
+from data_processing.cifar10 import cifar10_input
+from data_processing.mnist import mnist_input_record
+from models import convmodel
+
+# from models import conv_model
 #import architectures.convnet as ConvNet
 
 #wandb.init(project="Inner-consensus", sync_tensorboard=True)

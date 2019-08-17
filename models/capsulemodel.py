@@ -2,12 +2,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import tensorflow as tf
 
+from .core import layer
 from .core import model
 from .layers.capsule import CapsuleClassLayer, PrimaryCapsuleLayer, FullyConnectedCapsuleLayer
-import numpy as np
-from .core import layer
 
 
 class CapsuleModel(model.Model):

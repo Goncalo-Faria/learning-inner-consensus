@@ -1,10 +1,10 @@
 import tensorflow as tf
 
-from models.layers.capsule import CapsuleLayer, FullyConnectedCapsuleLayer, CapsuleClassLayer, PrimaryCapsuleLayer
-from models.coreimp.equiTransform import EquiTransform
-from models.coreimp.kernelRouting import KernelRouting
 from models.coreimp.commonKernels import DotProd
 from models.coreimp.commonMetrics import SquaredFrobenius
+from models.coreimp.equiTransform import EquiTransform
+from models.coreimp.kernelRouting import KernelRouting
+from models.layers.capsule import CapsuleLayer, FullyConnectedCapsuleLayer, CapsuleClassLayer, PrimaryCapsuleLayer
 
 tf.compat.v1.enable_eager_execution()
 
