@@ -38,7 +38,6 @@ class EquiTransform(Transform):
 
         W = variables.weight_variable(
             [1, self._output_atoms, 1, 1, poses_shape[-3], poses_shape[-2], poses_shape[-1]],
-            name="scale",
             initializer = IdentityRandomUniform(
                     maxval=0.1, minval=-0.1, dtype=tf.float32)
         )

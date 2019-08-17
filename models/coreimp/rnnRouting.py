@@ -35,6 +35,7 @@ class RNNRouting(SimplifiedRoutingProcedure):
             epsilon=epsilon,
             normalization=normalization)
 
+
     def _compatibility(self, s, r, votes, poses, probabilities, activations, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim

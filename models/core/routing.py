@@ -62,7 +62,7 @@ class RoutingProcedure(object):
         raise NotImplementedError('Not implemented')
 
     def activation(self, s, c, votes, poses):
-        with tf.compat.v1.variable_scope('activation/', reuse=tf.compat.v1.AUTO_REUSE) as scope:
+        with tf.compat.v1.variable_scope('activation', reuse=tf.compat.v1.AUTO_REUSE) as scope:
             return self._activation(s, c, votes, poses)
 
     def _initial_coefficients(self,activations):
@@ -106,7 +106,7 @@ class RoutingProcedure(object):
         ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) } 
         self.atoms = votes.shape.as_list()[4]
 
-        with tf.compat.v1.variable_scope('RoutingProcedure/' + self.name, reuse=tf.compat.v1.AUTO_REUSE):
+        with tf.compat.v1.variable_scope('RoutingProcedure' + self.name, reuse=tf.compat.v1.AUTO_REUSE):
 
             s = self._initial_state
 

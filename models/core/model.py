@@ -76,9 +76,11 @@ class Model(object):
             #self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate, epsilon=1)
 
     def inference(self, features):
-        final_activations, remake = self.apply(features)
 
-        return Inferred(final_activations, remake)
+        with tf.compat.v1.variable_scope('Capsule/' + self.name, reuse=tf.compat.v1.AUTO_REUSE):
+            final_activations, remake = self.apply(features)
+
+            return Inferred(final_activations, remake)
 
     @abc.abstractmethod
     def apply(self, features):

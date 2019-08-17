@@ -123,7 +123,7 @@ class CapsuleLayer(object):
 
         self._representation_dim = input_tensor[0].shape.as_list()[4:]
 
-        with tf.compat.v1.variable_scope('CapsuleLayer' + self.name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
+        with tf.name_scope('CapsuleLayer' + self.name) as scope:
 
             if self.activate :
                 self._routing.bound_activations()
