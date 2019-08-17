@@ -144,7 +144,7 @@ class Model(object):
         average_grads = []
         for grads_and_vars in zip(*tower_grads):
 
-            #print(grads_and_vars)
+            print(grads_and_vars)
             grads = tf.stack([g for g, _ in grads_and_vars])
             grad = tf.reduce_mean(grads, 0)
             v = grads_and_vars[0][1]
