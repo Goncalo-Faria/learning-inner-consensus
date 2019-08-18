@@ -5,6 +5,8 @@ from __future__ import print_function
 import tensorflow as tf
 
 from models.core.routing import HyperSimplifiedRoutingProcedure
+import models.core.variables as variables
+from models.coreimp.commonKernels import GaussianKernel
 
 
 class NiNRouting(HyperSimplifiedRoutingProcedure):
@@ -68,8 +70,6 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
 
             counter += 1
 
-        s = batched_features
-
         r = tf.compat.v1.layers.Dropout(rate=self._rate)(
                 tf.compat.v1.layers.Dense(
                     units=vshape[-3],
@@ -85,51 +85,31 @@ class NiNRouting(HyperSimplifiedRoutingProcedure):
 
         # print(" r :" + str(r.shape))
 
-        return r, s
+        return r, None
 
     def _activation(self, s, c, votes, poses):
-        ## s :: batch, output_atoms, new_w, new_h, 1] + [degree]
+        ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
+        ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
+        ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        counter = 0
+        poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
 
-        batched_features = s
+        self._agreement = GaussianKernel().take(poses_tiled, votes)
 
-        for layer_num in self._activation_layers :
-            batched_features = tf.compat.v1.layers.Dropout(rate=self._rate)(
-                    tf.compat.v1.layers.Dense(
-                        units=layer_num,
-                        activation=tf.nn.relu,
-                        _reuse=tf.compat.v1.AUTO_REUSE,
-                        name="l_"+str(counter))(batched_features),
-                    training=self._train
-                )
+        raw = tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
 
-            counter += 1
-        ## apply nn
+        if self._verbose:
+            tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), self._agreement)
 
-        if self._activate :
-            activation = tf.compat.v1.layers.Dropout(rate=self._rate)(
-                    tf.compat.v1.layers.Dense(
-                        units=1,
-                        name="l_final",
-                        _reuse=tf.compat.v1.AUTO_REUSE,
-                        activation=tf.nn.sigmoid
-                    )(batched_features),
-                    training=self._train
-            )
-        else :
-            activation = tf.compat.v1.layers.Dropout(rate=self._rate)(
-                    tf.compat.v1.layers.Dense(
-                        units=1,
-                        name="l_final_logits",
-                        _reuse=tf.compat.v1.AUTO_REUSE
-                    )(batched_features),
-                    training=self._train
-            )
+        ## raw :: { batch, output_atoms, new_w, new_h, 1 }
 
+        theta1 = variables.weight_variable([1], name="theta1", verbose=self._verbose)
+        theta2 = variables.bias_variable([1], name="theta2", verbose=self._verbose)
+
+        if self._activate:
+            activation = tf.sigmoid(theta1 * raw + theta2)
+        else:
+            activation = theta1 * raw + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 }
-        activation = tf.reshape(activation,votes.shape.as_list()[:-3]+[1])
 
-        # print( "activation" + str(activation.shape))
-
-        return activation ## batch , out , w, h, 1, 1
+        return activation

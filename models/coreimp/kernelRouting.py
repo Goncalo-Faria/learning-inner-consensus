@@ -43,7 +43,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
 
         self._agreement = self._kernel.take(poses_tiled, votes)
 
-        r = activations * (1/tf.pow(alpha,2)) * self._agreement
+        r = activations * (1/(tf.sigmoid(alpha)*100 + 1e-5)) * self._agreement
 
         return r, s
 
