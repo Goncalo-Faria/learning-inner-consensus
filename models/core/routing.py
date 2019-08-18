@@ -89,8 +89,8 @@ class RoutingProcedure(object):
             raw_poses = raw_poses + bvar
         # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-        poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
-
+        #poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
+        poses = raw_poses
         # poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
         return poses
