@@ -25,7 +25,7 @@ def setup(
     router2 = KernelRouting(
         kernel=MonoKernelMix(
             kernel=SpectralMixture(hparams.verbose),
-            degree=4),
+            degree=6),
         metric=Frobenius(),
         iterations=3,
         verbose=hparams.verbose,
