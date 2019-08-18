@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from models.coreimp.commonKernels import SpectralMixture
+from models.coreimp.commonKernels import SpectralMixture, GaussianKernel
 from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
 from models.coreimp.kernelRouting import KernelRouting
@@ -13,9 +13,10 @@ from models.layers.capsule import CapsuleLayer
 def setup(
         hparams):
     router1 = KernelRouting(
-                kernel = MonoKernelMix(
-                    kernel=SpectralMixture(hparams.verbose),
-                    degree=1),
+                #kernel = MonoKernelMix(
+                #    kernel=SpectralMixture(hparams.verbose),
+                #    degree=1),
+                kernel  = GaussianKernel(),
                 metric=Frobenius(),
                 iterations=3,
                 verbose=hparams.verbose,
@@ -65,7 +66,7 @@ def setup(
                 metric=Frobenius(),
                 name="FTransf"
             ),
-            "routing": router3
+            "routing": router1
         }
     hparams.reconstruction_layer_sizes=[512, 1024]
     hparams.layers= [
@@ -82,7 +83,7 @@ def setup(
                 coordinate_addition=True
             ),
             CapsuleLayer(
-                routing=router2,
+                routing=router1,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
