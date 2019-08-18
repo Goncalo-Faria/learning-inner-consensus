@@ -154,7 +154,8 @@ class CapsuleModel(model.Model):
             fully_poses, fully_activations = FullyConnectedCapsuleLayer(
                 transform=self._hparams.last_layer["transform"],
                 routing=self._hparams.last_layer["routing"],
-                name="last"
+                name="last",
+                activate=("spread"== self._hparams.loss_type)
             ).inference((lower_poses, lower_activations))
 
         with tf.name_scope("classlayer/") as scope:

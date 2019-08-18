@@ -74,12 +74,29 @@ def evaluate(logits, labels, num_targets, scope, loss_type, reg_const=0.0, remak
                 labels=labels / 2.0, logits=logits)
         elif loss_type == 'softmax':
             classification_loss = tf.compat.v1.nn.softmax_cross_entropy_with_logits_v2(
-                    labels=labels, logits=logits)
+                    labels=tf.stop_gradient(labels), logits=logits)
 
         elif loss_type == 'margin':
             classification_loss = _margin_loss(
                 labels=tf.stop_gradient(labels), raw_logits=logits)
 
+        elif loss_type == 'spread':
+            tf.compat.v1.get_variable_scope().reuse_variables()
+            global_step = tf.compat.v1.get_variable(
+                'global_step', [],
+                initializer=tf.compat.v1.constant_initializer(0),
+                trainable=False)
+
+            m_min = 0.2
+            m_delta = 0.79
+            m = (m_min
+                 + m_delta * tf.sigmoid(tf.minimum(10.0, global_step / (max_steps/10) - 4)))
+
+            at = tf.reduce_sum(logits * labels, axis=-1, keepdims=True)
+
+            loss = tf.square(tf.maximum(0., m - (at - logits)))
+
+            classification_loss = tf.reduce_sum(loss * (1. - labels))
 
         else:
             raise NotImplementedError('Not implemented')

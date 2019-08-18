@@ -20,7 +20,8 @@ class CapsuleLayer(object):
             name="",
             padding="VALID",
             strides=[1, 1, 1, 1],
-            coordinate_addition=False):
+            coordinate_addition=False,
+            activate = True):
         self._routing = routing
         self._iterations = iterations
         self._ksizes = ksizes
@@ -29,7 +30,7 @@ class CapsuleLayer(object):
         self._padding = padding
         self.name = name
         self._representation_dim = []
-        self.activate = True
+        self.activate = activate
         self._coordinate_addition = coordinate_addition
 
         assert isinstance(routing, RoutingProcedure), \
@@ -228,17 +229,17 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
             transform,
             name="",
             coordinate_addition=True,
+            activate = False
     ):
         super(FullyConnectedCapsuleLayer, self).__init__(
             routing=routing,
             transform=transform,
             ksizes=[1, 1, 1, 1],
             name="FullyConnected/" + name,
-            coordinate_addition=False
+            coordinate_addition=False,
+            activate = activate
         )
         self._ff_coordinate_addition = coordinate_addition
-
-        self.activate = False
 
 
     def inference(self, input_tensor):

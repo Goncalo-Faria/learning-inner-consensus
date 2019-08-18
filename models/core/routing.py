@@ -89,7 +89,7 @@ class RoutingProcedure(object):
             raw_poses = raw_poses + bvar
         # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-        #poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
+        poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
         poses = raw_poses
         # poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
@@ -200,8 +200,8 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
 
             activations = tf.reshape(activations, shape=[-1] + activations.shape.as_list()[1:] + [1, 1])
 
-            #c = self._normalization(r, axis=4)
-            c=r
+            c = self._normalization(r, axis=4)
+            #c=r
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
             poses = self._renormalizedDotProd(c, votes)
@@ -224,8 +224,8 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 r, s = self.compatibility(s, r, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-                #c = self._normalization(r, axis=4)
-                c=r
+                c = self._normalization(r, axis=4)
+                #c=r
                 ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
                 poses = self._renormalizedDotProd(c, votes)
