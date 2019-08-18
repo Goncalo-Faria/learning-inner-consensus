@@ -13,10 +13,9 @@ def setup(
     router = RNNRouting(
         metric=Frobenius(),
         iterations=3,
-        cell = tf.compat.v1.nn.rnn_cell.LSTMCell(
-            num_units=hparams.degree,
-            name="attentionLayer",
-            reuse=tf.compat.v1.AUTO_REUSE),
+        cell = tf.compat.v1.keras.layers.LSTMCell(
+            units=hparams.degree,
+            name="attentionLayer"),
         verbose = hparams.verbose,
         name="router",
         bias=False,
