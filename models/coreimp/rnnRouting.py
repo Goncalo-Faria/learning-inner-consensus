@@ -62,11 +62,13 @@ class RNNRouting(SimplifiedRoutingProcedure):
         #
         if s is None:
             s = self._cell.get_initial_state(
-                inputs=inl)
+                inputs=inl,
+                batch_size=inl.shape.as_list()[0],
+                dtype=tf.float32)
 
         out, s = self._cell(
             inputs=inl,
-            states=s)
+            state=s)
 
         feature_map = s[0]
 

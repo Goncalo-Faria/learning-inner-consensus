@@ -13,14 +13,14 @@ def setup(
     router = RNNRouting(
         metric=Frobenius(),
         iterations=3,
-        cell = tf.compat.v1.keras.layers.LSTMCell(
-            units=hparams.degree,
+        cell = tf.compat.v1.nn.rnn_cell.LSTMCell(
+            num_units=hparams.degree,
             name="attentionLayer"),
         verbose = hparams.verbose,
         name="router",
         bias=False,
-        compatibility_layers=[16],
-        activation_layers=[16,16],
+        compatibility_layers=[],
+        activation_layers=[],
     )
 
     hparams.derender_layers= [
