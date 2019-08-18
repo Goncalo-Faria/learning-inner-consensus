@@ -10,41 +10,43 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
-
     router1 = RNNRouting(
         metric=Frobenius(),
         iterations=3,
-        cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
-            num_units=16,
-            name="attentionLayer1",
-            reuse=tf.compat.v1.AUTO_REUSE),
-        verbose=hparams.verbose,
-        name="router1",
-        bias=False
+        cell = tf.compat.v1.nn.rnn_cell.LSTMCell(
+            num_units=hparams.degree,
+            name="attentionLayer"),
+        verbose = hparams.verbose,
+        name="router",
+        bias=False,
+        compatibility_layers=[],
+        activation_layers=[],
     )
 
     router2 = RNNRouting(
         metric=Frobenius(),
         iterations=3,
         cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
-            num_units=16,
-            name="attentionLayer2",
-            reuse=tf.compat.v1.AUTO_REUSE),
+            num_units=hparams.degree,
+            name="attentionLayer"),
         verbose=hparams.verbose,
-        name="router2",
-        bias=False
+        name="router",
+        bias=False,
+        compatibility_layers=[32,32],
+        activation_layers=[64,64],
     )
 
     router3 = RNNRouting(
         metric=Frobenius(),
         iterations=3,
         cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
-            num_units=16,
-            name="attentionLayer3",
-            reuse=tf.compat.v1.AUTO_REUSE),
+            num_units=hparams.degree,
+            name="attentionLayer"),
         verbose=hparams.verbose,
-        name="router3",
-        bias=False
+        name="router",
+        bias=False,
+        compatibility_layers=[64,64],
+        activation_layers=[124,124],
     )
 
     hparams.derender_layers= [
@@ -55,7 +57,6 @@ def setup(
                 use_bias=True,
                 padding="VALID",
                 strides=[2,2],
-                kernel_regularizer=tf.compat.v1.keras.regularizers.l2(0.0000002),
                 bias_regularizer=tf.compat.v1.initializers.truncated_normal(mean=0.0, stddev=0.01)
             )
         ]
@@ -83,7 +84,8 @@ def setup(
                 ),
                 ksizes=[1, 3, 3, 1],
                 strides=[1,2,2,1],
-                name = "A"
+                name = "A",
+                coordinate_addition=True
             ),
             CapsuleLayer(
                 routing= router1,
@@ -93,7 +95,8 @@ def setup(
                 name="BTransf"
                 ),
                 ksizes=[1, 3, 3, 1],
-                name= "B"
+                name= "B",
+                coordinate_addition=True
             )
         ]
 
