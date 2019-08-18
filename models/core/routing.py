@@ -291,7 +291,6 @@ class HyperSimplifiedRoutingProcedure(RoutingProcedure):
             poses = self._renormalizedDotProd(c, votes)
             ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 

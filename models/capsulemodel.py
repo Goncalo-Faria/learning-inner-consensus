@@ -118,10 +118,10 @@ class CapsuleModel(model.Model):
         lower_features = tf.transpose(image_4d,[0,2,3,1])
 
         #lower_features = features
-        #with tf.name_scope("bn/"):
-        #    lower_features = tf.compat.v1.layers.BatchNormalization(
-        #        center=False,
-        #        trainable=True)(lower_features, training=self._hparams.train)
+        with tf.name_scope("bn1/"):
+            lower_features = tf.compat.v1.layers.BatchNormalization(
+                center=False,
+                trainable=True)(lower_features, training=self._hparams.train)
 
         with tf.name_scope("derender/"):
             for i in range(len(self._hparams.derender_layers)):
@@ -130,6 +130,11 @@ class CapsuleModel(model.Model):
                         lower_features)
 
                     lower_features = higher_features
+
+        with tf.name_scope("bn2/"):
+            lower_features = tf.compat.v1.layers.BatchNormalization(
+                center=False,
+                trainable=True)(lower_features, training=self._hparams.train)
 
         with tf.name_scope("primarycapsules/"):
             primary_poses, primary_activations = PrimaryCapsuleLayer(
