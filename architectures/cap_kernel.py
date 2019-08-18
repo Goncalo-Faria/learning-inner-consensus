@@ -13,10 +13,9 @@ from models.layers.capsule import CapsuleLayer
 def setup(
         hparams):
     router1 = KernelRouting(
-                #kernel = MonoKernelMix(
-                #    kernel=SpectralMixture(hparams.verbose),
-                #    degree=1),
-                kernel  = GaussianKernel(),
+                kernel = MonoKernelMix(
+                    kernel=SpectralMixture(hparams.verbose),
+                    degree=1),
                 metric=Frobenius(),
                 iterations=3,
                 verbose=hparams.verbose,
@@ -26,7 +25,7 @@ def setup(
     router2 = KernelRouting(
         kernel=MonoKernelMix(
             kernel=SpectralMixture(hparams.verbose),
-            degree=3),
+            degree=4),
         metric=Frobenius(),
         iterations=3,
         verbose=hparams.verbose,
@@ -66,7 +65,7 @@ def setup(
                 metric=Frobenius(),
                 name="FTransf"
             ),
-            "routing": router1
+            "routing": router3
         }
     hparams.reconstruction_layer_sizes=[512, 1024]
     hparams.layers= [
@@ -83,7 +82,7 @@ def setup(
                 coordinate_addition=True
             ),
             CapsuleLayer(
-                routing=router1,
+                routing=router2,
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
