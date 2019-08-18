@@ -366,7 +366,7 @@ def train(hparams, summary_dir, num_gpus, model_type, max_steps,
       dataset: Name of the dataset for the experiments.
       validate: If set, use training-validation set for training.
     """
-    summary_dir += '/train/'
+    summary_dir += '/train/' + "/" + hparams.model + "/"
     with tf.Graph().as_default():
         # Build model
         features = get_features('train', hparams.batch_size, num_gpus, data_dir, num_targets,
@@ -424,7 +424,7 @@ def evaluate(hparams, summary_dir, num_gpus, model_type, eval_size, data_dir,
       validate: If set, use validation set for continuous evaluation.
       checkpoint: (optional) The checkpoint file name.
     """
-    load_dir = summary_dir + '/train/'
+    load_dir = summary_dir + '/train/' + "/" + hparams.model + "/"
     summary_dir += '/test/'
     with tf.Graph().as_default():
         features = get_features('test', hparams.batch_size, num_gpus, data_dir, num_targets,
@@ -591,7 +591,7 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
     """
 
     checkpointsname = []
-    f = open(GLOBAL_HPAR.summary_dir + "/train/checkpoint")
+    f = open(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + "checkpoint")
     for line in f:
         m = re.search('(?<=(?P<quote>["])).*(?P=quote)', line)
         checkpointsname.append(m.group(0)[:-1])
@@ -600,8 +600,8 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
 
     checkpoints = []
     for file_name in checkpointsname:
-        if tf.compat.v1.train.checkpoint_exists(GLOBAL_HPAR.summary_dir + "/train/" + file_name):
-            checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + file_name)
+        if tf.compat.v1.train.checkpoint_exists(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + file_name):
+            checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + file_name)
 
     with tf.Graph().as_default():
         features = get_features('test', hparams.batch_size, 1, data_dir, num_targets,
@@ -649,7 +649,7 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
     """
 
     checkpointsname = []
-    f = open(GLOBAL_HPAR.summary_dir + "/train/checkpoint")
+    f = open(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + "checkpoint")
     for line in f:
         m = re.search('(?<=(?P<quote>["])).*(?P=quote)', line)
         checkpointsname.append(m.group(0)[:-1])
@@ -659,8 +659,8 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
     checkpoints = []
     checkpointsnameapv = []
     for file_name in checkpointsname:
-        if tf.compat.v1.train.checkpoint_exists(GLOBAL_HPAR.summary_dir + "/train/" +file_name):
-            checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + file_name)
+        if tf.compat.v1.train.checkpoint_exists(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + file_name):
+            checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + file_name)
             checkpointsnameapv.append(file_name)
 
     with tf.Graph().as_default():
@@ -722,18 +722,18 @@ def main(_):
     print("Hyper Parameters")
     print(GLOBAL_HPAR)
     if GLOBAL_HPAR.train:
-        wandb.init(project=GLOBAL_HPAR.model, name="train_experiment" + GLOBAL_HPAR.model, sync_tensorboard=True, dir=".")
+        wandb.init(project="Gulbenkian", name=GLOBAL_HPAR.model + "/train_experiment", sync_tensorboard=True, dir=".")
         train(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
               GLOBAL_HPAR.max_steps, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
               GLOBAL_HPAR.dataset, GLOBAL_HPAR.validate)
     else:
         if GLOBAL_HPAR.track:
-            wandb.init(project="Inner-consensus", name="history", sync_tensorboard=True, dir=".")
+            wandb.init(project="Gulbenkian", name=GLOBAL_HPAR.model + "/history", sync_tensorboard=True, dir=".")
             evaluate_history(GLOBAL_HPAR, GLOBAL_HPAR.model, GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir,
                               GLOBAL_HPAR.num_targets, GLOBAL_HPAR.dataset, GLOBAL_HPAR.checkpoint,
                               GLOBAL_HPAR.num_trials)
         else:
-            wandb.init(project="Inner-consensus", name="evaluation", sync_tensorboard=True, dir=".")
+            wandb.init(project="Gulbenkian", name=GLOBAL_HPAR.model +"/evaluation", sync_tensorboard=True, dir=".")
             if GLOBAL_HPAR.num_trials == 1:
                 evaluate(GLOBAL_HPAR, GLOBAL_HPAR.summary_dir, GLOBAL_HPAR.num_gpus, GLOBAL_HPAR.model,
                      GLOBAL_HPAR.eval_size, GLOBAL_HPAR.data_dir, GLOBAL_HPAR.num_targets,
