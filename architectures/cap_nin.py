@@ -14,7 +14,7 @@ def setup(
         metric=Frobenius(),
         verbose = hparams.verbose,
         name="router1",
-        compatibility_layers=[248,248],
+        compatibility_layers=[124,124],
         activation_layers=[124],
         train=hparams.train
     )
@@ -32,7 +32,7 @@ def setup(
         metric=Frobenius(),
         verbose=hparams.verbose,
         name="router3",
-        compatibility_layers=[248, 248],
+        compatibility_layers=[512, 512],
         activation_layers=[124],
         train=hparams.train
     )
