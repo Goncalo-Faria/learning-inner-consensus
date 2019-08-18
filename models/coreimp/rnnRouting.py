@@ -63,7 +63,6 @@ class RNNRouting(SimplifiedRoutingProcedure):
         if s is None:
             s = self._cell.get_initial_state(
                 inputs=inl)
-        #
 
         out, s = self._cell(
             inputs=inl,

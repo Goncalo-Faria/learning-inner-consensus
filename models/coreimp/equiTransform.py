@@ -39,8 +39,7 @@ class EquiTransform(Transform):
         W = variables.weight_variable(
             [1, self._output_atoms, 1, 1, poses_shape[-3], poses_shape[-2], poses_shape[-1]],
             initializer = IdentityRandomUniform(
-                    maxval=0.1, minval=-0.1, dtype=tf.float32),
-            regularizer=tf.compat.v1.keras.regularizers.l2(0.0000002)
+                    maxval=0.1, minval=-0.1, dtype=tf.float32)
         )
 
         ## W :: {1, outputatoms, 1 , 1, depth * np.prod(ksizes) } + repdim

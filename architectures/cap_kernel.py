@@ -50,7 +50,6 @@ def setup(
                 use_bias=True,
                 padding="VALID",
                 strides=[2,2],
-                kernel_regularizer=tf.compat.v1.keras.regularizers.l2(0.0000002),
                 bias_regularizer=tf.compat.v1.initializers.truncated_normal(mean=0.0, stddev=0.01)
             )
         ]
