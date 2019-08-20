@@ -21,7 +21,7 @@ def setup(
         bias=False,
         compatibility_layers=[],
         activation_layers=[],
-        rate=0.5,
+        rate=0,
         train=hparams.train
     )
 
