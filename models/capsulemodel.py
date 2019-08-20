@@ -128,7 +128,9 @@ class CapsuleModel(model.Model):
         with tf.name_scope("bn/"):
             lower_features = tf.compat.v1.layers.BatchNormalization(
                 center=False,
-                trainable=self._hparams.bn_train)(lower_features, training=self._hparams.train)
+                trainable=self._hparams.bn_train)(
+                    lower_features,
+                    training=self._hparams.train and self._hparams.bn_train)
 
         with tf.name_scope("primarycapsules/"):
             primary_poses, primary_activations = PrimaryCapsuleLayer(

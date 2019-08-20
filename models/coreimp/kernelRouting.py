@@ -15,7 +15,6 @@ class KernelRouting(SimplifiedRoutingProcedure):
             kernel,
             metric,
             iterations,
-            activate = True,
             name="",
             verbose=False):
         self._kernel = kernel
