@@ -95,6 +95,8 @@ parser.add_argument('--loss_type', default='softmax',
                     type=str,help=' classfication head. ')
 parser.add_argument('--track', default=False,
                     type=bool,help='plot history.')
+parser.add_argument('--bn_train', default=False,
+                    type=bool,help='adjust bn parameters.')
 
 GLOBAL_HPAR = parser.parse_args()
 
