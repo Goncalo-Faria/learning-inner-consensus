@@ -21,6 +21,8 @@ def setup(
         bias=False,
         compatibility_layers=[],
         activation_layers=[],
+        rate=0.5,
+        train=hparams.train
     )
 
     router2 = RNNRouting(
@@ -34,6 +36,8 @@ def setup(
         bias=False,
         compatibility_layers=[32,32],
         activation_layers=[64,64],
+        rate=0.5,
+        train=hparams.train
     )
 
     router3 = RNNRouting(
@@ -47,6 +51,8 @@ def setup(
         bias=False,
         compatibility_layers=[64,64],
         activation_layers=[124,124],
+        rate=0.5,
+        train=hparams.train
     )
 
     hparams.derender_layers= [
