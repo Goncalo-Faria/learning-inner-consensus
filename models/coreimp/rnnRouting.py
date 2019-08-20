@@ -20,13 +20,11 @@ class RNNRouting(SimplifiedRoutingProcedure):
             compatibility_layers=[],
             activation_layers=[],
             normalization=tf.nn.softmax,
-            rate = 0,
             train = False,
             verbose=False):
         self._compatibility_layers = compatibility_layers
         self._activation_layers = activation_layers
         self._cell = cell
-        self._rate = rate
         self.train = train
 
         super(RNNRouting, self).__init__(
@@ -79,28 +77,22 @@ class RNNRouting(SimplifiedRoutingProcedure):
         counter = 0
 
         for layer_num in self._compatibility_layers:
-            feature_map = tf.compat.v1.layers.Dropout(rate=self._rate)(
-                tf.compat.v1.layers.Dense(
+            feature_map = tf.compat.v1.layers.Dense(
                     units=layer_num,
                     activation=tf.nn.relu,
                     _reuse=tf.compat.v1.AUTO_REUSE,
                     name="l_" + str(counter)
-                )(feature_map),
-                training=self.train
-            )
+                )(feature_map)
             ## apply nn
 
             counter += 1
 
-        outl = tf.compat.v1.layers.Dropout(rate=self._rate)(
-            tf.compat.v1.layers.Dense(
+        outl = tf.compat.v1.layers.Dense(
                 units=1,
                 activation=None,
                 _reuse=tf.compat.v1.AUTO_REUSE,
                 name="l_final"
-            )(feature_map),
-            training=self.train
-        )
+            )(feature_map)
 
         r = tf.reshape(outl, vshape[0:5]+[1,1])
 
@@ -127,38 +119,29 @@ class RNNRouting(SimplifiedRoutingProcedure):
         counter = 0
 
         for layer_num in self._activation_layers:
-            inl = tf.compat.v1.layers.Dropout(rate=self._rate)(
-                tf.compat.v1.layers.Dense(
+            inl = tf.compat.v1.layers.Dense(
                     units=layer_num,
                     activation=tf.nn.relu,
                     _reuse=tf.compat.v1.AUTO_REUSE,
                     name="l_" + str(counter)
-                )(inl),
-                training=self.train
-            )
+                )(inl)
             ## apply nn
 
             counter += 1
 
         if self._activate :
-            outl = tf.compat.v1.layers.Dropout(rate=self._rate)(
-                tf.compat.v1.layers.Dense(
+            outl = tf.compat.v1.layers.Dense(
                     units=1,
                     name="l_final",
                     _reuse=tf.compat.v1.AUTO_REUSE,
                     activation=tf.nn.sigmoid
-                )(inl),
-                training=self.train
-            )
+                )(inl)
         else :
-            outl = tf.compat.v1.layers.Dropout(rate=self._rate)(
-                tf.compat.v1.layers.Dense(
+            outl = tf.compat.v1.layers.Dense(
                     units=1,
                     name="l_final_logits",
                     _reuse=tf.compat.v1.AUTO_REUSE
-                )(inl),
-                training=self.train
-            )
+                )(inl)
 
 
         ## activation :: { batch, output_atoms, new_w, new_h, 1 }
