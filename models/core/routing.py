@@ -91,10 +91,10 @@ class RoutingProcedure(object):
             raw_poses_weight_normalized = raw_poses_weight_normalized + bvar
         # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-        poses = tf.divide(raw_poses_weight_normalized, self._epsilon + self.metric.take(raw_poses_weight_normalized))
+        #poses = tf.divide(raw_poses_weight_normalized, self._epsilon + self.metric.take(raw_poses_weight_normalized))
         # poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-        return poses
+        return raw_poses_weight_normalized
 
     def bound_activations(self):
         self._activate = True
@@ -202,11 +202,9 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             )
             raw_poses = raw_poses + bvar
         # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
-
-        poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
         # poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-        return poses
+        return raw_poses
 
     def fit(self, votes, activations, iterations = 0):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
