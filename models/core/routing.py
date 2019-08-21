@@ -80,17 +80,18 @@ class RoutingProcedure(object):
 
         raw_poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
 
+        raw_poses_weight_normalized = raw_poses / tf.reduce_sum( c, axis=4, keepdims=True)
+
         if self._bias:
             bvar = bias_variable(
                 [1,vshape[1],vshape[2],vshape[3],1]+vshape[-2:],
                 verbose=self._verbose,
                 name="voting_bias"+str(RoutingProcedure.count)
             )
-            raw_poses = raw_poses + bvar
+            raw_poses_weight_normalized = raw_poses_weight_normalized + bvar
         # raw_poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-        poses = tf.divide(raw_poses, self._epsilon + self.metric.take(raw_poses))
-        poses = raw_poses
+        poses = tf.divide(raw_poses_weight_normalized, self._epsilon + self.metric.take(raw_poses))
         # poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
         return poses
