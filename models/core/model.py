@@ -72,7 +72,8 @@ class Model(object):
 
             learning_rate = tf.maximum(learning_rate, 1e-8)
 
-            self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, mom_sche)
+            #self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, mom_sche)
+            self._optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
 
             #self._optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=0.001)#, epsilon=1)
 
