@@ -44,7 +44,8 @@ class KernelRouting(SimplifiedRoutingProcedure):
 
         r = activations * (1/(tf.sigmoid(alpha)*100 + 1e-5)) * self._agreement
 
-        return r, s
+        c = self._normalization(r, axis=4)
+        return c, s
 
     def _activation(self, s, c, votes, poses):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
@@ -68,26 +69,3 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
 
         return activation
-
-class KernelRoutingWithPrior(KernelRouting):
-
-    def __init__(
-            self,
-            kernel,
-            metric,
-            iterations,
-            activate = True,
-            name="",
-            verbose=False):
-        super(KernelRoutingWithPrior, self).__init__(
-            kernel=kernel,
-            name="withPrior"+ name,
-            metric=metric,
-            iterations=iterations,
-            activate=activate,
-            verbose=verbose)
-
-        self._normalization = tf.nn.softmax
-
-    def _initial_coefficients(self, r, activations):
-        return activations

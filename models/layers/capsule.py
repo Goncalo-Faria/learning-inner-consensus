@@ -71,7 +71,7 @@ class CapsuleLayer(object):
         )
 
         patched_activations = tf.compat.v1.extract_image_patches(
-            activations,
+            tf.squeeze(activations, axis=[-2,-1]),
             sizes=self._ksizes,
             strides=self._strides,
             padding=self._padding,
@@ -87,6 +87,14 @@ class CapsuleLayer(object):
 
         patched_poses = tf.reshape(patched_poses, [-1] + patched_poses_shape[1:4] + self._representation_dim)
         ## patched_poses { batch, new_w , new_h, depth * np.prod(ksizes)} + repdim }
+
+        patched_activations = tf.expand_dims(
+            tf.expand_dims(
+                patched_activations,
+                axis=-1
+            ),
+            axis=-1
+        )
 
         return patched_poses, patched_activations
 
@@ -105,8 +113,8 @@ class CapsuleLayer(object):
         assert len(input_tensor[0].shape.as_list()) == 6, \
             " pose must be a rank 6 tensor."
 
-        assert len(input_tensor[1].shape.as_list()) == 4, \
-            " activations must be a rank 4 tensor."
+        assert len(input_tensor[1].shape.as_list()) == 6, \
+            " activations must be a rank 6 tensor."
 
         assert input_tensor[0].shape.as_list()[0] == input_tensor[1].shape.as_list()[0], \
             " batch dimention must match."
@@ -166,8 +174,8 @@ class CapsuleLayer(object):
             assert len(higher_poses.shape.as_list()) == 6, \
                 " higher pose must be a rank 6 tensor."
 
-            assert len(higher_activations.shape.as_list()) == 4, \
-                " higher activations must be a rank 4 tensor."
+            assert len(higher_activations.shape.as_list()) == 6, \
+                " higher activations must be a rank 6 tensor."
 
             assert higher_poses.shape.as_list()[0] == higher_activations.shape.as_list()[0], \
                 " batch dimention must match"
@@ -252,7 +260,7 @@ class FullyConnectedCapsuleLayer(CapsuleLayer):
             poses = poses + self._coordinate_factor(poses.shape.as_list()[1:4])
 
         poses = tf.reshape(poses, [poses.shape[0], 1, 1, -1] + poses.shape.as_list()[4:])
-        activations = tf.reshape(activations, [poses.shape[0], 1, 1, -1])
+        activations = tf.reshape(activations, [poses.shape[0], 1, 1, -1, 1, 1])
 
         return super(FullyConnectedCapsuleLayer, self).inference((poses, activations))
 
@@ -327,6 +335,12 @@ class PrimaryCapsuleLayer(object):
                 shape=[-1] + raw_poses_shape[1:3] + [self._groups] + self._pose_dim
             )
 
+            activations = tf.expand_dims(
+                                tf.expand_dims(
+                                    activations,
+                                    axis=-1),
+                                axis=-1
+                        )
             ## pose == {batch, w, h, capsule_groups} + pose_dim
             ## activation == {batch, w, h, capsule_groups}
 

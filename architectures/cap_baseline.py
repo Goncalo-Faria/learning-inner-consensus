@@ -39,7 +39,6 @@ def setup(
                 iterations=3,
                 verbose=hparams.verbose,
                 name="LastR",
-                activate = False,
             )
         }
     hparams.reconstruction_layer_sizes= [512, 1024]

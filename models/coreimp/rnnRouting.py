@@ -100,8 +100,9 @@ class RNNRouting(SimplifiedRoutingProcedure):
 
         ## s :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes), degree }
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes), 1 }
+        c = self._normalization(r, axis=4)
 
-        return r, s
+        return c, s
 
 
     def _activation(self, s, c, votes, poses):

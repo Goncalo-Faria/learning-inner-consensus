@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
-from models.coreimp.rnnRouting import RNNRouting
+from models.coreimp.emRouting import EMRouting
 from models.layers.capsule import CapsuleLayer
 
 
@@ -33,35 +33,21 @@ def setup(
                 metric=Frobenius(),
                 name="FTransf"
             ),
-            "routing" : RNNRouting(
+            "routing" : EMRouting(
                 metric=Frobenius(),
                 iterations=3,
-                cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
-                    num_units=hparams.degree,
-                    name="attentionLayer3"),
                 verbose=hparams.verbose,
                 name="router3",
-                bias=False,
-                compatibility_layers=[64,64],
-                activation_layers=[124,124],
-                train=hparams.train
-            )
+    )
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= RNNRouting(
+                routing= EMRouting(
                     metric=Frobenius(),
                     iterations=3,
-                    cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
-                        num_units=hparams.degree,
-                        name="attentionLayer1"),
-                    verbose = hparams.verbose,
+                    verbose=hparams.verbose,
                     name="router1",
-                bias=False,
-                compatibility_layers=[],
-                activation_layers=[],
-                train=hparams.train
                 ),
                 transform=EquiTransform(
                     output_atoms=16,
@@ -74,19 +60,12 @@ def setup(
                 coordinate_addition=True
             ),
             CapsuleLayer(
-                routing= RNNRouting(
+                routing= EMRouting(
                     metric=Frobenius(),
                     iterations=3,
-                    cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
-                        num_units=hparams.degree,
-                        name="attentionLayer2"),
                     verbose=hparams.verbose,
                     name="router2",
-                    bias=False,
-                    compatibility_layers=[32,32],
-                    activation_layers=[64,64],
-                    train=hparams.train
-            ),
+                ),
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),

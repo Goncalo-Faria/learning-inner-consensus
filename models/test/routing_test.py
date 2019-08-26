@@ -4,6 +4,7 @@ from models.coreimp.commonKernels import DotProd
 from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.kernelRouting import KernelRouting
 from models.coreimp.ninRouting import NiNRouting
+from models.coreimp.rnnRouting import RNNRouting
 
 tf.compat.v1.enable_eager_execution()
 
@@ -33,14 +34,21 @@ r2 = NiNRouting(
     compatibility_layers=[1250,1250]
 )
 
-#r3 = RNNRouting(
-#    metric=Frobenius(),
-#    iterations=3,
-#    degree=16
-#)
+r3 = RNNRouting(
+        metric=Frobenius(),
+        iterations=3,
+        cell = tf.compat.v1.nn.rnn_cell.LSTMCell(
+            num_units=32,
+            name="attentionLayer"),
+        verbose = 32,
+        name="router",
+        bias=False,
+        compatibility_layers=[],
+        activation_layers=[],
+)
 
 votes = tf.ones([batch, atoms, w, h, depth] + representation_dim, dtype=tf.float32)
-activations = tf.ones([batch, atoms, w, h, depth], dtype=tf.float32)
+activations = tf.ones([batch, atoms, w, h, depth, 1, 1], dtype=tf.float32)
 
 high_poses, high_activations = r.fit(votes, activations)
 print("kernel")
@@ -59,14 +67,11 @@ print("should have been " + str([batch, w, h, atoms] + representation_dim))
 print("got " + str(high_activations.shape))
 print("should have been " + str([batch, w, h, atoms]))
 
-#print(high_activations)
-#print(high_poses)
+high_poses, high_activations = r3.fit(votes, activations)
 
-#high_poses, high_activations = r3.fit(votes, activations)
+print("rnn")
+print("got " + str(high_poses.shape))
+print("should have been " + str([batch, w, h, atoms] + representation_dim))
 
-#print("rnn")
-#print("got " + str(high_poses.shape))
-#print("should have been " + str([batch, w, h, atoms] + representation_dim))
-
-#print("got " + str(high_activations.shape))
-#print("should have been " + str([batch, w, h, atoms]))
+print("got " + str(high_activations.shape))
+print("should have been " + str([batch, w, h, atoms]))

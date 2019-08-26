@@ -4,7 +4,7 @@ from models.block.capsuleblock import CapsuleIdentityBlock
 from models.coreimp.commonKernels import DotProd
 from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
-from models.coreimp.kernelRouting import KernelRoutingWithPrior
+from models.coreimp.kernelRouting import KernelRouting
 from models.layers.capsule import CapsuleLayer
 
 
@@ -32,7 +32,7 @@ def setup(
             output_atoms=hparams.num_classes,
             metric=Frobenius()
         ),
-        "routing": KernelRoutingWithPrior(
+        "routing": KernelRouting(
             kernel=DotProd(),
             metric=Frobenius(),
             iterations=3,
@@ -43,7 +43,7 @@ def setup(
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers=[
         CapsuleLayer(
-            routing = KernelRoutingWithPrior(
+            routing = KernelRouting(
                 kernel = DotProd(),
                 metric = Frobenius(),
                 iterations = 1,
@@ -60,7 +60,7 @@ def setup(
             name="initial_reduction"
         ),
         CapsuleIdentityBlock(
-            routing=KernelRoutingWithPrior(
+            routing=KernelRouting(
                 kernel=DotProd(),
                 metric=Frobenius(),
                 iterations=3,
@@ -72,7 +72,7 @@ def setup(
             name="keep"
         ),
         CapsuleLayer(
-            routing=KernelRoutingWithPrior(
+            routing=KernelRouting(
                 kernel=DotProd(),
                 metric=Frobenius(),
                 iterations=3,

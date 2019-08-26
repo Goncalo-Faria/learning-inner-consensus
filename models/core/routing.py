@@ -67,11 +67,13 @@ class RoutingProcedure(object):
 
     def _initial_coefficients(self,activations):
 
-        r = tf.ones(shape= activations.shape.as_list() + [1, 1],
+        r = tf.ones(shape= activations.shape,
                     dtype=tf.float32,
                     name="compatibility_value")
 
-        return r
+        c = self._normalization(r, axis=4)
+
+        return c
 
     def _renormalizedDotProd(self, c, votes):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
@@ -80,7 +82,9 @@ class RoutingProcedure(object):
 
         raw_poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
 
-        raw_poses_weight_normalized = raw_poses / tf.reduce_sum( c, axis=4, keepdims=True)
+        self._norm_coe = tf.reduce_sum( c, axis=4, keepdims=True)
+
+        raw_poses_weight_normalized = raw_poses / self._norm_coe
 
         if self._bias:
             bvar = bias_variable(
@@ -111,19 +115,20 @@ class RoutingProcedure(object):
 
             s = self._initial_state
 
-            r = self._initial_coefficients(activations)
+            #activations = tf.reshape(activations, shape=activations.shape.as_list() + [1, 1])
+
+            c = self._initial_coefficients(activations)
+            ## c = self._normalization(r, axis=-3)
 
             ## r { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-            activations = tf.reshape(activations, shape=activations.shape.as_list() + [1, 1])
-
-            c = self._normalization(r, axis=-3)
+            ## c = self._normalization(r, axis=-3)
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
             poses = self._renormalizedDotProd(c, votes)
             ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-            probabilities = self.activation(s, c, votes, poses)
+            probabilities, s = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
             if iterations == 0:
@@ -134,22 +139,19 @@ class RoutingProcedure(object):
             for it in range(self._iterations):
                 self._it = it
 
-                r, s = self.compatibility(s, r, votes, poses, probabilities, activations, it)
+                c, s = self.compatibility(s, c, votes, poses, probabilities, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
-
-                c = self._normalization(r, axis=4)
-                ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
                 poses = self._renormalizedDotProd(c, votes)
                 ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
-                probabilities = self.activation(s, c, votes, poses)
+                probabilities, s = self.activation(s, c, votes, poses)
                 ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
-            probabilities = tf.squeeze(probabilities, axis=[-2,-1])
+            #probabilities = tf.squeeze(probabilities, axis=[-2,-1])
 
             poses = tf.transpose(poses, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
-            probabilities = tf.transpose(probabilities, [0, 4, 2, 3, 1])  ## output atoms become depth
+            probabilities = tf.transpose(probabilities, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
 
             poses = tf.squeeze(poses, axis=[1])  ## remove output atoms dim
             probabilities = tf.squeeze(probabilities, axis=[1])  ## remove output atoms dim
@@ -215,12 +217,11 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
 
             s = self._initial_state
 
-            r = self._initial_coefficients(activations)
+            #activations = tf.reshape(activations, shape=[-1] + activations.shape.as_list()[1:] + [1, 1])
+
+            c = self._initial_coefficients(activations)
             ## r { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-            activations = tf.reshape(activations, shape=[-1] + activations.shape.as_list()[1:] + [1, 1])
-
-            c = self._normalization(r, axis=4)
             #c=r
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
@@ -241,10 +242,9 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 if self._verbose:
                     tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), c)
 
-                r, s = self.compatibility(s, r, votes, poses, None, activations, it)
+                c, s = self.compatibility(s, c, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-                c = self._normalization(r, axis=4)
                 #c=r
                 ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
@@ -255,10 +255,10 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
-            probabilities = tf.squeeze(probabilities, axis=[-2,-1])
+            #probabilities = tf.squeeze(probabilities, axis=[-2,-1])
 
             poses = tf.transpose(poses, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
-            probabilities = tf.transpose(probabilities, [0, 4, 2, 3, 1])  ## output atoms become depth
+            probabilities = tf.transpose(probabilities, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
 
             poses = tf.squeeze(poses, axis=[1])  ## remove output atoms dim
             probabilities = tf.squeeze(probabilities, axis=[1])  ## remove output atoms dim

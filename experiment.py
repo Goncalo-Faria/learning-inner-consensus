@@ -29,7 +29,7 @@ import numpy as np
 import tensorflow as tf
 import wandb
 
-import architectures.cap_baseline as CapBaseline
+import architectures.cap_em as CapBaseline
 import architectures.cap_block_net as BlockNet
 import architectures.cap_kernel as KernelBaseline
 import architectures.cap_mlp as CapsMLP

@@ -63,7 +63,7 @@ class EquiTransform(Transform):
 
         activations_tiled = tf.tile(
             tf.expand_dims(activations, 1),
-            [1, self._output_atoms, 1, 1, 1]
+            [1, self._output_atoms, 1, 1, 1, 1, 1]
         )
         ## activations_tiled :: { batch, outputatoms, new_w, new_h, depth * np.prod(ksizes) }
 
