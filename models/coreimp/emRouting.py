@@ -25,7 +25,7 @@ class EMRouting(RoutingProcedure):
             initial_state=None,
             verbose=verbose)
 
-        self._lambda = 1
+        self._lambda = 0.01
 
     def _initial_coefficients(self,activations):
 
@@ -76,6 +76,9 @@ class EMRouting(RoutingProcedure):
 
         costh = self._norm_coe * (betau + tf.math.log(sigma + self._epsilon))
 
-        activation = tf.sigmoid(self._lambda * (betaa - tf.reduce_sum(costh, keepdims=True, axis=[-2,-1])))
+        inverse_temperature = (self._lambda *
+                               (1 - tf.pow(0.95, tf.cast(self._it + 1, tf.float32))))
+
+        activation = tf.sigmoid(inverse_temperature * (betaa - tf.reduce_sum(costh, keepdims=True, axis=[-2,-1])))
 
         return activation, sigma
