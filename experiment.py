@@ -38,6 +38,7 @@ import architectures.cap_nin as CapNIN
 import models.capsulemodel as capm
 from data_processing.cifar10 import cifar10_input
 from data_processing.mnist import mnist_input_record
+from data_processing.smallnorb import smallnorb_input
 from models import convmodel
 
 # from models import conv_model
@@ -110,6 +111,7 @@ models = {
 
 }
 
+
 def get_features(split, total_batch_size, num_gpus, data_dir, num_targets,
                  dataset, validate=False):
     """Reads the input data and distributes it over num_gpus GPUs.
@@ -149,6 +151,10 @@ def get_features(split, total_batch_size, num_gpus, data_dir, num_targets,
                 #data_dir = os.path.join(data_dir, 'cifar-10-batches-bin')
                 features.append(
                     cifar10_input.inputs(
+                        split=split, data_dir=data_dir, batch_size=batch_size))
+            elif dataset == 'smallnorb':
+                features.append(
+                    smallnorb_input.inputs(
                         split=split, data_dir=data_dir, batch_size=batch_size))
             else:
                 raise ValueError(
