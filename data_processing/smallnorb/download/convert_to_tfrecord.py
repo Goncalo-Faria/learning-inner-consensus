@@ -49,9 +49,9 @@ def convert_to_tfrecord(kind: str, chunkify=False):
     start = time()
 
     # Set up directories
-    data_store = os.path.join('./', 'data')
-    dir_mat = os.path.join(data_store, 'smallNORB/mat')
-    dir_tfrecords = os.path.join(data_store, 'smallNORB/tfrecord/')
+    data_store = os.path.join('./', 'smallnorb_data')
+    dir_mat = data_store
+    dir_tfrecords = data_store
 
     if not tf.compat.v1.gfile.Exists(dir_tfrecords):
         tf.compat.v1.gfile.MakeDirs(dir_tfrecords)
