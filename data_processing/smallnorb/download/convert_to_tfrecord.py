@@ -49,7 +49,7 @@ def convert_to_tfrecord(kind: str, chunkify=False):
     start = time()
 
     # Set up directories
-    data_store = 'smallnorb_data'
+    data_store = os.path.join('./', 'smallnorb_data')
     dir_mat = data_store
     dir_tfrecords = data_store
 
@@ -167,4 +167,4 @@ def convert_to_tfrecord(kind: str, chunkify=False):
 
 if __name__ == "__main__":
     convert_to_tfrecord(kind='train', chunkify=False)
-    convert_to_tfrecord(kind='test', chunkify=False)
+    #convert_to_tfrecord(kind='test', chunkify=False)
