@@ -14,8 +14,8 @@ def setup(
         hparams):
     router1 = KernelRouting(
                 kernel = MonoKernelMix(
-                    kernel=SpectralMixture(hparams.verbose),
-                    degree=1),
+                    kernel=GaussianKernel(hparams.verbose),
+                    degree=4),
                 metric=Frobenius(),
                 iterations=3,
                 verbose=hparams.verbose,
@@ -24,7 +24,7 @@ def setup(
 
     router2 = KernelRouting(
         kernel=MonoKernelMix(
-            kernel=SpectralMixture(hparams.verbose),
+            kernel=GaussianKernel(hparams.verbose),
             degree=4),
         metric=Frobenius(),
         iterations=3,
@@ -34,7 +34,7 @@ def setup(
 
     router3 = KernelRouting(
         kernel=MonoKernelMix(
-            kernel=SpectralMixture(hparams.verbose),
+            kernel=GaussianKernel(hparams.verbose),
             degree=10),
         metric=Frobenius(),
         iterations=3,
