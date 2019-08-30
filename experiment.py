@@ -577,7 +577,7 @@ def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
                         features['recons_image']: data[i]['recons_image']
                     }))
 
-            model_corrects = corrects_checkpoint
+            model_corrects = np.sum(corrects_checkpoint)
 
             corrects.append(
                 model_corrects
@@ -668,14 +668,14 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
     checkpointsname = []
     f = open(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + "ls.txt")
     for line in f:
-        model_number = int(line)
+        model_number = int(line.split(" ", 2)[0])
         checkpointsname.append(model_number)
 
     checkpoints = []
     for model_number in checkpointsname:
         fname = GLOBAL_HPAR.summary_dir \
                 + "/train/" + hparams.model + \
-                "/" + "model.ckpt-" + model_number
+                "/" + "model.ckpt-" + str(model_number)
 
         if tf.compat.v1.train.checkpoint_exists(fname):
             checkpoints.append((model_number,fname))
