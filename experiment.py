@@ -98,6 +98,8 @@ parser.add_argument('--track', default=False,
                     type=bool,help='plot history.')
 parser.add_argument('--bn_train', default=False,
                     type=bool,help='adjust bn parameters.')
+parser.add_argument('--min_history', default=0,
+                    type=int,help='minimum plotted history.')
 
 GLOBAL_HPAR = parser.parse_args()
 
@@ -669,7 +671,9 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
     f = open(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + "ls.txt")
     for line in f:
         model_number = int(line.split(" ", 2)[0])
-        checkpointsname.append(model_number)
+
+        if model_number >= GLOBAL_HPAR.min_history :
+            checkpointsname.append(model_number)
 
     checkpoints = []
     for model_number in checkpointsname:
