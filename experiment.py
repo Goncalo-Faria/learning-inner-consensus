@@ -675,7 +675,7 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
     for model_number in checkpointsname:
         fname = GLOBAL_HPAR.summary_dir \
                 + "/train/" + hparams.model + \
-                "/" + "model.ckpt-" + model_number
+                "/" + "model.ckpt-" + str(model_number)
 
         if tf.compat.v1.train.checkpoint_exists(fname):
             checkpoints.append((model_number,fname))
