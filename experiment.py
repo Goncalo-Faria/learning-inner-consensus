@@ -561,10 +561,13 @@ def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
     _, inferred, correct = model.multi_gpu([features], 1)
     corrects = []
     saver = tf.compat.v1.train.Saver()
-    for checkpoint in checkpoints:
+    for checkpoint_info in checkpoints:
+
+        step, checkpoint = checkpoint_info
         saver.restore(session, checkpoint)
+        corrects_checkpoint = []
         for i in range(num_steps):
-            corrects.append(
+            corrects_checkpoint.append(
                 session.run(
                     correct[0],
                     feed_dict={
@@ -573,9 +576,15 @@ def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
                         features['images']: data[i]['images'],
                         features['recons_image']: data[i]['recons_image']
                     }))
-            corrects[i] = tf.reduce_sum(corrects[i])
-            wandb.log({" corrects " : corrects[i] })
-            #print(" num corrects " + corrects[i])
+
+            model_corrects = corrects_checkpoint
+
+            corrects.append(
+                model_corrects
+            )
+
+            wandb.log({"step": step, "corrects": model_corrects})
+
     return corrects
 
 
@@ -638,7 +647,7 @@ def evaluate_ensemble(hparams, model_type, eval_size, data_dir, num_targets,
 
 
 def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
-                      dataset, checkpoint, num_trials):
+                      dataset, checkpoint, num_trials, dataset_type="test"):
     """Evaluates an ensemble of trained models.
 
     Loads a series of checkpoints and aggregates the output logit of them on the
@@ -657,22 +666,22 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
     """
 
     checkpointsname = []
-    f = open(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + "checkpoint")
+    f = open(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + "ls.txt")
     for line in f:
-        m = re.search('(?<=(?P<quote>["])).*(?P=quote)', line)
-        checkpointsname.append(m.group(0)[:-1])
-
-    print(checkpointsname)
+        model_number = int(line)
+        checkpointsname.append(model_number)
 
     checkpoints = []
-    checkpointsnameapv = []
-    for file_name in checkpointsname:
-        if tf.compat.v1.train.checkpoint_exists(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + file_name):
-            checkpoints.append(GLOBAL_HPAR.summary_dir + "/train/" + hparams.model + "/" + file_name)
-            checkpointsnameapv.append(file_name)
+    for model_number in checkpointsname:
+        fname = GLOBAL_HPAR.summary_dir \
+                + "/train/" + hparams.model + \
+                "/" + "model.ckpt-" + model_number
+
+        if tf.compat.v1.train.checkpoint_exists(fname):
+            checkpoints.append((model_number,fname))
 
     with tf.Graph().as_default():
-        features = get_features('test', hparams.batch_size, 1, data_dir, num_targets,
+        features = get_features(dataset_type, hparams.batch_size, 1, data_dir, num_targets,
                                 dataset)[0]
         model = models[model_type](hparams)
 
@@ -682,7 +691,6 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         num_steps = eval_size // hparams.batch_size
         data, targets = get_placeholder_data(num_steps, hparams.batch_size, features,
                                              session)
-        print(checkpoints)
 
         corrects = infer_ensemble_accuracy(features, model, checkpoints, session,
                                        num_steps, data)
@@ -690,13 +698,10 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         coord.join(threads)
         session.close()
 
-        print("corrects mix")
-        print(len(corrects))
+        #corrects_acc = corrects / eval_size * 100
 
-        corrects_acc = corrects / eval_size * 100
-
-        for i in range(corrects):
-            print(corrects_acc[i] + " " + checkpointsnameapv[i])
+        #for i in range(corrects):
+        #    print(corrects_acc[i])
 
 
 def main(_):
