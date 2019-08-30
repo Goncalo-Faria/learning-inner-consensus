@@ -579,13 +579,13 @@ def infer_ensemble_accuracy(features, model, checkpoints, session, num_steps,
                         features['recons_image']: data[i]['recons_image']
                     }))
 
-            model_corrects = np.sum(corrects_checkpoint)
+        model_corrects = np.sum(corrects_checkpoint)
 
-            corrects.append(
-                model_corrects
-            )
+        corrects.append(
+            model_corrects
+        )
 
-            wandb.log({"step": step, "corrects": model_corrects})
+        wandb.log({"step": step, "corrects": model_corrects})
 
     return corrects
 
@@ -674,6 +674,8 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
 
         if model_number >= GLOBAL_HPAR.min_history :
             checkpointsname.append(model_number)
+
+    checkpointsname = set(checkpointsname)
 
     checkpoints = []
     for model_number in checkpointsname:
