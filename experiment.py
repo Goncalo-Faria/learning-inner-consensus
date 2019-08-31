@@ -675,7 +675,7 @@ def evaluate_history(hparams, model_type, eval_size, data_dir, num_targets,
         if model_number >= GLOBAL_HPAR.min_history :
             checkpointsname.append(model_number)
 
-    checkpointsname = set(checkpointsname)
+    checkpointsname = list(set(checkpointsname)).sort()
 
     checkpoints = []
     for model_number in checkpointsname:
