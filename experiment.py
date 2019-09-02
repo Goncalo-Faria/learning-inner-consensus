@@ -223,7 +223,12 @@ def train_experiment(session, result, writer, last_step, max_steps, saver,
       summary_dir: The directory to save the model in it.
       num_saves: number of saved models model ckpt.
     """
-
+    print("##########")
+    print("##########")
+    print("##########")
+    print("##########")
+    print("##########")
+    print(str(last_step) + "::::" + str(max_steps))
     for i in range(last_step, max_steps):
         summary, _ , correts = session.run([result.summary, result.train_op, result.correct])
 
