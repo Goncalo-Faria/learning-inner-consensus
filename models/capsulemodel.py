@@ -126,7 +126,7 @@ class CapsuleModel(model.Model):
         print("###############")
         print("###############")
         print("###############")
-        print(lower_features)
+        print(lower_features.shape)
 
         with tf.name_scope("derender/"):
             for i in range(len(self._hparams.derender_layers)):
