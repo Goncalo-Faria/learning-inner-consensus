@@ -350,11 +350,18 @@ def inputs(data_dir,
 
     batched_features['height'] = 32
     batched_features['width'] = 32
-    batched_features['depth'] = 3
+    batched_features['depth'] = 1
     batched_features['num_targets'] = 1
     batched_features['num_classes'] = 5
     batched_features['recons_image'] = dict['image']
     batched_features['images'] = dict['image']
     batched_features['labels'] = dict['label']
+
+    print("###############")
+    print("###############")
+    print("###############")
+    print("###############")
+    print("###############")
+    print(dict['label'])
 
     return  batched_features
