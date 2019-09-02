@@ -351,7 +351,8 @@ def run_experiment(loader,
             summary_dir=load_dir,
             num_saves=num_saves,
             budget_threshold=budget_threshold)
-    except tf.errors.OutOfRangeError:
+    except tf.errors.OutOfRangeError as excpt:
+        print( excpt.message )
         tf.compat.v1.logging.info('Finished experiment.')
     finally:
         coord.request_stop()
