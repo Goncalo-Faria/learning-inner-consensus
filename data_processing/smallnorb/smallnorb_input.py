@@ -357,4 +357,4 @@ def inputs(data_dir,
     batched_features['images'] = dict['image']
     batched_features['labels'] = tf.one_hot(dict['label'], 5)
 
-    return  batched_features
+    return batched_features
