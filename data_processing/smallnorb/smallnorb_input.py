@@ -325,7 +325,7 @@ def create_inputs_norb(path, is_train: bool,batch_size,epochs):
     dataset = input_fn(path, is_train,batch_size=batch_size, epochs=epochs)
 
     # Create one-shot iterator
-    iterator = dataset.make_one_shot_iterator()
+    iterator = tf.compat.v1.data.make_one_shot_iterator(dataset)
 
     img, lab, cat, elv, azi, lit = iterator.get_next()
 
