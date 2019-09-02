@@ -113,15 +113,20 @@ class CapsuleModel(model.Model):
         """
         image = features['images']
 
-
-        print(image)
-
         if self._hparams.dataset != 'smallnorb':
             image_4d = tf.reshape(image, [-1, features['depth'], features['height'], features['width']])
             image_4d = tf.transpose(image_4d, [0, 2, 3, 1])
         else:
             image_4d = image
+
         lower_features = image_4d
+
+        print("###############")
+        print("###############")
+        print("###############")
+        print("###############")
+        print("###############")
+        print(lower_features)
 
         with tf.name_scope("derender/"):
             for i in range(len(self._hparams.derender_layers)):
