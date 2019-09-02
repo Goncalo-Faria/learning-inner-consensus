@@ -121,13 +121,6 @@ class CapsuleModel(model.Model):
 
         lower_features = image_4d
 
-        print("###############")
-        print("###############")
-        print("###############")
-        print("###############")
-        print("###############")
-        print(lower_features.shape)
-
         with tf.name_scope("derender/"):
             for i in range(len(self._hparams.derender_layers)):
                 with tf.name_scope("layer" + str(i)):
