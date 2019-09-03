@@ -38,7 +38,7 @@ import architectures.cap_nin as CapNIN
 import models.capsulemodel as capm
 from data_processing.cifar10 import cifar10_input
 from data_processing.mnist import mnist_input_record
-from data_processing.smallnorb import smallnorb_dataset_input
+from data_processing.smallnorb import smallnorb_input_record
 from models import convmodel
 
 # from models import conv_model
@@ -156,7 +156,7 @@ def get_features(split, total_batch_size, num_gpus, data_dir, num_targets,
                         split=split, data_dir=data_dir, batch_size=batch_size))
             elif dataset == 'smallnorb':
                 features.append(
-                    smallnorb_dataset_input.inputs(
+                    smallnorb_input_record.inputs(
                         split=split, data_dir=data_dir, batch_size=batch_size))
             else:
                 raise ValueError(
