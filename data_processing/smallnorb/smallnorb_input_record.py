@@ -213,6 +213,8 @@ def inputs(data_dir,
 
     img = batched_features['images']
 
+    print(img.shape)
+
     img = tf.compat.v1.image.resize_images(img, [48, 48])
     img = tf.image.per_image_standardization(img)
     img = tf.compat.v1.random_crop(img, [batch_size, 32, 32, 1])
