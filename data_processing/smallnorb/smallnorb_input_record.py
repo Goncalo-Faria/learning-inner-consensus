@@ -177,14 +177,14 @@ def inputs(data_dir,
     filenames = _generate_sharded_filenames(data_dir)
   else:
     if validate:
-      file_format = '{}_{}shifted_mnist_valid.tfrecords'
+      file_format = 'train0.tfrecords'
     else:
-      file_format = '{}_{}shifted_mnist.tfrecords'
+      file_format = 'train0.tfrecords'
     if split == 'train':
       shift = 2
     else:
       shift = 0
-    filenames = [os.path.join(data_dir, file_format.format(split, shift))]
+    filenames = [os.path.join(data_dir, file_format)]
 
   with tf.compat.v1.name_scope('input'):
     filename_queue = tf.compat.v1.train.string_input_producer(
