@@ -157,7 +157,7 @@ def get_features(split, total_batch_size, num_gpus, data_dir, num_targets,
             elif dataset == 'smallnorb':
                 features.append(
                     smallnorb_input_record.inputs(
-                        split=split, data_dir=data_dir, batch_size=batch_size,num_targets=num_targets))
+                        split=split, data_dir=data_dir, batch_size=batch_size))
             else:
                 raise ValueError(
                     'Unexpected dataset {!r}, must be mnist, norb, or cifar10.'.format(
