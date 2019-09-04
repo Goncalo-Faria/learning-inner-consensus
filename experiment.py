@@ -35,6 +35,7 @@ import architectures.cap_kernel as KernelBaseline
 import architectures.cap_mlp as CapsMLP
 import architectures.cap_mlp_shared as CapsMLPShared
 import architectures.cap_nin as CapNIN
+import architectures.cap_dyn as CapDynamic
 import models.capsulemodel as capm
 from data_processing.cifar10 import cifar10_input
 from data_processing.mnist import mnist_input_record
@@ -110,6 +111,7 @@ models = {
     "KernelNet" : capm.CapsuleModel,
     "CapsMLPShared" : capm.CapsuleModel,
     "CapsMLP" : capm.CapsuleModel,
+    "CapDynamic" : capm.CapsuleModel
 
 }
 
@@ -748,6 +750,9 @@ def main(_):
 
     elif GLOBAL_HPAR.model == "CapsuleNin":
         GLOBAL_HPAR = CapNIN.setup(GLOBAL_HPAR)
+
+    elif GLOBAL_HPAR.model == "CapDynamic":
+        GLOBAL_HPAR = CapDynamic.setup(GLOBAL_HPAR)
 
     print("Hyper Parameters")
     print(GLOBAL_HPAR)
