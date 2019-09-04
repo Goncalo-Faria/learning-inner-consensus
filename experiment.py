@@ -199,12 +199,10 @@ def load_training(saver, session, load_dir):
     if tf.io.gfile.exists(load_dir):
         ckpt = tf.train.get_checkpoint_state(load_dir)
         if ckpt and ckpt.model_checkpoint_path:
-            print(ckpt)
-            try:
-                saver.restore(session, ckpt.model_checkpoint_path)
-            except ValueError as e:
-                print(e)
+
+            saver.restore(session, ckpt.model_checkpoint_path)
             prev_step = extract_step(ckpt.model_checkpoint_path)
+            
         else:
             tf.io.gfile.rmtree(load_dir)
             tf.io.gfile.makedirs(load_dir)
