@@ -5,6 +5,7 @@ import logging
 import daiquiri
 from time import time
 import os
+import sys
 
 from numpy.random import RandomState
 
@@ -166,5 +167,8 @@ def convert_to_tfrecord(kind: str, chunkify=False):
 
 
 if __name__ == "__main__":
-    convert_to_tfrecord(kind='train', chunkify=False)
-    #convert_to_tfrecord(kind='test', chunkify=False)
+
+    if len(sys.argv) > 1:
+        convert_to_tfrecord(kind=sys.argv[1], chunkify=False)
+    else:
+        convert_to_tfrecord(kind='train', chunkify=False)
