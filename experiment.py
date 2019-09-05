@@ -202,7 +202,7 @@ def load_training(saver, session, load_dir):
 
             saver.restore(session, ckpt.model_checkpoint_path)
             prev_step = extract_step(ckpt.model_checkpoint_path)
-            
+
         else:
             tf.io.gfile.rmtree(load_dir)
             tf.io.gfile.makedirs(load_dir)
