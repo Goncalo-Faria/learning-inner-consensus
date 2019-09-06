@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
-from models.coreimp.ninRouting import NiNRouting
+from models.coreimp.rnnRouting import RNNRouting
 from models.layers.capsule import CapsuleLayer
 
 
@@ -10,34 +10,7 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
-    router1 = NiNRouting(
-        metric=Frobenius(),
-        verbose = hparams.verbose,
-        name="router1",
-        compatibility_layers=[124,124],
-        activation_layers=[124],
-        train=hparams.train
-    )
-
-    router2 = NiNRouting(
-        metric=Frobenius(),
-        verbose=hparams.verbose,
-        name="router2",
-        compatibility_layers=[248, 248],
-        activation_layers=[124],
-        train=hparams.train
-    )
-
-    router3 = NiNRouting(
-        metric=Frobenius(),
-        verbose=hparams.verbose,
-        name="router3",
-        compatibility_layers=[512, 512],
-        activation_layers=[124],
-        train=hparams.train
-    )
-
-
+    hparams.model = "CapsMLP"
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,
@@ -46,7 +19,6 @@ def setup(
                 use_bias=True,
                 padding="VALID",
                 strides=[2,2],
-                kernel_regularizer=tf.compat.v1.keras.regularizers.l2(0.0000002),
                 bias_regularizer=tf.compat.v1.initializers.truncated_normal(mean=0.0, stddev=0.01)
             )
         ]
@@ -61,12 +33,36 @@ def setup(
                 metric=Frobenius(),
                 name="FTransf"
             ),
-            "routing" : router3
+            "routing" : RNNRouting(
+                metric=Frobenius(),
+                iterations=3,
+                cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
+                    num_units=hparams.degree,
+                    name="attentionLayer3"),
+                verbose=hparams.verbose,
+                name="router3",
+                bias=False,
+                compatibility_layers=[64,64],
+                activation_layers=[124,124],
+                train=hparams.train
+            )
         }
     hparams.reconstruction_layer_sizes= [512, 1024]
     hparams.layers= [
             CapsuleLayer(
-                routing= router2,
+                routing= RNNRouting(
+                    metric=Frobenius(),
+                    iterations=3,
+                    cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
+                        num_units=hparams.degree,
+                        name="attentionLayer2"),
+                    verbose=hparams.verbose,
+                    name="router2",
+                    bias=False,
+                    compatibility_layers=[32,32],
+                    activation_layers=[64,64],
+                    train=hparams.train
+                ),
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
@@ -78,7 +74,19 @@ def setup(
                 coordinate_addition=True
             ),
             CapsuleLayer(
-                routing= router1,
+                routing= RNNRouting(
+                    metric=Frobenius(),
+                    iterations=3,
+                    cell=tf.compat.v1.nn.rnn_cell.LSTMCell(
+                        num_units=hparams.degree,
+                        name="attentionLayer1"),
+                    verbose = hparams.verbose,
+                    name="router1",
+                bias=False,
+                compatibility_layers=[],
+                activation_layers=[],
+                train=hparams.train
+                ),
                 transform=EquiTransform(
                     output_atoms=16,
                     metric=Frobenius(),
