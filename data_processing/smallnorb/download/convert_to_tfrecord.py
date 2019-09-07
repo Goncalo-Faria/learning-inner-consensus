@@ -28,11 +28,6 @@ def convert_to_tfrecord(kind: str, chunkify=False):
         5. smallnorb-5x01235x9x18x6x2x96x96-testing-cat.mat
         6. smallnorb-5x01235x9x18x6x2x96x96-testing-info.mat
 
-    Author:
-        Ashley Gritzman 19/10/2018
-    Credit:
-        Modified from: https://github.com/shashanktyagi/DC-GAN-on-NORB-dataset/blob/master/src/model.py
-        Original Author: Shashank Tyagi (GitHub ID: shashanktyagi)
     Args:
         kind : 'train' or 'test'
         chunkify : kernel size
