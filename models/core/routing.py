@@ -241,7 +241,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 self._it = it
 
                 if self._verbose:
-                    tf.compat.v1.summary.histogram(self.name+"c_"+str(self._it), c)
+                    tf.compat.v1.summary.histogram(self.name+"c_"+str(self._it), c[0])
 
                 c, s = self.compatibility(s, c, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
@@ -253,7 +253,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
             if self._verbose:
-                tf.compat.v1.summary.histogram(self.name+"c_"+str(self._it), c)
+                tf.compat.v1.summary.histogram(self.name+"c_"+str(self._iterations), c[0])
 
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
