@@ -241,7 +241,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 self._it = it
 
                 if self._verbose:
-                    wandb.log({self.name+"c_"+str(self._it): c})
+                    tf.compat.v1.summary.scalar(self.name+"c_"+str(self._it), c)
 
                 c, s = self.compatibility(s, c, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
@@ -253,7 +253,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
             if self._verbose:
-                wandb.log({self.name+"c_"+str(self._it): c})
+                tf.compat.v1.summary.scalar(self.name+"c_"+str(self._it), c)
 
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
