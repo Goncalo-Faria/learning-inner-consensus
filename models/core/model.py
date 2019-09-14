@@ -58,10 +58,11 @@ class Model(object):
 
             learning_rate = tf.maximum(learning_rate, 1e-8)
 
-            lr = tf.compat.v1.train.exponential_decay(learning_rate=hparams.learning_rate,
-                                       global_step=self._global_step,
-                                       decay_steps=20000,
-                                       decay_rate=0.96)
+            lr = tf.compat.v1.train.exponential_decay(
+                                        learning_rate=hparams.learning_rate,
+                                        global_step=self._global_step,
+                                        decay_steps=20000,
+                                        decay_rate=0.96)
 
             #self._optimizer = tf.compat.v1.train.MomentumOptimizer(learning_rate, mom_sche)
             #self._optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=learning_rate)
