@@ -5,6 +5,7 @@ from __future__ import print_function
 import abc
 
 import tensorflow as tf
+import wandb
 
 from ..core.metric import Metric
 from ..core.variables import bias_variable
@@ -240,7 +241,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 self._it = it
 
                 if self._verbose:
-                    tf.compat.v1.summary.histogram(self.name + "c_" + str(self._it), c)
+                    wandb.log({self.name+"c_"+str(self._it): c})
 
                 c, s = self.compatibility(s, c, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
@@ -252,7 +253,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
             if self._verbose:
-                tf.compat.v1.summary.scalar(self.name + "c_" + str(self._it), c)
+                wandb.log({self.name+"c_"+str(self._it): c})
 
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
