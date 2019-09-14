@@ -225,9 +225,6 @@ def _val_preprocess(img, lab, cat, elv, azi, lit):
     img = tf.image.per_image_standardization(img)
     img = tf.slice(img, [8, 8, 0], [32, 32, 1])
 
-    img = tf.image.random_brightness(img, max_delta=2.0)
-    # original 0.5, 1.5
-    img = tf.image.random_contrast(img, lower=0.5, upper=1.5)
 
     # Original
     # image = tf.image.resize_images(image, [48, 48])
