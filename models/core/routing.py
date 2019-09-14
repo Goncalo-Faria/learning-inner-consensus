@@ -241,7 +241,10 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 self._it = it
 
                 if self._verbose:
-                    tf.compat.v1.summary.histogram(self.name+"c_"+str(self._it), c[0])
+                    cshape = c.shape.as_list()
+                    c_hist = tf.reshape(c, [cshape[0], -1, cshape[4]])
+                    for i in range(c_hist.shape[1]):
+                        tf.compat.v1.summary.histogram(self.name + "c_" + str(self._it), c_hist[0, i, :])
 
                 c, s = self.compatibility(s, c, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
@@ -253,7 +256,10 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
             if self._verbose:
-                tf.compat.v1.summary.histogram(self.name+"c_"+str(self._iterations), c[0])
+                cshape = c.shape.as_list()
+                c_hist = tf.reshape(c, [ cshape[0], -1, cshape[4]])
+                for i in range(c_hist.shape[1]):
+                    tf.compat.v1.summary.histogram(self.name+"c_"+str(self._iterations), c_hist[0,i,:])
 
             probabilities = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
