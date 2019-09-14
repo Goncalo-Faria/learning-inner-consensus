@@ -268,7 +268,14 @@ def eval_experiment(session, result, writer, last_step, max_steps, **kwargs):
     total_correct = 0
     total_almost = 0
     summary_i=""
-    print(max_steps)
+
+    ######################
+    ######################
+    ######################
+    ######################
+
+    max_steps = 1
+
     for _ in range(max_steps):
         summary_i, correct, almost = session.run(
             [result.summary, result.correct, result.almost])
