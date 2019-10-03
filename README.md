@@ -1,5 +1,7 @@
 # How to use
 
+article : https://arxiv.org/abs/1909.12737 
+
 ### Suporter Models
 
 ```
