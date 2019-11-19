@@ -46,14 +46,15 @@ class KernelRouting(SimplifiedRoutingProcedure):
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
 
-        alpha = alpha^2
-        beta = beta^2
+        alpha = tf.pow(alpha,2)
+        beta = tf.pow(beta,2)
 
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
 
         self._agreement = self._kernel.take(poses_tiled, votes)
 
-        r = tf.power(activations, beta/(beta+alpha) ) * tf.exp( (1/(beta+alpha) + 1e-5) * self._agreement)
+        lambda_o = beta + alpha
+        r = tf.pow(activations, beta/(lambda_o) ) * tf.exp( (1/(lambda_o) + 1e-5) * self._agreement)
 
         c = self._normalization(r, axis=4)
         return c, s
