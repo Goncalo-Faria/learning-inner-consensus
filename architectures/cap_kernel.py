@@ -11,10 +11,10 @@ from models.layers.capsule import CapsuleLayer
 ## smaller version.
 
 def setup(
-        hparams):
+        hparams, k):
     router1 = KernelRouting(
                 kernel = MonoKernelMix(
-                    kernel=GaussianKernel(hparams.verbose),
+                    kernel=k,
                     degree=4),
                 metric=Frobenius(),
                 iterations=3,
@@ -24,7 +24,7 @@ def setup(
 
     router2 = KernelRouting(
         kernel=MonoKernelMix(
-            kernel=GaussianKernel(hparams.verbose),
+            kernel=k,
             degree=4),
         metric=Frobenius(),
         iterations=3,
@@ -34,7 +34,7 @@ def setup(
 
     router3 = KernelRouting(
         kernel=MonoKernelMix(
-            kernel=GaussianKernel(hparams.verbose),
+            kernel=k,
             degree=10),
         metric=Frobenius(),
         iterations=3,

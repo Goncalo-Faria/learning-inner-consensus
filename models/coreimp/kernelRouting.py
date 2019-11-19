@@ -9,6 +9,8 @@ from ..core.variables import weight_variable, bias_variable
 
 
 class KernelRouting(SimplifiedRoutingProcedure):
+    def norm(self, vector, axis = axis):
+        return (vector/(tf.reduce_sum(vector, axis=axis) + self._epsilon))
 
     def __init__(
             self,
@@ -25,7 +27,8 @@ class KernelRouting(SimplifiedRoutingProcedure):
             metric=metric,
             design_iterations=iterations,
             initial_state=None,
-            verbose=verbose)
+            verbose=verbose,
+            normalization = self.norm)
 
     def _compatibility(self, s, r, votes, poses, probabilities, activations, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
@@ -34,15 +37,23 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
         alpha = weight_variable([],
-                                name= "alpha",
+                                name= "lambda1",
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
+
+        beta = weight_variable([],
+                                name= "lambda2",
+                                verbose = self._verbose,
+                                initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
+
+        alpha = alpha^2
+        beta = beta^2
 
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
 
         self._agreement = self._kernel.take(poses_tiled, votes)
 
-        r = activations * (1/(tf.sigmoid(alpha)*100 + 1e-5)) * self._agreement
+        r = tf.power(activations, beta/(beta+alpha) ) * tf.exp( (1/(beta+alpha) + 1e-5) * self._agreement)
 
         c = self._normalization(r, axis=4)
         return c, s

@@ -27,6 +27,8 @@ from data_processing.cifar10 import cifar10_input
 from data_processing.mnist import mnist_input_record
 from data_processing.smallnorb import smallnorb_input_record
 from models import convmodel
+from models.coreimp.kernelmix import MonoKernelMix
+from models.coreimp.commonKernels import GaussianKernel, SpectralMixture
 
 # from models import conv_model
 #import architectures.convnet as ConvNet
@@ -95,6 +97,7 @@ models = {
     "ConvNet" : convmodel.ConvModel,
     "CapsuleBaseline": capm.CapsuleModel,
     "KernelNet" : capm.CapsuleModel,
+    "KernelNetSpectral" : capm.CapsuleModel,
     "CapsMLPShared" : capm.CapsuleModel,
     "CapsMLP" : capm.CapsuleModel,
     "CapDynamic" : capm.CapsuleModel
@@ -725,7 +728,14 @@ def main(_):
         print(GLOBAL_HPAR.model)
 
     elif GLOBAL_HPAR.model == "KernelNet":
-        GLOBAL_HPAR = KernelBaseline.setup(GLOBAL_HPAR)
+        GLOBAL_HPAR = KernelBaseline.setup(GLOBAL_HPAR,
+            GaussianKernel(GLOBAL_HPAR.verbose)
+            )
+
+    elif GLOBAL_HPAR.model == "KernelNetSpectral":
+        GLOBAL_HPAR = KernelBaseline.setup(GLOBAL_HPAR,
+            SpectralMixture(GLOBAL_HPAR.verbose)
+            )
 
     elif GLOBAL_HPAR.model == "CapsMLP":
         GLOBAL_HPAR = CapsMLP.setup(GLOBAL_HPAR)
