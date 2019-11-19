@@ -71,9 +71,10 @@ class KernelRouting(SimplifiedRoutingProcedure):
             tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), self._agreement)
 
         ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
+        rs = [1, raw.shape[2], 1, 1, 1]
 
-        theta1 = weight_variable([1], name="theta1", verbose=self._verbose)
-        theta2 = bias_variable([1], name="theta2", verbose=self._verbose)
+        theta1 = weight_variable(rs, name="theta1", verbose=self._verbose)
+        theta2 = bias_variable(rs, name="theta2", verbose=self._verbose)
 
         if self._activate :
             activation = tf.sigmoid(theta1 * raw + theta2)
