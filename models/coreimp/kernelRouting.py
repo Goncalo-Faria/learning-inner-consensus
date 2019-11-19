@@ -35,13 +35,11 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
-        def costum_init(shape,dtype):
-            return tf.compat.v1.keras.initializers.constant(value=10.0)(shape,dtype) + tf.compat.v2.initializers.RandomNormal()(shape,dtype)
 
         alpha = weight_variable([1, votes.shape[1], 1, 1, 1],
                                 name= "lambda1",
                                 verbose = self._verbose,
-                                initializer=costum_init)
+                                initializer=tf.compat.v2.initializers.RandomNormal(mean=12))
 
         beta = weight_variable([1, votes.shape[1], 1, 1, 1],
                                 name= "lambda2",
@@ -77,7 +75,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
 
         theta1 = weight_variable(rs, name="theta1", verbose=self._verbose)
         theta2 = bias_variable(rs, name="theta2", verbose=self._verbose)
-
+      
         if self._activate :
             activation = tf.sigmoid(theta1 * raw + theta2)
         else :
