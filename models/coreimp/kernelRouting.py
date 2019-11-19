@@ -36,12 +36,12 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        alpha = weight_variable([1, votes.shape[1], 1, 1, 1],
+        alpha = weight_variable([1, votes.shape[1], 1, 1, 1,1,1],
                                 name= "lambda1",
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.normal(mean=12))
 
-        beta = weight_variable([1, votes.shape[1], 1, 1, 1],
+        beta = weight_variable([1, votes.shape[1], 1, 1, 1,1,1],
                                 name= "lambda2",
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=0.0))
