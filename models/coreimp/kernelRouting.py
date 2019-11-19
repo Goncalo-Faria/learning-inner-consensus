@@ -10,7 +10,7 @@ from ..core.variables import weight_variable, bias_variable
 
 class KernelRouting(SimplifiedRoutingProcedure):
     def norm(self, vector,axis):
-        return (vector/(tf.reduce_sum(vector, axis=axis,keep_dims=True) + self._epsilon))
+        return (vector/(tf.reduce_sum(vector, axis=axis,keepdims=True) + self._epsilon))
 
     def __init__(
             self,
