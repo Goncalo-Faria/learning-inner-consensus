@@ -39,12 +39,12 @@ class KernelRouting(SimplifiedRoutingProcedure):
         alpha = weight_variable([],
                                 name= "lambda1",
                                 verbose = self._verbose,
-                                initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
+                                initializer=tf.compat.v1.keras.initializers.constant(value=10.0))
 
         beta = weight_variable([],
                                 name= "lambda2",
                                 verbose = self._verbose,
-                                initializer=tf.compat.v1.keras.initializers.constant(value=1.0))
+                                initializer=tf.compat.v1.keras.initializers.constant(value=0.0))
 
         alpha = tf.pow(alpha,2)
         beta = tf.pow(beta,2)
@@ -53,10 +53,11 @@ class KernelRouting(SimplifiedRoutingProcedure):
 
         self._agreement = self._kernel.take(poses_tiled, votes)
 
-        lambda_o = beta + alpha
-        r = tf.pow(activations, beta/(lambda_o) ) * tf.exp( (1/(lambda_o) + 1e-5) * self._agreement)
+        lambda_o = beta + alpha + self._epsilon
+        r = tf.pow(activations, beta/lambda_o ) * tf.exp( 1/lambda_o * self._agreement )
 
         c = self._normalization(r, axis=4)
+        
         return c, s
 
     def _activation(self, s, c, votes, poses):
