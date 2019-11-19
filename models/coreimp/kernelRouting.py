@@ -35,13 +35,15 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+        def costum_init(shape):
+            return tf.compat.v1.keras.initializers.constant(value=10.0)(shape) + tf.compat.v2.initializers.RandomNormal()(shape)
 
-        alpha = weight_variable([],
+        alpha = weight_variable([1, votes.shape[1], 1, 1, 1],
                                 name= "lambda1",
                                 verbose = self._verbose,
-                                initializer=tf.compat.v1.keras.initializers.constant(value=10.0))
+                                initializer=costum_init)
 
-        beta = weight_variable([],
+        beta = weight_variable([1, votes.shape[1], 1, 1, 1],
                                 name= "lambda2",
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=0.0))
