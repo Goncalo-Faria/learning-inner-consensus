@@ -39,7 +39,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         alpha = weight_variable([1, votes.shape[1], 1, 1, 1],
                                 name= "lambda1",
                                 verbose = self._verbose,
-                                initializer=tf.compat.v2.initializers.RandomNormal(mean=12))
+                                initializer=tf.compat.v1.keras.initializers.normal(mean=12))
 
         beta = weight_variable([1, votes.shape[1], 1, 1, 1],
                                 name= "lambda2",
