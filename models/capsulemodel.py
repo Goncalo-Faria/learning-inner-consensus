@@ -165,7 +165,7 @@ class CapsuleModel(model.Model):
 
         with tf.name_scope("classlayer/") as scope:
             final_poses, final_activations = CapsuleClassLayer(
-                normalized=False,
+                normalized=True,
                 name=self.name + "Caps/"
             ).inference((fully_poses, fully_activations))
 
