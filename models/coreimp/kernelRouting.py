@@ -60,7 +60,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         
         return c, s
 
-    def _activation(self, s, c, votes, poses):
+    def _activation(self, s, c, votes, poses, activations):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
@@ -77,9 +77,9 @@ class KernelRouting(SimplifiedRoutingProcedure):
         theta2 = bias_variable(rs, name="theta2", verbose=self._verbose)
       
         if self._activate :
-            activation = tf.sigmoid(theta1 * raw + theta2)
+            activation = tf.sigmoid(theta1 * raw * activations + theta2)
         else :
-            activation = theta1 * raw + theta2
+            activation = theta1 * raw * activations + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
 
         return activation

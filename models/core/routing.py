@@ -261,7 +261,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 for i in range(c_hist.shape[1]):
                     tf.compat.v1.summary.histogram(self.name+"c_"+str(self._iterations), c_hist[0,i,:])
 
-            probabilities = self.activation(s, c, votes, poses)
+            probabilities = self.activation(s, c, votes, poses, activations)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
             #probabilities = tf.squeeze(probabilities, axis=[-2,-1])

@@ -105,7 +105,7 @@ class RNNRouting(SimplifiedRoutingProcedure):
         return c, s
 
 
-    def _activation(self, s, c, votes, poses):
+    def _activation(self, s, c, votes, poses, activations):
      ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         vshape = votes.shape.as_list()
 
