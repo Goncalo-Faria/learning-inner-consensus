@@ -190,6 +190,13 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             bias=bias,
             verbose=verbose)
 
+    @abc.abstractmethod
+    def _activation(self, s, c, votes, poses, activations):
+        ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
+        ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
+        ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+        raise NotImplementedError('Not implemented')
+
     def _renormalizedDotProd(self, c, votes):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
 
