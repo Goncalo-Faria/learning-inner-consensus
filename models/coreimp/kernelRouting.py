@@ -65,7 +65,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
-        raw = tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
+        raw = tf.reduce_sum(tf.multiply(c, self._agreement) * activations, axis=-3, keepdims=True)
 
         if self._verbose:
             tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), self._agreement)
@@ -77,9 +77,9 @@ class KernelRouting(SimplifiedRoutingProcedure):
         theta2 = bias_variable(rs, name="theta2", verbose=self._verbose)
       
         if self._activate :
-            activation = tf.sigmoid(theta1 * raw * activations + theta2)
+            activation = tf.sigmoid(theta1 * raw + theta2)
         else :
-            activation = theta1 * raw * activations + theta2
+            activation = theta1 * raw  + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
 
         return activation
