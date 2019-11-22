@@ -197,6 +197,10 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
         ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
         raise NotImplementedError('Not implemented')
 
+    def activation(self, s, c, votes, poses, activations):
+        with tf.compat.v1.variable_scope('activation', reuse=tf.compat.v1.AUTO_REUSE) as scope:
+            return self._activation(s, c, votes, poses, activations)
+
     def _renormalizedDotProd(self, c, votes):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
 
