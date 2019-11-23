@@ -46,8 +46,8 @@ class KernelRouting(SimplifiedRoutingProcedure):
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=0.0))
 
-        alpha = tf.pow(alpha,2)
-        beta = tf.pow(beta,2)
+        alpha = tf.abs(alpha)
+        beta = tf.abs(beta)
 
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
 
