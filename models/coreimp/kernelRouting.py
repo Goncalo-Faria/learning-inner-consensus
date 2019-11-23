@@ -77,16 +77,16 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
         rs = [1, raw.shape[2], 1, 1, 1]
 
-        theta1 = weight_variable(rs, name="theta1", verbose=self._verbose)
-        theta2 = bias_variable(rs, name="theta2", verbose=self._verbose, initializer=tf.compat.v1.constant_initializer(1))
-        theta3 = weight_variable(rs, name="theta3", verbose=self._verbose)
+        theta1 = weight_variable(rs, name="beta1", verbose=self._verbose)
+        theta2 = bias_variable(rs, name="beta2", verbose=self._verbose, initializer=tf.compat.v1.constant_initializer(1))
+        theta3 = weight_variable(rs, name="beta3", verbose=self._verbose)
 
-        extra = tf.reduce_sum(c * tf.math.log(activations), axis=-3, keepdims=True)
+        extra = tf.reduce_sum(c * (tf.math.log(c)-tf.math.log(activations)), axis=-3, keepdims=True)
       
         if self._activate :
-            activation = tf.sigmoid(theta1 * raw + tf.abs(theta3)*extra + theta2)
+            activation = tf.sigmoid(tf.abs(theta1) * raw - tf.abs(theta3)*extra + theta2)
         else:
-            activation = theta1 * raw + tf.abs(theta3)*extra + theta2
+            activation = tf.abs(theta1) * raw + tf.abs(theta3)*extra + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
 
         return activation
