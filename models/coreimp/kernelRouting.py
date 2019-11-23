@@ -54,7 +54,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         self._agreement = self._kernel.take(poses_tiled, votes)
 
         lambda_o = beta + alpha + self._epsilon
-        r = tf.pow(activations, beta/lambda_o ) * tf.exp( 1/lambda_o * self._agreement )
+        r = tf.pow(activations + self._epsilon * 1e5, beta/lambda_o ) * tf.exp( 1/lambda_o * self._agreement )
 
         c = self._normalization(r, axis=4)
         
