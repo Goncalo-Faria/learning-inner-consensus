@@ -46,8 +46,8 @@ class KernelRouting(SimplifiedRoutingProcedure):
                                 verbose = self._verbose,
                                 initializer=tf.compat.v1.keras.initializers.constant(value=0.0))
 
-        alpha = tf.abs(alpha)
-        beta = tf.abs(beta)
+        alpha = tf.pow(alpha,2)
+        beta = tf.pow(beta,2)
 
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
 
@@ -80,7 +80,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         extra = tf.reduce_sum(c * tf.math.log(activations), axis=-3, keepdims=True)
       
         if self._activate :
-            activation = tf.sigmoid(theta1 * raw + theta3*extra + theta2)
+            activation = tf.sigmoid(theta1 * raw + (-1)*tf.abs(theta3)*extra + theta2)
         else:
             activation = theta1 * raw + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
