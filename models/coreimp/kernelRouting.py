@@ -49,6 +49,8 @@ class KernelRouting(SimplifiedRoutingProcedure):
         alpha = tf.abs(alpha)
         beta = tf.abs(beta)
 
+        activations = tf.clip_by_value(activations, 1e-6, 1.0)
+
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
 
         self._agreement = self._kernel.take(poses_tiled, votes)
@@ -66,6 +68,8 @@ class KernelRouting(SimplifiedRoutingProcedure):
         ## c :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
         raw = tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
+
+        activations = tf.clip_by_value(activations, 1e-6, 1.0)
 
         if self._verbose:
             tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), self._agreement)
