@@ -76,7 +76,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         theta1 = weight_variable(rs, name="theta1", verbose=self._verbose)
         theta2 = bias_variable(rs, name="theta2", verbose=self._verbose)
 
-        extra = tf.reduce_sum( c * tf.math.log(c + 1e-3), axis=-3, keepdims=True)
+        extra = tf.reduce_sum( c * tf.math.log(c), axis=-3, keepdims=True)
       
         if self._activate :
             activation = tf.sigmoid(theta1 * raw - theta2 * extra)
