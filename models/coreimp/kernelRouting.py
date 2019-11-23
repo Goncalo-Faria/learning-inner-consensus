@@ -10,7 +10,7 @@ from ..core.variables import weight_variable, bias_variable
 
 class KernelRouting(SimplifiedRoutingProcedure):
     def norm(self, vector,axis):
-        return (vector/(tf.reduce_sum(vector, axis=axis,keepdims=True) + self._epsilon))
+        return vector/(tf.reduce_sum(vector, axis=axis,keepdims=True) + self._epsilon)
 
     def __init__(
             self,
@@ -28,7 +28,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
             design_iterations=iterations,
             initial_state=None,
             verbose=verbose,
-            normalization = self.norm)
+            normalization=self.norm)
 
     def _compatibility(self, s, r, votes, poses, probabilities, activations, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
@@ -54,7 +54,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         self._agreement = self._kernel.take(poses_tiled, votes)
 
         lambda_o = beta + alpha + self._epsilon
-        r = tf.pow(activations, beta/lambda_o ) * tf.exp( 1/lambda_o * self._agreement )
+        r = tf.pow(activations, beta/lambda_o ) * tf.exp(1/lambda_o * self._agreement)
 
         c = self._normalization(r, axis=4)
         
@@ -82,7 +82,7 @@ class KernelRouting(SimplifiedRoutingProcedure):
         if self._activate :
             activation = tf.sigmoid(theta1 * raw + tf.abs(theta3)*extra + theta2)
         else:
-            activation = theta1 * raw + theta2
+            activation = theta1 * raw + tf.abs(theta3)*extra + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
 
         return activation
