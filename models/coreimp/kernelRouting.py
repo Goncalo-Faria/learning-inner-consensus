@@ -44,10 +44,10 @@ class KernelRouting(SimplifiedRoutingProcedure):
         beta = weight_variable([1, votes.shape[1], 1, 1, 1,1,1],
                                 name= "lambda2",
                                 verbose = self._verbose,
-                                initializer=tf.compat.v1.keras.initializers.constant(value=0.0))
+                                initializer=tf.compat.v1.keras.initializers.constant(value=1))
 
-        alpha = tf.pow(alpha,2)
-        beta = tf.pow(beta,2)
+        alpha = tf.abs(alpha)
+        beta = tf.abs(beta)
 
         poses_tiled = tf.tile(poses, [1, 1, 1, 1, self.atoms, 1, 1])
 
@@ -74,13 +74,13 @@ class KernelRouting(SimplifiedRoutingProcedure):
         rs = [1, raw.shape[2], 1, 1, 1]
 
         theta1 = weight_variable(rs, name="theta1", verbose=self._verbose)
-        theta2 = bias_variable(rs, name="theta2", verbose=self._verbose)
+        theta2 = bias_variable(rs, name="theta2", verbose=self._verbose, initializer=tf.compat.v1.constant_initializer(1))
         theta3 = weight_variable(rs, name="theta3", verbose=self._verbose)
 
         extra = tf.reduce_sum(c * tf.math.log(activations), axis=-3, keepdims=True)
       
         if self._activate :
-            activation = tf.sigmoid(theta1 * raw + (-1)*tf.abs(theta3)*extra + theta2)
+            activation = tf.sigmoid(theta1 * raw + tf.abs(theta3)*extra + theta2)
         else:
             activation = theta1 * raw + theta2
         ## activation :: { batch, output_atoms, new_w, new_h, 1 } 

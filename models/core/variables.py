@@ -45,7 +45,7 @@ def new_variable(value, verbose=False, name=""):
     variable_summaries(var, verbose)
     return var
 
-def bias_variable(shape, verbose=False, name=""):
+def bias_variable(shape, verbose=False, name="", initializer = tf.compat.v1.constant_initializer(0.1)):
     """Creates a CPU variable with constant initialization. Adds summaries.
 
     Args:
@@ -60,7 +60,7 @@ def bias_variable(shape, verbose=False, name=""):
             biases = tf.compat.v1.get_variable(
                 'biases' + name,
                 shape,
-                initializer=tf.compat.v1.constant_initializer(0.1),
+                initializer=initializer,
                 dtype=tf.float32)
     variable_summaries(biases, verbose)
     return biases

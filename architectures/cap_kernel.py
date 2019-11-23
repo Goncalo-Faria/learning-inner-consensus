@@ -50,7 +50,7 @@ def setup(
                 use_bias=True,
                 padding="VALID",
                 strides=[2,2],
-                bias_regularizer=tf.compat.v1.initializers.truncated_normal(mean=0.0, stddev=0.01)
+                bias_initializer=tf.compat.v1.initializers.truncated_normal(mean=0, stddev=0.01)
             )
         ]
     hparams.primary_parameters= {

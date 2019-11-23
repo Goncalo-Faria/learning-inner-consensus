@@ -321,7 +321,8 @@ class PrimaryCapsuleLayer(object):
                 kernel_size=self._ksize,
                 activation='sigmoid',
                 use_bias=True,
-                padding="SAME"
+                padding="SAME",
+                bias_initializer=tf.compat.v1.initializers.truncated_normal(mean=0.8, stddev=0.1)
             )
 
             raw_poses = conv_pose(input_tensor)
