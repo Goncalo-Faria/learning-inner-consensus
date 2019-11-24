@@ -9,6 +9,9 @@ for file in run.files():
     fname = file.name
     fnames = fname.split(".")
     print(fname)
+    if("checkpoint"==fname):
+        file.download(replace=True)
+
     if fnames[0] == "model":
         if start :
             if fnames[-1] == "meta":
