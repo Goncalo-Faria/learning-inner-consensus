@@ -40,7 +40,7 @@ class KernelMix(Kernel):
 
         for i in range(len(self._kernel_list)):
             with tf.compat.v1.variable_scope('component' + str(i), reuse=tf.compat.v1.AUTO_REUSE):
-                s = s + c[i] * self._kernel_list[i].take(a,b)
+                s = s + bias[i] * self._kernel_list[i].take(a,b)
 
         return s
 
