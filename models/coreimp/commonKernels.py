@@ -54,7 +54,10 @@ class GaussianKernel(Kernel):
 
     def __init__(
             self,
-            verbose=False):
+            verbose=False,
+            singular=True):
+
+        self._singular = singular
 
         super(GaussianKernel, self).__init__(
             "GaussianKernel",
@@ -63,10 +66,16 @@ class GaussianKernel(Kernel):
     def apply(self, a, b):
         exponent = tf.reduce_sum( tf.pow(a - b, 2), axis=[-2,-1], keepdims=True)
 
-        length_scale = variables.weight_variable(
-            [],
-            name="length_scale"
-        )
+        if self._singular:
+            length_scale = variables.weight_variable(
+                [],
+                name="length_scale"
+            )
+        else:
+            length_scale = variables.weight_variable(
+                [1, exponent.shape[1], 1, 1, 1, 1, 1],
+                name="length_scale"
+            )
 
         rbf = exponent*(-1/2)*(1/(length_scale**2))
 

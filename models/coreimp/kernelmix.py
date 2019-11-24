@@ -34,7 +34,7 @@ class KernelMix(Kernel):
             initializer=tf.compat.v1.initializers.ones()
         )
 
-        c = self._normalization(bias)
+        #c = self._normalization(bias)
 
         s = tf.zeros(a.shape.as_list()[:-2]+ [1,1],dtype=tf.float32)
 
@@ -60,4 +60,3 @@ class MonoKernelMix(KernelMix):
             kernel_list=[kernel] * degree,
             normalization=normalization,
             name="monokernel" + str(degree) + name)
-
