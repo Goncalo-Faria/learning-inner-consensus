@@ -729,7 +729,8 @@ def main(_):
 
     elif GLOBAL_HPAR.model == "KernelNet":
         GLOBAL_HPAR = KernelBaseline.setup(GLOBAL_HPAR,
-            GaussianKernel(GLOBAL_HPAR.verbose)
+            GaussianKernel(GLOBAL_HPAR.verbose,
+                           singular=False)
             )
 
     elif GLOBAL_HPAR.model == "KernelNetSpectral":
