@@ -187,7 +187,7 @@ def _train_preprocess(img, lab, cat, elv, azi, lit):
 
     img = img / 255.
     img = tf.compat.v1.image.resize_images(img, [48, 48])
-    img = tf.image.per_image_standardization(img)
+    #img = tf.image.per_image_standardization(img)
     img = tf.compat.v1.random_crop(img, [32, 32, 1])
     img = tf.image.random_brightness(img, max_delta=32. / 255.)
     # original 0.5, 1.5
@@ -222,7 +222,7 @@ def _val_preprocess(img, lab, cat, elv, azi, lit):
 
     img = img / 255.
     img = tf.compat.v1.image.resize_images(img, [48, 48])
-    img = tf.image.per_image_standardization(img)
+    #img = tf.image.per_image_standardization(img)
     img = tf.slice(img, [8, 8, 0], [32, 32, 1])
 
 

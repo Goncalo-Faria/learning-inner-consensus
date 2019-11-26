@@ -202,9 +202,9 @@ def inputs(data_dir,
     print(img.shape)
 
     img = tf.compat.v1.image.resize_images(img, [48, 48])
-    img = tf.image.per_image_standardization(img)
+    #img = tf.image.per_image_standardization(img)
     img = tf.compat.v1.random_crop(img, [batch_size, 32, 32, 1])
-    img = tf.image.random_brightness(img, max_delta=2.0)
+    img = tf.image.random_brightness(img, max_delta=32.0/255.0)
     # original 0.5, 1.5
     img = tf.image.random_contrast(img, lower=0.5, upper=1.5)
 
