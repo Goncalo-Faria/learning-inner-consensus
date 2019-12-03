@@ -78,7 +78,7 @@ def setup(
                 ksizes=[1, 3, 3, 1],
                 strides=[1, 2, 2, 1],
                 name="A",
-                coordinate_addition=False
+                coordinate_addition=True
             ),
             CapsuleLayer(
                 routing=router2,
@@ -89,7 +89,7 @@ def setup(
                 ),
                 ksizes=[1, 3, 3, 1],
                 name="B",
-                coordinate_addition=False
+                coordinate_addition=True
             )
         ]
 
