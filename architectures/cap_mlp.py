@@ -29,7 +29,7 @@ def setup(
         }
     hparams.last_layer= {
             "transform": EquiTransform(
-                output_atoms=hparams.num_classes,
+                output_atoms = hparams.num_classes,
                 metric=Frobenius(),
                 name="FTransf"
             ),

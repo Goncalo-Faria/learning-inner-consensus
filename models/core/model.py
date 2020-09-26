@@ -107,7 +107,7 @@ class Model(object):
       A namedtuple TowerResult containing the inferred values like logits and
       reconstructions, gradients and evaluation metrics.
     """
-        with tf.device('/gpu:%d' % tower_ind):
+        with tf.device('/gpu:%d' % tower_ind):## gpu
             with tf.name_scope('tower_%d' % (tower_ind)) as scope:
                 inferred = self.inference(feature)
                 losses, correct, almost = layer.evaluate(

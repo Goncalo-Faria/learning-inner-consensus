@@ -101,11 +101,11 @@ class CapsuleLayer(object):
     def inference(self, input_tensor):
         """ pre conditions """
 
-        """ 
-        type conditions 
-        
+        """
+        type conditions
+
             input_tensor == {  batch, w , h , depth } + repdim , {batch, w, h,  depth }
-            
+
         """
         assert len(input_tensor) == 2, \
             "Input tensor must be a tuple of 2 elements."
@@ -141,11 +141,11 @@ class CapsuleLayer(object):
 
             poses, activations = self._receptivefield(input_tensor)
             """
-                stacks the multiple possible receptive fields of capsules. 
+                stacks the multiple possible receptive fields of capsules.
 
             """
             ## poses { batch, new_w , new_h, depth * np.prod(ksizes)} + repdim
-            ## activations { batch, new_w , new_h, depth * np.prod(ksizes) } 
+            ## activations { batch, new_w , new_h, depth * np.prod(ksizes) }
 
             if self._coordinate_addition :
                 poses = poses + self._coordinate_factor(poses.shape.as_list()[1:4])
@@ -342,6 +342,7 @@ class PrimaryCapsuleLayer(object):
                                     axis=-1),
                                 axis=-1
                         )
+
             ## pose == {batch, w, h, capsule_groups} + pose_dim
             ## activation == {batch, w, h, capsule_groups}
 

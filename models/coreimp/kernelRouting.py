@@ -55,11 +55,14 @@ class KernelRouting(SimplifiedRoutingProcedure):
 
         self._agreement = self._kernel.take(poses_tiled, votes)
 
+        if self._verbose:
+            tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), self._agreement)
+
         lambda_o = beta + alpha + self._epsilon
         r = tf.pow(activations, beta/lambda_o ) * tf.exp(1/lambda_o * self._agreement)
 
         c = self._normalization(r, axis=4)
-        
+
         return c, s
 
     def _activation(self, s, c, votes, poses, activations):
@@ -69,24 +72,27 @@ class KernelRouting(SimplifiedRoutingProcedure):
 
         raw = tf.reduce_sum(tf.multiply(c, self._agreement), axis=-3, keepdims=True)
 
+        #print("raw")
+        #print(activations.shape)
+        #print(raw.shape)
         activations = tf.clip_by_value(activations, 1e-6, 1.0)
 
-        if self._verbose:
-            tf.compat.v1.summary.histogram(self.name + "dist_" + str(self._it), self._agreement)
-
-        ## raw :: { batch, output_atoms, new_w, new_h, 1 } 
-        rs = [1, raw.shape[2], 1, 1, 1]
+        ## raw :: { batch, output_atoms, new_w, new_h, 1 }
+        rs = [1, raw.shape[1], 1, 1, 1, 1,1]
 
         theta1 = weight_variable(rs, name="beta1", verbose=self._verbose)
         theta2 = bias_variable(rs, name="beta2", verbose=self._verbose, initializer=tf.compat.v1.constant_initializer(1))
         theta3 = weight_variable(rs, name="beta3", verbose=self._verbose)
 
         extra = tf.reduce_sum(c * (tf.math.log(c)-tf.math.log(activations)), axis=-3, keepdims=True)
-      
+        #print("extra")
+        #print(extra.shape)
         if self._activate :
             activation = tf.sigmoid(tf.abs(theta1) * raw - tf.abs(theta3)*extra + theta2)
         else:
             activation = tf.abs(theta1) * raw + tf.abs(theta3)*extra + theta2
-        ## activation :: { batch, output_atoms, new_w, new_h, 1 } 
+        ## activation :: { batch, output_atoms, new_w, new_h, 1 }
+
+
 
         return activation

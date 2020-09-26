@@ -76,14 +76,14 @@ def variable_summaries(var, verbose):
     if verbose:
         with tf.name_scope('summaries'):
             mean = tf.reduce_mean(var)
-            tf.compat.v1.summary.scalar('mean', mean)
+            #tf.compat.v1.summary.scalar('mean', mean)
 
             with tf.name_scope('stddev'):
                 stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-            tf.compat.v1.summary.scalar('stddev', stddev)
-            tf.compat.v1.summary.scalar('max', tf.reduce_max(var))
-            tf.compat.v1.summary.scalar('min', tf.reduce_min(var))
-            tf.compat.v1.summary.histogram('histogram', var)
+            #tf.compat.v1.summary.scalar('stddev', stddev)
+            #tf.compat.v1.summary.scalar('max', tf.reduce_max(var))
+            #tf.compat.v1.summary.scalar('min', tf.reduce_min(var))
+            #tf.compat.v1.summary.histogram('histogram', var)
     else:
         pass
 
@@ -98,7 +98,8 @@ def activation_summary(x, verbose):
       verbose: if set add histograms.
     """
     if verbose:
-        tf.compat.v1.summary.histogram('activations', x)
-        tf.compat.v1.summary.scalar('sparsity', tf.nn.zero_fraction(x))
+        #tf.compat.v1.summary.histogram('activations', x)
+        #tf.compat.v1.summary.scalar('sparsity', tf.nn.zero_fraction(x))
+        None
     else:
         pass

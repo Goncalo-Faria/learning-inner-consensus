@@ -10,10 +10,12 @@ import wandb
 from ..core.metric import Metric
 from ..core.variables import bias_variable
 
+from ..util.sparsemax import sparsemax
+
 
 class RoutingProcedure(object):
     """
-        meta class for routing procedures.  
+        meta class for routing procedures.
     """
     __metaclass__ = abc.ABCMeta
     count = 0
@@ -23,10 +25,10 @@ class RoutingProcedure(object):
             metric,
             initial_state,
             design_iterations,
-            normalization = tf.nn.softmax,
+            normalization = sparsemax,
             epsilon=1e-6,
             bias=False,
-            verbose=False):
+            verbose=True):
         self._iterations = design_iterations
         self._design_iterations = design_iterations
         self._verbose = verbose
@@ -109,7 +111,7 @@ class RoutingProcedure(object):
 
     def fit(self, votes, activations, iterations = 0):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
-        ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) } 
+        ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
         self.atoms = votes.shape.as_list()[4]
 
         with tf.compat.v1.variable_scope('RoutingProcedure' + self.name, reuse=tf.compat.v1.AUTO_REUSE):
@@ -151,14 +153,17 @@ class RoutingProcedure(object):
 
             #probabilities = tf.squeeze(probabilities, axis=[-2,-1])
 
+            if self._verbose:
+                tf.compat.v1.summary.histogram("compatibilityact/" + self.name, c)
+
             poses = tf.transpose(poses, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
             probabilities = tf.transpose(probabilities, [0, 4, 2, 3, 1, 5, 6])  ## output atoms become depth
 
             poses = tf.squeeze(poses, axis=[1])  ## remove output atoms dim
             probabilities = tf.squeeze(probabilities, axis=[1])  ## remove output atoms dim
 
-            #if self._verbose:
-                #tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
+            if self._verbose:
+                tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
 
             return poses, probabilities
 
@@ -175,7 +180,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             metric,
             initial_state,
             design_iterations,
-            normalization = tf.nn.softmax,
+            normalization = sparsemax,
             epsilon=1e-6,
             bias=False,
             verbose=False):
@@ -251,11 +256,11 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             for it in range(self._iterations):
                 self._it = it
 
-                if self._verbose:
-                    cshape = c.shape.as_list()
-                    c_hist = tf.reshape(c, [cshape[0], -1, cshape[4]])
-                    for i in range(c_hist.shape[1]):
-                        tf.compat.v1.summary.histogram(self.name + "c_" + str(self._it), c_hist[0, i, :])
+                #if self._verbose:
+                #        cshape = c.shape.as_list()
+                #    c_hist = tf.reshape(c, [cshape[0], -1, cshape[4]])
+                #    for i in range(c_hist.shape[1]):
+                #        tf.compat.v1.summary.histogram(self.name + "c_" + str(self._it), c_hist[0, i, :])
 
                 c, s = self.compatibility(s, c, votes, poses, None, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
@@ -266,11 +271,18 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
                 poses = self._renormalizedDotProd(c, votes)
                 ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
 
+
             if self._verbose:
-                cshape = c.shape.as_list()
-                c_hist = tf.reshape(c, [ cshape[0], -1, cshape[4]])
-                for i in range(c_hist.shape[1]):
-                    tf.compat.v1.summary.histogram(self.name+"c_"+str(self._iterations), c_hist[0,i,:])
+                #print(c.shape)
+                tf.compat.v1.summary.histogram("compatibilityact/" + self.name, c)
+                best = tf.math.argmax(c, axis=4)
+                tf.compat.v1.summary.histogram("bestC", best)
+
+            #if self._verbose:
+            #    cshape = c.shape.as_list()
+        #        c_hist = tf.reshape(c, [ cshape[0], -1, cshape[4]])
+            #    for i in range(c_hist.shape[1]):
+            #        tf.compat.v1.summary.histogram(self.name+"c_"+str(self._iterations), c_hist[0,i,:])
 
             probabilities = self.activation(s, c, votes, poses, activations)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
@@ -283,8 +295,11 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             poses = tf.squeeze(poses, axis=[1])  ## remove output atoms dim
             probabilities = tf.squeeze(probabilities, axis=[1])  ## remove output atoms dim
 
-            #if self._verbose:
-                #tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
+            if self._verbose:
+                tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
+
+                best = tf.math.argmax(probabilities, axis=3)
+                tf.compat.v1.summary.histogram("bestProb",best)
 
             return poses, probabilities
 
@@ -299,7 +314,7 @@ class HyperSimplifiedRoutingProcedure(RoutingProcedure):
             self,
             name,
             metric,
-            normalization = tf.nn.softmax,
+            normalization = sparsemax,
             epsilon=1e-6,
             bias=False,
             verbose=False):
