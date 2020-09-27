@@ -134,7 +134,7 @@ class CapsuleModel(model.Model):
                 center=False,
                 trainable=self._hparams.bn_train)(
                     lower_features,
-                    training=self._hparams.bn_train)
+                    training=False)
 
         with tf.name_scope("primarycapsules/"):
             primary_poses, primary_activations = PrimaryCapsuleLayer(
@@ -182,4 +182,3 @@ class CapsuleModel(model.Model):
             remake = None
 
         return final_activations, remake
-
