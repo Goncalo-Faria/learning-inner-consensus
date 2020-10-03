@@ -35,9 +35,9 @@ def setup(
     router3 = KernelRouting(
         kernel=MonoKernelMix(
             kernel=k,
-            degree=10),
+            degree=3),
         metric=Frobenius(),
-        iterations=3,
+        iterations=12,
         verbose=hparams.verbose,
         name="router3"
     )

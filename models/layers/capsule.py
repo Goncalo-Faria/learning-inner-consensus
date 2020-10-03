@@ -336,12 +336,7 @@ class PrimaryCapsuleLayer(object):
                 shape=[-1] + raw_poses_shape[1:3] + [self._groups] + self._pose_dim
             )
 
-            activations = tf.expand_dims(
-                                tf.expand_dims(
-                                    activations,
-                                    axis=-1),
-                                axis=-1
-                        )
+            activations = tf.reshape(activations, shape=list(activations.shape)+[1,1])
 
             ## pose == {batch, w, h, capsule_groups} + pose_dim
             ## activation == {batch, w, h, capsule_groups}

@@ -115,6 +115,8 @@ class RNNRouting(SimplifiedRoutingProcedure):
 
         combined_c = tf.reduce_sum(new_c * c, axis=-3, keepdims=True)
 
+        print(combined_c.shape)
+
         inl = tf.reshape(combined_c, [-1, degree])
 
         counter = 0
@@ -149,5 +151,3 @@ class RNNRouting(SimplifiedRoutingProcedure):
         activation = tf.reshape(outl,vshape[:-3]+[1,1,1])
 
         return activation ## batch , out , w, h, 1, 1
-
-

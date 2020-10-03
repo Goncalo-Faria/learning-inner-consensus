@@ -42,24 +42,13 @@ class EquiTransform(Transform):
                     maxval=0.1, minval=-0.1, dtype=tf.float32)
         )
 
+        #print("W_raw mat: " + str(W.shape) )
         ## W :: {1, outputatoms, 1 , 1, depth * np.prod(ksizes) } + repdim
 
         W_norm = self.metric.take(W)
         ## W_norm :: { 1, outputatoms, 1, 1, depth * np.prod(ksizes) , 1 ,1 }
 
-        W_scaled = tf.tile(
-            W,
-            [1, 1, poses_shape[1], poses_shape[2], 1, 1, 1]
-        )
-        ## W_scaled :: {batch, outputatoms, new_w , new_h, depth * np.prod(ksizes) } + repdim
-
-        ## W_norm_scaled :: { batch, outputatoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
-
-        poses_tiled = tf.tile(
-            tf.expand_dims(poses, 1),
-            [1, self._output_atoms, 1, 1, 1, 1, 1]
-        )
-        ## poses_tiled :: { batch, outputatoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
+        votes_raw = tf.einsum("aocduik,bwhukj->bowhuij", W, poses)
 
         activations_tiled = tf.tile(
             tf.expand_dims(activations, 1),
@@ -67,11 +56,11 @@ class EquiTransform(Transform):
         )
         ## activations_tiled :: { batch, outputatoms, new_w, new_h, depth * np.prod(ksizes) }
 
-        votes = tf.matmul(W_scaled, poses_tiled) / (W_norm + self._epsilon)
+        votes = votes_raw / (W_norm + self._epsilon)
 
         """
             transforms the lower level poses to the higher level capsule space.
         """
         ## votes :: { batch, outputatoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
-
+        #print("votes: " + str(votes.shape))
         return votes, activations_tiled
