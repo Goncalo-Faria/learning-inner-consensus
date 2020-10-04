@@ -12,6 +12,8 @@ from ..core.variables import bias_variable
 
 from ..util.sparsemax import sparsemax
 
+from opt_einsum import contract
+
 
 class RoutingProcedure(object):
     """
@@ -83,7 +85,7 @@ class RoutingProcedure(object):
 
         vshape = votes.shape.as_list()
 
-        raw_poses = tf.einsum("bowhitl,bowhiuv->bowhtuv",c,votes)
+        raw_poses = contract("bowhitl,bowhiuv->bowhtuv",c,votes)
 
         self._norm_coe = tf.reduce_sum( c, axis=4, keepdims=True)
 
@@ -156,8 +158,8 @@ class RoutingProcedure(object):
             if self._verbose:
                 tf.compat.v1.summary.histogram("compatibilityact/" + self.name, c)
 
-            poses = tf.einsum("bowhlij->bwhoij",poses)
-            probabilities = tf.einsum("bowhlij->bwhoij",probabilities)
+            poses = contract("bowhlij->bwhoij",poses)
+            probabilities = contract("bowhlij->bwhoij",probabilities)
 
             if self._verbose:
                 tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
@@ -209,7 +211,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
         vshape = votes.shape.as_list()
 
         #raw_poses = tf.reduce_sum(tf.multiply(c, votes), axis=4, keepdims=True)
-        raw_poses = tf.einsum("bowhitl,bowhiuv->bowhtuv",c,votes)
+        raw_poses = contract("bowhitl,bowhiuv->bowhtuv",c,votes)
 
         if self._bias:
             bvar = bias_variable(
@@ -299,8 +301,8 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             #poses = tf.squeeze(poses, axis=[1])  ## remove output atoms dim
             #probabilities = tf.squeeze(probabilities, axis=[1])  ## remove output atoms dim
 
-            poses = tf.einsum("bowhlij->bwhoij",poses)
-            probabilities = tf.einsum("bowhlij->bwhoij",probabilities)
+            poses = contract("bowhlij->bwhoij",poses)
+            probabilities = contract("bowhlij->bwhoij",probabilities)
 
             if self._verbose:
                 tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)

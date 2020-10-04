@@ -9,6 +9,7 @@ from ..core.metric import Metric
 from ..core.transform import Transform
 from ..util.initializer import IdentityRandomUniform
 
+from opt_einsum import contract
 
 class EquiTransform(Transform):
 
@@ -48,7 +49,7 @@ class EquiTransform(Transform):
         W_norm = self.metric.take(W)
         ## W_norm :: { 1, outputatoms, 1, 1, depth * np.prod(ksizes) , 1 ,1 }
 
-        votes_raw = tf.einsum("aocduik,bwhukj->bowhuij", W, poses)
+        votes_raw = contract("aocduik,bwhukj->bowhuij", W, poses)
 
         activations_tiled = tf.tile(
             tf.expand_dims(activations, 1),

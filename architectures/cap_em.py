@@ -14,7 +14,7 @@ def setup(
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,
-                kernel_size=[5, 5],
+                kernel_size=[5, 5],e
                 activation='relu',
                 use_bias=True,
                 padding="VALID",
