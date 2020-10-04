@@ -10,7 +10,7 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
-
+    iterations = 1
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,
@@ -35,7 +35,7 @@ def setup(
             ),
             "routing" : EMRouting(
                 metric=Frobenius(),
-                iterations=3,
+                iterations=iterations,
                 verbose=hparams.verbose,
                 name="router3",
     )
@@ -45,7 +45,7 @@ def setup(
             CapsuleLayer(
                 routing= EMRouting(
                     metric=Frobenius(),
-                    iterations=3,
+                    iterations=iterations,
                     verbose=hparams.verbose,
                     name="router1",
                 ),
@@ -62,7 +62,7 @@ def setup(
             CapsuleLayer(
                 routing= EMRouting(
                     metric=Frobenius(),
-                    iterations=3,
+                    iterations=iterations,
                     verbose=hparams.verbose,
                     name="router2",
                 ),
