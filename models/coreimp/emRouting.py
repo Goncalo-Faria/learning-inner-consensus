@@ -29,30 +29,43 @@ class EMRouting(RoutingProcedure):
 
     def _initial_coefficients(self,activations):
 
-        return super(EMRouting, self)._initial_coefficients(activations) * activations
+        r = tf.ones(shape= activations.shape,
+                    dtype=tf.float32,
+                    name="compatibility_value")
+
+        return r
 
     def _compatibility(self, s, c, votes, poses, probabilities, activations, it):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) ,1 ,1}
 
-        sigma_sq = 2 * tf.pow(s,2) + self._epsilon
+        sigma_sq = 2 * s + self._epsilon
+
+
+
 
         expon = - tf.reduce_sum(tf.pow(votes - poses,2)/sigma_sq,  keepdims=True, axis=[-2,-1])
 
-        factor = 1 / tf.exp( tf.reduce_sum( tf.math.log( sigma_sq * np.pi ) , keepdims=True, axis=[-2,-1])/2 )
+        logfactor = (-0.5)*tf.reduce_sum( tf.math.log( sigma_sq * np.pi ) , keepdims=True, axis=[-2,-1])
         #factor = 1 / tf.sqrt( tf.reduce_prod( sigma_sq * np.pi , keepdims=True, axis=[-2,-1])/2 )
 
-        pj = factor * tf.exp(expon)
+        pj = tf.exp(logfactor + expon)
 
-        c = activations * pj
+        rij = activations * pj
+
+        rij_norm = tf.reduce_sum( rij, keepdims=True, axis=1)
+
+        rij = rij / rij_norm + self._epsilon
 
         ## nao esta a ser corretamente feito o c_norm
         ## recorer ao repositorio ibm/ implementing em
 
-        c_normed = c / (tf.reduce_sum(c, keepdims=True, axis=2) + self._epsilon)
+        #self._norm_coe = tf.reduce_sum(c, keepdims=True, axis=2)
 
-        return c_normed * activations, s
+        #c_normed = c / (self._norm_coe + self._epsilon)
+
+        return rij, s
 
     def _activation(self, s, c, votes, poses):
         ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
@@ -71,15 +84,13 @@ class EMRouting(RoutingProcedure):
             name="betaa",
             verbose=self._verbose)
 
-        sigma = tf.reduce_sum(c * tf.pow(votes - poses, 2), axis=4, keepdims=True)
+        sigma_sq = tf.reduce_sum(c * tf.pow(votes - poses, 2) / self._norm_coe, axis=4, keepdims=True)
 
-        sigma = sigma / (self._norm_coe + self._epsilon)
-
-        costh = self._norm_coe * (betau + tf.math.log(sigma + self._epsilon))
+        costh = self._norm_coe * (betau + 2* tf.math.log(sigma_sq + self._epsilon))
 
         inverse_temperature = (self._lambda *
                                (1 - tf.pow(0.95, tf.cast(self._it + 1, tf.float32))))
 
         activation = tf.sigmoid(inverse_temperature * (betaa - tf.reduce_sum(costh, keepdims=True, axis=[-2,-1])))
 
-        return activation, sigma
+        return activation, sigma_sq

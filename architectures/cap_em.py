@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-from models.coreimp.commonMetrics import Frobenius
 from models.coreimp.equiTransform import EquiTransform
 from models.coreimp.emRouting import EMRouting
 from models.layers.capsule import CapsuleLayer
@@ -10,7 +9,7 @@ from models.layers.capsule import CapsuleLayer
 
 def setup(
         hparams):
-    iterations = 1
+    iterations = 3
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,

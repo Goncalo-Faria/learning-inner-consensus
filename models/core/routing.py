@@ -44,6 +44,8 @@ class RoutingProcedure(object):
         self._it = 0
         self._activate = True
 
+        self.inspection = {}
+
         RoutingProcedure.count += 1
         assert isinstance(metric, Metric), \
             " metric must be instance of Metric metaclass. "
@@ -72,9 +74,11 @@ class RoutingProcedure(object):
 
     def _initial_coefficients(self,activations):
 
-        r = tf.ones(shape= activations.shape,
+        r = (1/32) * tf.ones(shape= activations.shape,
                     dtype=tf.float32,
                     name="compatibility_value")
+
+        self._norm_coe = tf.reduce_sum(r, keepdims=True, axis=2)
 
         c = self._normalization(r, axis=4)
 
@@ -87,7 +91,7 @@ class RoutingProcedure(object):
 
         raw_poses = contract("bowhitl,bowhiuv->bowhtuv",c,votes)
 
-        self._norm_coe = tf.reduce_sum( c, axis=4, keepdims=True)
+        self._norm_coe = tf.reduce_sum( c, axis=4, keepdims=True) + self._epsilon
 
         raw_poses_weight_normalized = raw_poses / self._norm_coe
 
@@ -114,7 +118,9 @@ class RoutingProcedure(object):
     def fit(self, votes, activations, iterations = 0):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## activations { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+
         self.atoms = votes.shape.as_list()[4]
+        self.inspection["poses"] = votes
 
         with tf.compat.v1.variable_scope('RoutingProcedure' + self.name, reuse=tf.compat.v1.AUTO_REUSE):
 
@@ -131,10 +137,13 @@ class RoutingProcedure(object):
             ## c { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
 
             poses = self._renormalizedDotProd(c, votes)
+
             ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim
+            self.inspection["poses0"] = poses
 
             probabilities, s = self.activation(s, c, votes, poses)
             ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
+
 
             if iterations == 0:
                 self._iterations = self._design_iterations
@@ -143,6 +152,8 @@ class RoutingProcedure(object):
 
             for it in range(self._iterations):
                 self._it = it
+
+                self.inspection["c"+str(it) ] = c
 
                 c, s = self.compatibility(s, c, votes, poses, probabilities, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
@@ -154,15 +165,33 @@ class RoutingProcedure(object):
                 ## probabilities :: { batch, output_atoms, new_w, new_h, 1 }
 
             #probabilities = tf.squeeze(probabilities, axis=[-2,-1])
+                self.inspection["poses"+str(it+1)] = poses
 
             if self._verbose:
+                print("c:::###")
+                print(c.shape)
                 tf.compat.v1.summary.histogram("compatibilityact/" + self.name, c)
+                best = tf.math.argmax(c, axis=4)
+                tf.compat.v1.summary.histogram("bestC", best)
+                self.inspection["cfinal"] = c
+                self.inspection["cbest"] = best
 
             poses = contract("bowhlij->bwhoij",poses)
             probabilities = contract("bowhlij->bwhoij",probabilities)
 
             if self._verbose:
                 tf.compat.v1.summary.histogram("RoutingProbabilities/" + self.name, probabilities)
+                #print(probabilities.shape)
+
+                #probabilities.reshape( (probabilities.shape[0], -1) )
+                best = tf.math.argmax(
+                    tf.reshape(probabilities,
+                        (probabilities.shape[0], -1)
+                        ),
+                        axis=-1)
+                tf.compat.v1.summary.histogram("bestProb",best)
+                self.inspection["prob"] = probabilities
+                self.inspection["prob_best"] = best
 
             return poses, probabilities
 
@@ -183,7 +212,7 @@ class SimplifiedRoutingProcedure(RoutingProcedure):
             epsilon=1e-6,
             bias=False,
             verbose=False):
-        self.inspection = {}
+
         super(SimplifiedRoutingProcedure, self).__init__(
             name=name,
             metric=metric,
