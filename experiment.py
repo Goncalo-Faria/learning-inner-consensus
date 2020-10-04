@@ -15,7 +15,7 @@ import numpy as np
 import tensorflow as tf
 import wandb
 
-import architectures.cap_em as CapBaseline
+import architectures.cap_em as EM
 import architectures.cap_block_net as BlockNet
 import architectures.cap_kernel as KernelBaseline
 import architectures.cap_mlp as CapsMLP
@@ -101,7 +101,6 @@ models = {
     "CapsMLPShared" : capm.CapsuleModel,
     "CapsMLP" : capm.CapsuleModel,
     "CapDynamic" : capm.CapsuleModel
-
 }
 
 
@@ -722,7 +721,7 @@ def main(_):
         GLOBAL_HPAR = BlockNet.setup(GLOBAL_HPAR)
 
     elif GLOBAL_HPAR.model == "CapsuleBaseline":
-        GLOBAL_HPAR = CapBaseline.setup(GLOBAL_HPAR)
+        GLOBAL_HPAR = EM.setup(GLOBAL_HPAR)
 
     elif GLOBAL_HPAR.model == "ConvNet":
         print(GLOBAL_HPAR.model)
@@ -732,7 +731,6 @@ def main(_):
             GaussianKernel(GLOBAL_HPAR.verbose,
                            singular=False)
             )
-
     elif GLOBAL_HPAR.model == "KernelNetSpectral":
         GLOBAL_HPAR = KernelBaseline.setup(GLOBAL_HPAR,
             SpectralMixture(GLOBAL_HPAR.verbose)
@@ -777,4 +775,3 @@ def main(_):
 
 if __name__ == '__main__':
     tf.compat.v1.app.run()
-
