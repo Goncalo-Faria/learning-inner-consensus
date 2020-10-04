@@ -40,7 +40,8 @@ class EMRouting(RoutingProcedure):
 
         expon = - tf.reduce_sum(tf.pow(votes - poses,2)/sigma_sq,  keepdims=True, axis=[-2,-1])
 
-        factor = 1 / (tf.sqrt(tf.reduce_prod(sigma_sq * np.pi, keepdims=True, axis=[-2,-1])) + self._epsilon)
+        factor = 1 / tf.exp( tf.reduce_sum( tf.log( sigma_sq * np.pi ) , keepdims=True, axis=[-2,-1])/2 )
+        #factor = 1 / tf.sqrt( tf.reduce_prod( sigma_sq * np.pi , keepdims=True, axis=[-2,-1])/2 )
 
         pj = factor * tf.exp(expon)
 
