@@ -10,8 +10,6 @@ import wandb
 from ..core.metric import Metric
 from ..core.variables import bias_variable
 
-from ..util.sparsemax import sparsemax
-
 from opt_einsum import contract
 
 
@@ -93,6 +91,10 @@ class RoutingProcedure(object):
 
         self._norm_coe = tf.reduce_sum( c, axis=4, keepdims=True) + self._epsilon
 
+        #print("#####renormalized")
+        #print(self._it)
+        #print(tf.reduce_sum(c))
+
         raw_poses_weight_normalized = raw_poses / self._norm_coe
 
         if self._bias:
@@ -153,10 +155,25 @@ class RoutingProcedure(object):
             for it in range(self._iterations):
                 self._it = it
 
+                self.inspection["s"+str(it)] = s
+
                 self.inspection["c"+str(it) ] = c
+
+                """
+                import matplotlib.pyplot as plt
+
+                plt.hist( c.numpy().reshape(-1), bins=400)
+                plt.xlim((0, 1.05))
+                plt.yscale("log")
+                plt.show()
+                """
 
                 c, s = self.compatibility(s, c, votes, poses, probabilities, activations, it)
                 ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) }
+
+                #print("#####compatibility")
+                #print(self._it)
+                #print(tf.reduce_sum(c))
 
                 poses = self._renormalizedDotProd(c, votes)
                 ## poses :: { batch, output_atoms, new_w, new_h, 1 } + repdim

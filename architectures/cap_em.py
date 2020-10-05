@@ -10,7 +10,7 @@ from models.coreimp.commonMetrics import Frobenius
 
 def setup(
         hparams):
-    iterations = 1
+    iterations = 3
     hparams.derender_layers= [
             tf.keras.layers.Conv2D(
                 filters=64,

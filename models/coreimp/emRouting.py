@@ -8,7 +8,6 @@ import numpy as np
 from ..core.routing import RoutingProcedure
 from ..core.variables import weight_variable, bias_variable
 
-
 class EMRouting(RoutingProcedure):
 
     def __init__(
@@ -26,12 +25,15 @@ class EMRouting(RoutingProcedure):
             verbose=verbose)
 
         self._lambda = 0.01
+        self._it = -1
 
     def _initial_coefficients(self,activations):
 
-        r = tf.ones(shape= activations.shape,
+        r = (1/16)*tf.ones(shape= activations.shape,
                     dtype=tf.float32,
                     name="compatibility_value")
+
+        self._norm_coe = tf.reduce_sum(r, keepdims=True, axis=2)
 
         return r
 
@@ -40,17 +42,28 @@ class EMRouting(RoutingProcedure):
         ## votes :: { batch, output_atoms, new_w, new_h, depth * np.prod(ksizes) } + repdim
         ## r :: { batch, output_atoms, new_w , new_h, depth * np.prod(ksizes) ,1 ,1}
 
-        sigma_sq = 2 * s + self._epsilon
+        sigma_sq = 2 * s
 
-
-
-
-        expon = - tf.reduce_sum(tf.pow(votes - poses,2)/sigma_sq,  keepdims=True, axis=[-2,-1])
+        expon = -tf.reduce_sum( (votes - poses)**2 /sigma_sq,  keepdims=True, axis=[-2,-1])
 
         logfactor = (-0.5)*tf.reduce_sum( tf.math.log( sigma_sq * np.pi ) , keepdims=True, axis=[-2,-1])
-        #factor = 1 / tf.sqrt( tf.reduce_prod( sigma_sq * np.pi , keepdims=True, axis=[-2,-1])/2 )
+
+        #factor = 1 / tf.sqrt( tf.reduce_prod( sigma_sq * np.pi , keepdims=True, axis=[-2,-1]) )
+
+        #print("#####insidecomp")
+        #print(self._it)
+
+        #import matplotlib.pyplot as plt
+        #plt.hist( (factor).numpy().reshape(-1),bins=200)
+        #plt.show()
+        #print(tf.reduce_sum(expon))
+        #print(tf.reduce_sum(logfactor))
+        #
+        #print( tf.exp(tf.reduce_mean(logfactor+expon)))
 
         pj = tf.exp(logfactor + expon)
+        #if self._it == 2:
+        #    print(pj)
 
         rij = activations * pj
 
@@ -85,6 +98,9 @@ class EMRouting(RoutingProcedure):
             verbose=self._verbose)
 
         sigma_sq = tf.reduce_sum(c * tf.pow(votes - poses, 2) / self._norm_coe, axis=4, keepdims=True)
+
+        sigma_sq = tf.maximum(sigma_sq, 0.00001)
+        #print(tf.reduce_sum(s))
 
         costh = self._norm_coe * (betau + 2* tf.math.log(sigma_sq + self._epsilon))
 
