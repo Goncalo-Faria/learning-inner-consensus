@@ -3,6 +3,7 @@ import tensorflow as tf
 from models.coreimp.equiTransform import EquiTransform
 from models.coreimp.emRouting import EMRouting
 from models.layers.capsule import CapsuleLayer
+for ..coreimp.commonMetrics import Frobenius
 
 
 ## smaller version.
